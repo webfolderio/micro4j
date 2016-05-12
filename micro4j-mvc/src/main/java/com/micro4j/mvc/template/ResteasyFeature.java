@@ -32,13 +32,20 @@ import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
 public class ResteasyFeature implements Feature {
 
+    private ResteasyProviderFactory providerFactory;
+
     private ResteasyDeployment deployment;
 
     private Configuration configuration;
 
-    public ResteasyFeature(ResteasyDeployment deployment, Configuration configuration) {
-        this.deployment = deployment;
+    public ResteasyFeature(Configuration configuration, ResteasyDeployment deployment) {
         this.configuration = configuration;
+        this.deployment = deployment;
+    }
+
+    public ResteasyFeature(Configuration configuration, ResteasyProviderFactory providerFactory) {
+        this.configuration = configuration;
+        this.providerFactory = providerFactory;
     }
 
     public ResteasyFeature(Configuration configuration) {
@@ -49,11 +56,14 @@ public class ResteasyFeature implements Feature {
     public boolean configure(FeatureContext context) {
         ResteasyProviderFactory providerFactory = null;
         InjectorFactory injectorFactory = null;
-        if (deployment == null) {
-            providerFactory = ResteasyProviderFactory.getInstance();
+        if (deployment != null) {
+            providerFactory = deployment.getProviderFactory();
+            injectorFactory = providerFactory.getInjectorFactory();
+        } else if (this.providerFactory != null) {
+            providerFactory = this.providerFactory;
             injectorFactory = providerFactory.getInjectorFactory();
         } else {
-            providerFactory = deployment.getProviderFactory();
+            providerFactory = ResteasyProviderFactory.getInstance();
             injectorFactory = providerFactory.getInjectorFactory();
         }
         for (Processor processor : configuration.getProcessors()) {
