@@ -161,10 +161,6 @@ public final class Configuration {
         }
 
         public Configuration build() {
-            return build(new ResteasyStaticInjector());
-        }
-
-        public Configuration build(Injector injector) {
             Configuration configuration = new Configuration();
             configuration.bodyName = bodyName;
             configuration.defaultContainer = defaultContainer;
@@ -177,7 +173,6 @@ public final class Configuration {
             configuration.enableTemplateCaching = enableTemplateCaching;
             configuration.defaultLocale = defaultLocale;
             for (Processor processor : processors) {
-                injector.inject(processor);
                 processor.configuration = configuration;
             }
             configuration.pocessors = unmodifiableList(processors);

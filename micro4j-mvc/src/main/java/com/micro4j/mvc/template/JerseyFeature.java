@@ -20,18 +20,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.mvc.test;
+package com.micro4j.mvc.template;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Feature;
+import javax.ws.rs.core.FeatureContext;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-    TemplateEngineTest.class,
-    ResteasyViewTest.class,
-    JerseyViewTest.class
-})
-public class AllTest {
+import org.glassfish.hk2.api.ServiceLocator;
 
+public class JerseyFeature implements Feature {
+
+    @Context
+    private ServiceLocator locator;
+
+    private Configuration configuration;
+
+    public JerseyFeature(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
+    @Override
+    public boolean configure(FeatureContext context) {
+        for (Processor processor : configuration.getProcessors()) {
+            locator.inject(processor);
+        }
+        return true;
+    }
 }
