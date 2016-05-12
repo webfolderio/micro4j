@@ -35,10 +35,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.jboss.resteasy.spi.InjectorFactory;
-import org.jboss.resteasy.spi.PropertyInjector;
-import org.jboss.resteasy.spi.ResteasyProviderFactory;
-
 import com.micro4j.mvc.mustache.MustacheFormatter;
 
 public final class Configuration {
@@ -165,6 +161,10 @@ public final class Configuration {
         }
 
         public Configuration build() {
+            return build(new ResteasyStaticInjector());
+        }
+
+        public Configuration build(Injector injector) {
             Configuration configuration = new Configuration();
             configuration.bodyName = bodyName;
             configuration.defaultContainer = defaultContainer;
@@ -177,11 +177,8 @@ public final class Configuration {
             configuration.enableTemplateCaching = enableTemplateCaching;
             configuration.defaultLocale = defaultLocale;
             for (Processor processor : processors) {
-                processor.configuration = configuration;
-                ResteasyProviderFactory providerFactory = ResteasyProviderFactory.getInstance();
-                InjectorFactory injectorFactory = providerFactory.getInjectorFactory();
-                PropertyInjector injector = injectorFactory.createPropertyInjector(processor.getClass(), providerFactory);
                 injector.inject(processor);
+                processor.configuration = configuration;
             }
             configuration.pocessors = unmodifiableList(processors);
             return configuration;
