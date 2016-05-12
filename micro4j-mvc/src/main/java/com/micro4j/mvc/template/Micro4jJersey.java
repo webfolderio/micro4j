@@ -25,25 +25,49 @@ package com.micro4j.mvc.template;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
+import javax.ws.rs.ext.MessageBodyWriter;
 
 import org.glassfish.hk2.api.ServiceLocator;
 
-public class JerseyFeature implements Feature {
+import com.micro4j.mvc.mustache.MustacheTemplateEngine;
+import com.micro4j.mvc.view.ViewWriter;
+
+public class Micro4jJersey implements Feature {
 
     @Context
     private ServiceLocator locator;
 
     private Configuration configuration;
 
-    public JerseyFeature(Configuration configuration) {
+    private TemplateEngine templateEngine;
+
+    public Micro4jJersey(Configuration configuration) {
+        this(configuration, new MustacheTemplateEngine(configuration));
+    }
+
+    public Micro4jJersey(Configuration configuration, TemplateEngine templateEngine) {
         this.configuration = configuration;
+        this.templateEngine = templateEngine;
     }
 
     @Override
     public boolean configure(FeatureContext context) {
-        for (Processor processor : configuration.getProcessors()) {
-            locator.inject(processor);
-        }
+        inject();
+        context.register(createViewWriter(templateEngine));
         return true;
+    }
+
+    protected void inject() {
+        for (Processor processor : configuration.getProcessors()) {
+            inject(processor);
+        }
+    }
+
+    protected void inject(Object object) {
+        locator.inject(object);
+    }
+
+    protected MessageBodyWriter<?> createViewWriter(TemplateEngine templateEngine) {
+        return new ViewWriter(templateEngine);
     }
 }

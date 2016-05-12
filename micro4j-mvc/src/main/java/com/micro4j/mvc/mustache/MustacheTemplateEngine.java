@@ -26,7 +26,6 @@ import static com.samskivert.mustache.Mustache.compiler;
 
 import com.micro4j.mvc.template.AbstractTemplateEngine;
 import com.micro4j.mvc.template.Configuration;
-import com.micro4j.mvc.template.Configuration.Builder;
 import com.micro4j.mvc.template.ContentLoader;
 import com.micro4j.mvc.template.TemplateWrapper;
 import com.samskivert.mustache.Mustache.Compiler;
@@ -37,14 +36,6 @@ import com.samskivert.mustache.Template;
 public class MustacheTemplateEngine extends AbstractTemplateEngine {
 
     private Compiler compiler;
-
-    public MustacheTemplateEngine() {
-        this(new Builder().build());
-    }
-
-    public MustacheTemplateEngine(ContentLoader contentLoader) {
-        this(contentLoader, new Builder().build());
-    }
 
     public MustacheTemplateEngine(Configuration configuration) {
         this(new MustacheClasspathLoader(configuration), configuration);

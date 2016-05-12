@@ -42,12 +42,10 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.micro4j.mvc.mustache.MustacheI18nProcessor;
-import com.micro4j.mvc.mustache.MustacheTemplateEngine;
 import com.micro4j.mvc.template.Configuration;
-import com.micro4j.mvc.template.JerseyFeature;
-import com.micro4j.mvc.template.ResteasyFeature;
+import com.micro4j.mvc.template.Micro4jJersey;
+import com.micro4j.mvc.template.Micro4jResteasy;
 import com.micro4j.mvc.view.View;
-import com.micro4j.mvc.view.ViewWriter;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -110,13 +108,12 @@ public abstract class ViewTest {
             Feature feature = null;
 
             if ("resteasy".equals(framework)) {
-                feature = new ResteasyFeature(configuration);
+                feature = new Micro4jResteasy(configuration);
             } else if ("jersey".equals(framework)) {
-                feature = new JerseyFeature(configuration);
+                feature = new Micro4jJersey(configuration);
             }
 
             singletons = new HashSet<>();
-            singletons.add(new ViewWriter(new MustacheTemplateEngine(configuration)));
             singletons.add(new SampleController());
             singletons.add(feature);
         }

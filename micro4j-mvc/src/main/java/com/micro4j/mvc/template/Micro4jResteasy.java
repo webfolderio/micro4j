@@ -24,13 +24,17 @@ package com.micro4j.mvc.template;
 
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
+import javax.ws.rs.ext.MessageBodyWriter;
 
 import org.jboss.resteasy.spi.InjectorFactory;
 import org.jboss.resteasy.spi.PropertyInjector;
 import org.jboss.resteasy.spi.ResteasyDeployment;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
-public class ResteasyFeature implements Feature {
+import com.micro4j.mvc.mustache.MustacheTemplateEngine;
+import com.micro4j.mvc.view.ViewWriter;
+
+public class Micro4jResteasy implements Feature {
 
     private ResteasyProviderFactory providerFactory;
 
@@ -38,38 +42,71 @@ public class ResteasyFeature implements Feature {
 
     private Configuration configuration;
 
-    public ResteasyFeature(Configuration configuration, ResteasyDeployment deployment) {
-        this.configuration = configuration;
+    private TemplateEngine templateEngine;
+
+    public Micro4jResteasy(Configuration configuration, ResteasyDeployment deployment) {
+        this(configuration);
         this.deployment = deployment;
     }
 
-    public ResteasyFeature(Configuration configuration, ResteasyProviderFactory providerFactory) {
-        this.configuration = configuration;
+    public Micro4jResteasy(Configuration configuration, ResteasyDeployment deployment, TemplateEngine templateEngine) {
+        this(configuration, templateEngine);
+        this.deployment = deployment;
+    }
+
+    public Micro4jResteasy(Configuration configuration, ResteasyProviderFactory providerFactory) {
+        this(configuration);
         this.providerFactory = providerFactory;
     }
 
-    public ResteasyFeature(Configuration configuration) {
+    public Micro4jResteasy(Configuration configuration, ResteasyProviderFactory providerFactory, TemplateEngine templateEngine) {
+        this(configuration, templateEngine);
+        this.providerFactory = providerFactory;
+    }
+
+    public Micro4jResteasy(Configuration configuration) {
+        this(configuration, new MustacheTemplateEngine(configuration));
+    }
+
+    public Micro4jResteasy(Configuration configuration, TemplateEngine templateEngine) {
+        this.templateEngine = templateEngine;
         this.configuration = configuration;
     }
 
     @Override
     public boolean configure(FeatureContext context) {
-        ResteasyProviderFactory providerFactory = null;
+        inject();
+        context.register(createViewWriter(templateEngine));
+        return true;
+    }
+
+    protected void inject() {
+        for (Processor processor : configuration.getProcessors()) {
+            inject(processor.getClass(), processor);
+        }
+    }
+
+    protected void inject(Class<?> klass, Object object) {
+        InjectorFactory injectorFactory = getInjectorFactory();
+        PropertyInjector injector = injectorFactory.createPropertyInjector(klass, providerFactory);
+        injector.inject(object);
+    }
+
+    protected InjectorFactory getInjectorFactory() {
         InjectorFactory injectorFactory = null;
         if (deployment != null) {
             providerFactory = deployment.getProviderFactory();
             injectorFactory = providerFactory.getInjectorFactory();
         } else if (this.providerFactory != null) {
-            providerFactory = this.providerFactory;
             injectorFactory = providerFactory.getInjectorFactory();
         } else {
             providerFactory = ResteasyProviderFactory.getInstance();
             injectorFactory = providerFactory.getInjectorFactory();
         }
-        for (Processor processor : configuration.getProcessors()) {
-            PropertyInjector injector = injectorFactory.createPropertyInjector(processor.getClass(), providerFactory);
-            injector.inject(processor);
-        }
-        return true;
+        return injectorFactory;
+    }
+
+    protected MessageBodyWriter<?> createViewWriter(TemplateEngine templateEngine) {
+        return new ViewWriter(templateEngine);
     }
 }
