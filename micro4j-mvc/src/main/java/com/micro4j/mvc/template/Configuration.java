@@ -227,7 +227,6 @@ public final class Configuration {
         return enableTemplateCaching;
     }
 
-
     public Locale getDefaultLocale() {
         return defaultLocale;
     }
