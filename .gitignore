@@ -1,3 +1,4 @@
 /.settings
 /.project
 /micro4j-mvc/target
+/micro4j-mvc/dependency-reduced-pom.xml
