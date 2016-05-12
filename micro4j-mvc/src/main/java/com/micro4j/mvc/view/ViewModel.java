@@ -34,7 +34,7 @@ import javax.ws.rs.core.Response.Status;
 
 public class ViewModel<T> {
 
-    private MediaType HTML = TEXT_HTML_TYPE.withCharset(UTF_8.name());
+    private static final MediaType HTML = TEXT_HTML_TYPE.withCharset(UTF_8.name());
 
     private String name;
 
