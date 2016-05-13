@@ -22,9 +22,9 @@
  */
 package com.micro4j.mvc.template;
 
-public interface DefaultFormatter {
+public class DefaultFormatter {
 
-    public default String toString(Object value) {
+    public String toString(Object value) {
         return value == null ? "" : value.toString();
     }
 }
