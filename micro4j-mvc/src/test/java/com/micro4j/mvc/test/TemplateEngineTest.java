@@ -32,7 +32,9 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.Before;
@@ -72,12 +74,9 @@ public class TemplateEngineTest {
     @Test
     public void testMessageTemplate() {
         StringWriter writer = new StringWriter();
-        engine.execute("template/message.html", new Object() {
-            @SuppressWarnings("unused")
-            String getName() {
-                return "foo";
-            }
-        }, emptyMap(), writer);
+        Map<String, Object> model = new HashMap<>();
+        model.put("name", "foo");
+        engine.execute("template/message.html", model, emptyMap(), writer);
         assertEquals("Hello, foo", writer.toString());
     }
 
