@@ -22,9 +22,13 @@
  */
 package com.micro4j.mvc;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
 import javax.ws.rs.ext.MessageBodyWriter;
+
+import org.slf4j.Logger;
 
 import com.micro4j.mvc.mustache.MustacheTemplateEngine;
 import com.micro4j.mvc.template.Configuration;
@@ -32,6 +36,8 @@ import com.micro4j.mvc.template.TemplateEngine;
 import com.micro4j.mvc.view.ViewWriter;
 
 public class MvcFeature implements Feature {
+
+    private static final Logger LOG = getLogger(MvcFeature.class);
 
     private Configuration configuration;
 
@@ -48,17 +54,31 @@ public class MvcFeature implements Feature {
 
     @Override
     public boolean configure(FeatureContext context) {
-        String name = context.getConfiguration().getClass().getName();
-        if (name.endsWith("ResteasyProviderFactory")) {
+        boolean initialized = false;
+        if (isResteasy(context)) {
             MvcResteasyFeature resteasyFeature = new MvcResteasyFeature(configuration);
             resteasyFeature.setViewWriter(createViewWriter(templateEngine));
-            resteasyFeature.configure(context);
-        } else if (name.startsWith("org.glassfish.jersey")) {
+            initialized = resteasyFeature.configure(context);
+        } else if (isJersey(context)) {
             MvcJerseyFeature jerseyFeature = new MvcJerseyFeature(configuration);
             jerseyFeature.setViewWriter(createViewWriter(templateEngine));
-            jerseyFeature.configure(context);
+            initialized = jerseyFeature.configure(context);
+        } else {
+            LOG.warn("Unable to initialize {}. Unable detect jax-rs runtime library.",
+                    new Object[] { MvcFeature.class.getSimpleName() });
         }
-        return true;
+        if (initialized) {
+            LOG.info("{} initialized successfully", new Object[] { MvcFeature.class.getSimpleName() });
+        }
+        return initialized;
+    }
+
+    protected boolean isResteasy(FeatureContext context) {
+        return "ResteasyProviderFactory".equals(context.getConfiguration().getClass().getSimpleName());
+    }
+
+    protected boolean isJersey(FeatureContext context) {
+        return context.getConfiguration().getClass().getName().startsWith("org.glassfish.jersey");
     }
 
     public Configuration getConfiguration() {
