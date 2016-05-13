@@ -109,7 +109,7 @@ public abstract class AbstractTemplateEngine implements TemplateEngine {
         try (Writer wr = writer) {
             wr.write(content);
         } catch (IOException e) {
-            throw new TemplateRenderException(e);
+            throw new TemplateException(e);
         }
         if (LOG.isDebugEnabled()) {
             LOG.debug(getString("AbstractTemplateEngine.execution.done"), new Object[] { //$NON-NLS-1$
