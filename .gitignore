@@ -2,3 +2,9 @@
 /.project
 /micro4j-mvc/target
 /micro4j-mvc/dependency-reduced-pom.xml
+/micro4j-samples/.project
+/micro4j-samples/.settings
+/micro4j-samples/micro4j-mvc-sample/.project
+/micro4j-samples/micro4j-mvc-sample/.settings
+/micro4j-samples/micro4j-mvc-sample/target
+/micro4j-samples/micro4j-mvc-sample/.classpath
