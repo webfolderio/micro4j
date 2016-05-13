@@ -22,9 +22,12 @@
  */
 package com.micro4j.mvc.mustache;
 
+import static java.util.Collections.emptyList;
+import static java.util.Locale.lookup;
+import static java.util.Locale.LanguageRange.parse;
 import static java.util.ResourceBundle.getBundle;
+import static javax.ws.rs.core.HttpHeaders.ACCEPT_LANGUAGE;
 
-import static javax.ws.rs.core.HttpHeaders.*;
 import java.util.List;
 import java.util.Locale;
 import java.util.Locale.LanguageRange;
@@ -33,13 +36,12 @@ import java.util.ResourceBundle;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriInfo;
 
 import com.micro4j.mvc.template.Processor;
+import com.micro4j.mvc.template.TemplateException;
 import com.micro4j.mvc.template.TemplateWrapper;
-
-import static java.util.Collections.emptyList;
-import static java.util.Locale.lookup;
-import static java.util.Locale.LanguageRange.parse;
 
 public class MustacheI18nProcessor extends Processor {
 
@@ -48,19 +50,19 @@ public class MustacheI18nProcessor extends Processor {
     @Context
     private HttpHeaders headers;
 
+    @Context
+    private UriInfo uriInfo;
+
     public MustacheI18nProcessor(String baseName) {
         this.baseName = baseName;
     }
 
     @Override
     public TemplateWrapper beforeExecute(String name, TemplateWrapper templateWrapper, Object context, Map<String, Object> parentContext) {
-        List<Locale> languages = headers.getAcceptableLanguages();
-        String acceptLanguage = headers.getHeaderString(ACCEPT_LANGUAGE);
-        List<LanguageRange> ranges = emptyList();
-        if (acceptLanguage != null && !acceptLanguage.trim().isEmpty()) {
-            ranges = parse(acceptLanguage);
+        Locale locale = getPreferedLocale();
+        if (locale == null) {
+            locale = getBrowserLocale();
         }
-        Locale locale = lookup(ranges, languages);
         if (locale == null) {
             locale = configuration.getDefaultLocale();
         }
@@ -68,5 +70,36 @@ public class MustacheI18nProcessor extends Processor {
         MustacheI18nLambda lambda = new MustacheI18nLambda(bundle);
         parentContext.put("i18n", lambda);
         return templateWrapper;
+    }
+
+    protected Locale getBrowserLocale() {
+        List<Locale> languages = headers.getAcceptableLanguages();
+        String acceptLanguage = headers.getHeaderString(ACCEPT_LANGUAGE);
+        List<LanguageRange> ranges = emptyList();
+        if (acceptLanguage != null && !acceptLanguage.trim().isEmpty()) {
+            ranges = parse(acceptLanguage);
+        }
+        Locale locale = lookup(ranges, languages);
+        return locale;
+    }
+
+    protected Locale getPreferedLocale() {
+        MultivaluedMap<String,String> parameters = uriInfo.getQueryParameters();
+        if (parameters.isEmpty()) {
+            return null;
+        }
+        String lang = parameters.getFirst(getPreferedLangParam());
+        if (lang == null || lang.trim().isEmpty()) {
+            return null;
+        }
+        if (lang.length() > 8) {
+            throw new TemplateException("Length must be shorther than 8 for the Language [" + lang + "]");
+        }
+        Locale locale = new Locale(lang);
+        return locale;
+    }
+
+    protected String getPreferedLangParam() {
+        return "lang";
     }
 }

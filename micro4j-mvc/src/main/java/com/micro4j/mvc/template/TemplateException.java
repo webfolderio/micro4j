@@ -24,7 +24,7 @@ package com.micro4j.mvc.template;
 
 import java.io.IOException;
 
-public abstract class TemplateException extends RuntimeException {
+public class TemplateException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
