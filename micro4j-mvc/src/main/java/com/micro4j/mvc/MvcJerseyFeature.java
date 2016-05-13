@@ -20,54 +20,50 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.mvc.template;
+package com.micro4j.mvc;
 
-import javax.ws.rs.core.Context;
+import static org.glassfish.jersey.ServiceLocatorProvider.getServiceLocator;
+
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
 import javax.ws.rs.ext.MessageBodyWriter;
 
 import org.glassfish.hk2.api.ServiceLocator;
 
-import com.micro4j.mvc.mustache.MustacheTemplateEngine;
-import com.micro4j.mvc.view.ViewWriter;
+import com.micro4j.mvc.template.Configuration;
+import com.micro4j.mvc.template.Processor;
 
-public class Micro4jJersey implements Feature {
+class MvcJerseyFeature implements Feature {
 
-    @Context
-    private ServiceLocator locator;
+    private ServiceLocator serviceLocator;
 
     private Configuration configuration;
 
-    private TemplateEngine templateEngine;
+    private MessageBodyWriter<?> viewWriter;
 
-    public Micro4jJersey(Configuration configuration) {
-        this(configuration, new MustacheTemplateEngine(configuration));
-    }
-
-    public Micro4jJersey(Configuration configuration, TemplateEngine templateEngine) {
+    MvcJerseyFeature(Configuration configuration) {
         this.configuration = configuration;
-        this.templateEngine = templateEngine;
     }
 
     @Override
     public boolean configure(FeatureContext context) {
+        serviceLocator = getServiceLocator(context);
         inject();
-        context.register(createViewWriter(templateEngine));
+        context.register(viewWriter);
         return true;
     }
 
-    protected void inject() {
+    void inject() {
         for (Processor processor : configuration.getProcessors()) {
             inject(processor);
         }
     }
 
-    protected void inject(Object object) {
-        locator.inject(object);
+    void inject(Object object) {
+        serviceLocator.inject(object);
     }
 
-    protected MessageBodyWriter<?> createViewWriter(TemplateEngine templateEngine) {
-        return new ViewWriter(templateEngine);
+    void setViewWriter(MessageBodyWriter<?> viewWriter) {
+        this.viewWriter = viewWriter;
     }
 }
