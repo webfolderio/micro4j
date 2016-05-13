@@ -64,7 +64,7 @@ public class MvcFeature implements Feature {
             jerseyFeature.setViewWriter(createViewWriter(templateEngine));
             initialized = jerseyFeature.configure(context);
         } else {
-            LOG.warn("Unable to initialize {}. Unable detect jax-rs runtime library.",
+            LOG.warn("Unable to initialize {}. Unkown jax-rs server runtime.",
                     new Object[] { MvcFeature.class.getSimpleName() });
         }
         if (initialized) {
