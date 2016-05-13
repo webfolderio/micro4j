@@ -25,8 +25,8 @@ package com.micro4j.mvc.mustache;
 import java.io.Reader;
 import java.io.StringReader;
 
+import com.micro4j.mvc.Configuration;
 import com.micro4j.mvc.template.ClasspathLoader;
-import com.micro4j.mvc.template.Configuration;
 import com.samskivert.mustache.Mustache.TemplateLoader;
 
 public class MustacheClasspathLoader extends ClasspathLoader implements TemplateLoader {

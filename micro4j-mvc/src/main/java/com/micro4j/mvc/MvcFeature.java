@@ -22,6 +22,7 @@
  */
 package com.micro4j.mvc;
 
+import static com.micro4j.mvc.Configuration.Builder;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import javax.ws.rs.core.Feature;
@@ -31,7 +32,6 @@ import javax.ws.rs.ext.MessageBodyWriter;
 import org.slf4j.Logger;
 
 import com.micro4j.mvc.mustache.MustacheTemplateEngine;
-import com.micro4j.mvc.template.Configuration;
 import com.micro4j.mvc.template.TemplateEngine;
 import com.micro4j.mvc.view.ViewWriter;
 
@@ -42,6 +42,10 @@ public class MvcFeature implements Feature {
     private Configuration configuration;
 
     private TemplateEngine templateEngine;
+
+    public MvcFeature() {
+        this(new Builder().build());
+    }
 
     public MvcFeature(Configuration configuration) {
         this(configuration, new MustacheTemplateEngine(configuration));

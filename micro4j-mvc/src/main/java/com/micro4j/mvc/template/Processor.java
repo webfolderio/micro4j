@@ -24,6 +24,8 @@ package com.micro4j.mvc.template;
 
 import java.util.Map;
 
+import com.micro4j.mvc.Configuration;
+
 public class Processor {
 
     protected Configuration configuration;
@@ -42,5 +44,13 @@ public class Processor {
 
     public String afterExecute(String name, String content, Object context, Map<String, Object> parentContext) {
         return content;
+    }
+
+    public void setConfiguration(Configuration configuration) {
+        if (this.configuration == null) {
+            this.configuration = configuration;
+        } else {
+            throw new IllegalStateException();
+        }
     }
 }

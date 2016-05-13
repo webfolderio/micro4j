@@ -32,6 +32,8 @@ import java.util.Scanner;
 
 import org.slf4j.Logger;
 
+import com.micro4j.mvc.Configuration;
+
 public abstract class AbstractContentLoader implements ContentLoader {
 
     private static final Logger LOG = getLogger(AbstractContentLoader.class);

@@ -40,6 +40,8 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 
+import com.micro4j.mvc.Configuration;
+
 public class LocalLoader extends AbstractContentLoader {
 
     private static final Logger LOG = getLogger(LocalLoader.class);

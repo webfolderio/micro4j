@@ -24,6 +24,8 @@ package com.micro4j.mvc.template;
 
 import java.io.InputStream;
 
+import com.micro4j.mvc.Configuration;
+
 public abstract class ClasspathLoader extends AbstractContentLoader {
 
     public ClasspathLoader(Configuration configuration) {

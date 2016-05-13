@@ -40,10 +40,10 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.micro4j.mvc.Configuration;
 import com.micro4j.mvc.mustache.MustacheClasspathLoader;
 import com.micro4j.mvc.mustache.MustacheLocalLoader;
 import com.micro4j.mvc.mustache.MustacheTemplateEngine;
-import com.micro4j.mvc.template.Configuration;
 import com.micro4j.mvc.template.ContentLoader;
 import com.micro4j.mvc.template.TemplateEngine;
 

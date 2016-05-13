@@ -41,9 +41,9 @@ import org.junit.Test;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import com.micro4j.mvc.Configuration;
 import com.micro4j.mvc.MvcFeature;
 import com.micro4j.mvc.mustache.MustacheI18nProcessor;
-import com.micro4j.mvc.template.Configuration;
 import com.micro4j.mvc.view.View;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;

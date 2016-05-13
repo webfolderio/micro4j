@@ -34,6 +34,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 
+import com.micro4j.mvc.Configuration;
+
 public abstract class AbstractTemplateEngine implements TemplateEngine {
 
     private static final Logger LOG = getLogger(TemplateEngine.class);

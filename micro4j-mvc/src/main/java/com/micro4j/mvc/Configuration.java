@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.mvc.template;
+package com.micro4j.mvc;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
@@ -36,6 +36,8 @@ import java.util.Locale;
 import java.util.Set;
 
 import com.micro4j.mvc.mustache.MustacheFormatter;
+import com.micro4j.mvc.template.DefaultFormatter;
+import com.micro4j.mvc.template.Processor;
 
 public final class Configuration {
 
@@ -173,7 +175,7 @@ public final class Configuration {
             configuration.enableTemplateCaching = enableTemplateCaching;
             configuration.defaultLocale = defaultLocale;
             for (Processor processor : processors) {
-                processor.configuration = configuration;
+                processor.setConfiguration(configuration);
             }
             configuration.pocessors = unmodifiableList(processors);
             return configuration;
