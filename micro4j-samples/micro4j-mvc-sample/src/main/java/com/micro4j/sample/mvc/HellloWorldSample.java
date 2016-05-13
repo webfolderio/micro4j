@@ -18,9 +18,9 @@ import org.glassfish.jersey.server.ResourceConfig;
 import com.micro4j.mvc.MvcFeature;
 import com.micro4j.mvc.view.View;
 
-public class MvcSample {
+public class HellloWorldSample {
 
-    public static class MyApplication extends Application {
+    public static class MvcApplication extends Application {
 
         @Override
         public Set<Object> getSingletons() {
@@ -36,7 +36,7 @@ public class MvcSample {
 
         @GET
         @Path("/hello")
-        @View("view/page.html")
+        @View("view/helloworld/page.html")
         public Map<String, Object> hello() {
             Map<String, Object> model = new HashMap<>();
             model.put("message", "hello, world!");
@@ -45,7 +45,7 @@ public class MvcSample {
     }
 
     public static void main(String[] args) {
-        ResourceConfig resourceConfig = forApplication(new MyApplication());
+        ResourceConfig resourceConfig = forApplication(new MvcApplication());
         create(create("http://localhost:8080"), resourceConfig);
     }
 }
