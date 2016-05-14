@@ -19,7 +19,7 @@ public class PjaxController {
     @View(value = "view/pjax/page-1.html", container = "view/pjax/container.html")
     public Map<String, Object> page1() {
         Map<String, Object> model = new HashMap<>();
-        model.put("title", "Page 2");
+        model.put("title", "Page 1");
         return model;
     }
 
