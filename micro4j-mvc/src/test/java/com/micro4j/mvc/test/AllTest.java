@@ -29,8 +29,8 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({
     TemplateEngineTest.class,
-    ResteasyViewTest.class,
-    JerseyViewTest.class
+    ResteasyTest.class,
+    JerseyTest.class
 })
 public class AllTest {
 

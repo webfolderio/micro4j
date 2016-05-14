@@ -34,7 +34,7 @@ import org.glassfish.jersey.simple.SimpleServer;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
-public class JerseyViewTest extends ViewTest {
+public class JerseyTest extends AbstractTest {
 
     static {
         System.setProperty(DEFAULT_LOG_LEVEL_KEY, "debug");
@@ -45,7 +45,7 @@ public class JerseyViewTest extends ViewTest {
  
     @BeforeClass
     public static void before() {
-        ResourceConfig config = ResourceConfig.forApplication(new MyApplication());
+        ResourceConfig config = ResourceConfig.forApplication(new TestApplication());
         server = SimpleContainerFactory.create(URI.create("http://localhost:4040"), config);
     }
 

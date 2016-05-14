@@ -35,7 +35,9 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Feature;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 import org.junit.Assert;
@@ -44,6 +46,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.micro4j.mvc.Configuration;
 import com.micro4j.mvc.View;
+import com.micro4j.mvc.ViewModel;
 import com.micro4j.mvc.jaxrs.MvcFeature;
 import com.micro4j.mvc.mustache.MustacheI18nProcessor;
 import com.squareup.okhttp.OkHttpClient;
@@ -53,7 +56,7 @@ import com.squareup.okhttp.logging.HttpLoggingInterceptor;
 import com.squareup.okhttp.logging.HttpLoggingInterceptor.Level;
 import com.squareup.okhttp.logging.HttpLoggingInterceptor.Logger;
 
-public abstract class ViewTest {
+public abstract class AbstractTest {
 
     static {
         SLF4JBridgeHandler.install();
@@ -89,15 +92,46 @@ public abstract class ViewTest {
             model.put("surname", "bar");
             return model;
         }
+
+        @GET
+        @Path("/test-return-view-model")
+        public ViewModel<Map<String, Object>> testReturnViewModel() {
+            ViewModel<Map<String, Object>> model = new ViewModel<Map<String,Object>>("template/message.html", new LinkedHashMap<>());
+            model.getEntity().put("name", "bar");
+            return model;
+        }
+
+        @GET
+        @Path("/test-include")
+        public ViewModel<Map<String, Object>> include() {
+            ViewModel<Map<String, Object>> model = new ViewModel<Map<String,Object>>("template/include.html", new LinkedHashMap<>());
+            model.getEntity().put("name", "bar");
+            return model;
+        }
+
+        @GET
+        @Path("/test-caching")
+        public javax.ws.rs.core.Response OverrideCaching() {
+            ViewModel<Map<String, Object>> model = new ViewModel<Map<String,Object>>("template/include.html", new LinkedHashMap<>());
+            model.getEntity().put("name", "bar");
+            CacheControl caching = new CacheControl();
+            caching.setMaxAge(200);
+            caching.setMustRevalidate(true);
+            caching.setPrivate(false);
+            caching.setProxyRevalidate(false);
+            caching.setNoStore(false);
+            caching.setNoCache(false);
+            return javax.ws.rs.core.Response.ok(model).cacheControl(caching).build();
+        }
     }
 
-    public static class MyApplication extends Application {
+    public static class TestApplication extends Application {
 
         private Set<Class<?>> classes;
 
         private Set<Object> singletons;
 
-        public MyApplication() {
+        public TestApplication() {
             classes = new HashSet<>();
 
             Configuration configuration = new Configuration
@@ -123,7 +157,7 @@ public abstract class ViewTest {
         }
     }
 
-    public static class HttpLogger implements Logger {
+    private static class HttpLogger implements Logger {
 
         private static final org.slf4j.Logger LOG = getLogger(HttpLogger.class);
 
@@ -157,9 +191,20 @@ public abstract class ViewTest {
         Request pjaxRequest = new Request.Builder().url("http://localhost:4040/page").header("X-PJAX", "true").build();
         Response pjaxResponse = client.newCall(pjaxRequest).execute();
         Assert.assertEquals("no-cache, no-store, must-revalidate", pjaxResponse.header("Cache-Control"));
-        Assert.assertEquals("0", pjaxResponse.header("Expires"));
         String pjaxContent = pjaxResponse.body().string();
 
         Assert.assertEquals("hi!", pjaxContent);
+
+        request = new Request.Builder().url("http://localhost:4040/test-return-view-model").build();
+        response = client.newCall(request).execute();
+        Assert.assertEquals("Hello, bar", response.body().string());
+
+        request = new Request.Builder().url("http://localhost:4040/test-include").build();
+        response = client.newCall(request).execute();
+        Assert.assertEquals("hello world", response.body().string());
+
+        request = new Request.Builder().url("http://localhost:4040/test-caching").build();
+        response = client.newCall(request).execute();
+        Assert.assertEquals("must-revalidate, no-transform, max-age=200", response.header(HttpHeaders.CACHE_CONTROL));
     }
 }

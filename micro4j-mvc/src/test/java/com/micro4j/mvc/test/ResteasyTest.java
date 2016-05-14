@@ -31,7 +31,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-public class ResteasyViewTest extends ViewTest {
+public class ResteasyTest extends AbstractTest {
 
     private static ResteasyDeployment deployment;
 
@@ -47,7 +47,7 @@ public class ResteasyViewTest extends ViewTest {
     @BeforeClass
     public static void before() {
         deployment = new ResteasyDeployment();
-        deployment.setApplication(new MyApplication());
+        deployment.setApplication(new TestApplication());
 
         server = new SunHttpJaxrsServer();
         server.setPort(4040);

@@ -37,9 +37,6 @@ public class MvcMessages {
 
     private static final Logger LOG = getLogger(MvcMessages.class);
 
-    private MvcMessages() {
-    }
-
     public static String getString(String key) {
         try {
             return RESOURCE_BUNDLE.getString(key);

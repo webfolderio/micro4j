@@ -23,7 +23,6 @@
 package com.micro4j.mvc.jaxrs;
 
 import static javax.ws.rs.core.HttpHeaders.CACHE_CONTROL;
-import static javax.ws.rs.core.HttpHeaders.EXPIRES;
 import static javax.ws.rs.core.MediaType.TEXT_HTML_TYPE;
 
 import java.io.IOException;
@@ -134,9 +133,6 @@ public class ViewWriter implements MessageBodyWriter<Object> {
         }
         if (!httpHeaders.containsKey(CACHE_CONTROL)) {
             httpHeaders.add(CACHE_CONTROL, "no-cache, no-store, must-revalidate");
-        }
-        if (!httpHeaders.containsKey(EXPIRES)) {
-            httpHeaders.add(EXPIRES, "0");
         }
         Map<String, Object> parentContext = new LinkedHashMap<>();
         boolean isPjax = isPjaxRequest(httpHeaders);
