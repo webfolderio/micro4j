@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{title}}</title>
+        <script type="text/javascript" src="webjars/jquery/1.11.1/jquery.min.js"></script>
+        <script type="text/javascript" src="webjars/jquery-pjax/1.9.6/jquery.pjax.js"></script>
+        <script type="text/javascript">
+            $(document).pjax('#menu a', '#container');
+        </script>
+        <style type="text/css">
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: sans-serif;
+                line-height: 1.5em;
+            }
+            #menu {
+                padding: 10px;
+                border-bottom: 1px solid #eee;
+                background-color: #FDFF00;
+            }
+            #container {
+                padding: 10px;
+            }
+            h1 {
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="menu">
+            <a href="/page1">page 1</a>
+            <a href="/page2">page 2</a>
+        </div>
+        <div id="container">
+            {{#body}}{{/body}}
+        </div>
+    </body>
+</html>
