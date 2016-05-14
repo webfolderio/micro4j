@@ -22,6 +22,8 @@
  */
 package com.micro4j.mvc.test;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -38,7 +40,6 @@ import javax.ws.rs.core.MediaType;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.micro4j.mvc.Configuration;
@@ -124,7 +125,7 @@ public abstract class ViewTest {
 
     public static class HttpLogger implements Logger {
 
-        private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(HttpLogger.class);
+        private static final org.slf4j.Logger LOG = getLogger(HttpLogger.class);
 
         @Override
         public void log(String message) {

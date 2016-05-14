@@ -22,11 +22,12 @@
  */
 package com.micro4j.mvc.message;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MvcMessages {
 
@@ -34,7 +35,7 @@ public class MvcMessages {
 
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 
-    private static final Logger LOG = LoggerFactory.getLogger(MvcMessages.class);
+    private static final Logger LOG = getLogger(MvcMessages.class);
 
     private MvcMessages() {
     }
