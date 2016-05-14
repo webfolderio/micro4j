@@ -45,7 +45,7 @@ public class JerseyViewTest extends ViewTest {
  
     @BeforeClass
     public static void before() {
-        ResourceConfig config = ResourceConfig.forApplication(new MyApplication("jersey"));
+        ResourceConfig config = ResourceConfig.forApplication(new MyApplication());
         server = SimpleContainerFactory.create(URI.create("http://localhost:4040"), config);
     }
 

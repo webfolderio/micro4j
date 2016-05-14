@@ -47,7 +47,7 @@ public class ResteasyViewTest extends ViewTest {
     @BeforeClass
     public static void before() {
         deployment = new ResteasyDeployment();
-        deployment.setApplication(new MyApplication("resteasy"));
+        deployment.setApplication(new MyApplication());
 
         server = new SunHttpJaxrsServer();
         server.setPort(4040);

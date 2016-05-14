@@ -97,7 +97,7 @@ public abstract class ViewTest {
 
         private Set<Object> singletons;
 
-        public MyApplication(String framework) {
+        public MyApplication() {
             classes = new HashSet<>();
 
             Configuration configuration = new Configuration
