@@ -35,6 +35,8 @@ import com.micro4j.mvc.mustache.MustacheTemplateEngine;
 import com.micro4j.mvc.template.TemplateEngine;
 import com.micro4j.mvc.view.ViewWriter;
 
+import static com.micro4j.mvc.message.MvcMessages.getString;
+
 public class MvcFeature implements Feature {
 
     private static final Logger LOG = getLogger(MvcFeature.class);
@@ -68,11 +70,11 @@ public class MvcFeature implements Feature {
             jerseyFeature.setViewWriter(createViewWriter(templateEngine));
             initialized = jerseyFeature.configure(context);
         } else {
-            LOG.warn("Unable to initialize {}. Unkown jax-rs server runtime.",
+            LOG.warn(getString("MvcFeature.initialization.failed"),
                     new Object[] { MvcFeature.class.getSimpleName() });
         }
         if (initialized) {
-            LOG.info("{} initialized successfully", new Object[] { MvcFeature.class.getSimpleName() });
+            LOG.info(getString("MvcFeature.initialization.success"), new Object[] { MvcFeature.class.getSimpleName() });
         }
         return initialized;
     }
