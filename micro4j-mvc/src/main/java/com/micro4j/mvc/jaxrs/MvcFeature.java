@@ -69,11 +69,11 @@ public class MvcFeature implements Feature {
             jerseyFeature.setViewWriter(createViewWriter(templateEngine));
             initialized = jerseyFeature.configure(context);
         } else {
-            LOG.warn(getString("MvcFeature.initialization.failed"),
+            LOG.warn(getString("MvcFeature.initialization.failed"), // $NON-NLS-1$
                     new Object[] { MvcFeature.class.getSimpleName() });
         }
         if (initialized) {
-            LOG.info(getString("MvcFeature.initialization.success"), new Object[] { MvcFeature.class.getSimpleName() });
+            LOG.info(getString("MvcFeature.initialization.success"), new Object[] { MvcFeature.class.getSimpleName() }); // $NON-NLS-1$
         }
         return initialized;
     }

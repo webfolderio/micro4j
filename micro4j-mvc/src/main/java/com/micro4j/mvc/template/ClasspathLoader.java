@@ -45,7 +45,7 @@ public abstract class ClasspathLoader extends AbstractContentLoader {
         name = configuration.getPrefix() + name;
         InputStream is = cl.getResourceAsStream(name);
         if (is == null) {
-            LOG.error(getString("MvcFeature.initialization.success"), new Object[] { name });
+            LOG.error(getString("MvcFeature.initialization.success"), new Object[] { name }); // $NON-NLS-1$
         }
         return is;
     }
