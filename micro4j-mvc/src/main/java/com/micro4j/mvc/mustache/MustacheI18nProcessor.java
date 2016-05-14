@@ -95,7 +95,7 @@ public class MustacheI18nProcessor extends Processor {
             return null;
         }
         if (lang.length() > 8) {
-            throw new TemplateException(getString("MustacheI18nProcessor.lang.length.error") + lang);
+            throw new TemplateException(getString("MustacheI18nProcessor.lang.length.error") + lang); // // $NON-NLS-1$
         }
         Locale locale = new Locale(lang);
         return locale;
