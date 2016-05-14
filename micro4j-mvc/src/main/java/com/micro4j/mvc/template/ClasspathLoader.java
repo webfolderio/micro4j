@@ -24,9 +24,16 @@ package com.micro4j.mvc.template;
 
 import java.io.InputStream;
 
+import org.slf4j.Logger;
+
+import static com.micro4j.mvc.message.MvcMessages.getString;
 import com.micro4j.mvc.Configuration;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 public abstract class ClasspathLoader extends AbstractContentLoader {
+
+    private static final Logger LOG = getLogger(ClasspathLoader.class);
 
     public ClasspathLoader(Configuration configuration) {
         super(configuration);
@@ -37,6 +44,9 @@ public abstract class ClasspathLoader extends AbstractContentLoader {
         ClassLoader cl = configuration.getClassLoader();
         name = configuration.getPrefix() + name;
         InputStream is = cl.getResourceAsStream(name);
+        if (is == null) {
+            LOG.error(getString("MvcFeature.initialization.success"), new Object[] { name });
+        }
         return is;
     }
 }
