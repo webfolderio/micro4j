@@ -22,7 +22,7 @@
  */
 package com.micro4j.mvc.template;
 
-import static com.micro4j.mvc.template.Messages.getString;
+import static com.micro4j.mvc.message.MvcMessages.getString;
 import static java.util.Collections.emptyMap;
 import static org.slf4j.LoggerFactory.getLogger;
 

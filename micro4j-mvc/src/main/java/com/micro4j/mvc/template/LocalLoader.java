@@ -22,7 +22,7 @@
  */
 package com.micro4j.mvc.template;
 
-import static com.micro4j.mvc.template.Messages.getString;
+import static com.micro4j.mvc.message.MvcMessages.getString;
 import static java.nio.file.Files.isDirectory;
 import static java.nio.file.Files.isReadable;
 import static java.nio.file.Files.newInputStream;
@@ -41,6 +41,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 
 import com.micro4j.mvc.Configuration;
+import com.micro4j.mvc.message.MvcMessages;
 
 public class LocalLoader extends AbstractContentLoader {
 
@@ -66,7 +67,7 @@ public class LocalLoader extends AbstractContentLoader {
                         new Object[] { next.toString() });
                 continue;
             }
-            LOG.info(Messages.getString("LocalLoader.valid.directory"), //$NON-NLS-1$
+            LOG.info(MvcMessages.getString("LocalLoader.valid.directory"), //$NON-NLS-1$
                     new Object[] { next.toString() });
             directories.add(next.toAbsolutePath().normalize());
         }
