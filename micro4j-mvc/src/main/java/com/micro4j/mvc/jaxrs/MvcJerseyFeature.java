@@ -53,17 +53,17 @@ class MvcJerseyFeature implements Feature {
         return true;
     }
 
-    void inject() {
+    protected void inject() {
         for (Processor processor : configuration.getProcessors()) {
             inject(processor);
         }
     }
 
-    void inject(Object object) {
+    protected void inject(Object object) {
         serviceLocator.inject(object);
     }
 
-    void setViewWriter(MessageBodyWriter<?> viewWriter) {
+    protected void setViewWriter(MessageBodyWriter<?> viewWriter) {
         this.viewWriter = viewWriter;
     }
 }

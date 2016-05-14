@@ -34,13 +34,11 @@ import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Request;
 import javax.ws.rs.ext.MessageBodyWriter;
 
 import com.micro4j.mvc.View;
@@ -52,12 +50,6 @@ public class ViewWriter implements MessageBodyWriter<Object> {
 
     @Context
     private HttpHeaders headers;
-
-    @Context
-    private Request request;
-
-    @Context
-    private HttpServletRequest servletRequest;
 
     private final TemplateEngine engine;
 

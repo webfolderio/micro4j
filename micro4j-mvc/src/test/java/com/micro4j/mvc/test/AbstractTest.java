@@ -111,7 +111,7 @@ public abstract class AbstractTest {
 
         @GET
         @Path("/test-caching")
-        public javax.ws.rs.core.Response OverrideCaching() {
+        public javax.ws.rs.core.Response overrideCaching() {
             ViewModel<Map<String, Object>> model = new ViewModel<Map<String,Object>>("template/include.html", new LinkedHashMap<>());
             model.getEntity().put("name", "bar");
             CacheControl caching = new CacheControl();
@@ -163,7 +163,7 @@ public abstract class AbstractTest {
 
         @Override
         public void log(String message) {
-            LOG.debug(message);;
+            LOG.debug(message);
         }
     }
 

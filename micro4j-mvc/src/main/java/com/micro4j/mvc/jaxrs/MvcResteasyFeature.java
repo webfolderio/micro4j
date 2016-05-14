@@ -53,25 +53,25 @@ class MvcResteasyFeature implements Feature {
         return true;
     }
 
-    void inject() {
+    protected void inject() {
         for (Processor processor : configuration.getProcessors()) {
             inject(processor.getClass(), processor);
         }
     }
 
-    void inject(Class<?> klass, Object object) {
+    protected void inject(Class<?> klass, Object object) {
         InjectorFactory injectorFactory = getInjectorFactory();
         PropertyInjector injector = injectorFactory.createPropertyInjector(klass, providerFactory);
         injector.inject(object);
     }
 
-    InjectorFactory getInjectorFactory() {
+    protected InjectorFactory getInjectorFactory() {
         InjectorFactory injectorFactory = providerFactory.getInjectorFactory();
         injectorFactory = providerFactory.getInjectorFactory();
         return injectorFactory;
     }
 
-    void setViewWriter(MessageBodyWriter<?> viewWriter) {
+    protected void setViewWriter(MessageBodyWriter<?> viewWriter) {
         this.viewWriter = viewWriter;
     }
 }
