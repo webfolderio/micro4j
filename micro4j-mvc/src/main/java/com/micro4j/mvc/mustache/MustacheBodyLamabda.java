@@ -41,9 +41,4 @@ public class MustacheBodyLamabda implements Lambda {
         frag.execute(out);
         out.write(content);
     }
-
-    @Override
-    public String toString() {
-        return "MustacheBodyLamabda [content=" + content + "]";
-    }
 }

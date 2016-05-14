@@ -43,9 +43,4 @@ public class MustacheTemplateWrapper implements TemplateWrapper {
     public Template getTemplate() {
         return template;
     }
-
-    @Override
-    public String toString() {
-        return "MustacheTemplateWrapper [template=" + template + "]";
-    }
 }
