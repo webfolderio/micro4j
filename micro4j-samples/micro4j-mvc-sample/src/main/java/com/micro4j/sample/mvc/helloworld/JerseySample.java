@@ -1,4 +1,4 @@
-package com.micro4j.sample.mvc;
+package com.micro4j.sample.mvc.helloworld;
 
 import static java.net.URI.create;
 import static org.glassfish.jersey.server.ResourceConfig.forApplication;
@@ -18,7 +18,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import com.micro4j.mvc.View;
 import com.micro4j.mvc.jaxrs.MvcFeature;
 
-public class HellloWorldSample {
+public class JerseySample {
 
     public static class MvcApplication extends Application {
 
