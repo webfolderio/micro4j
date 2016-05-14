@@ -24,7 +24,7 @@ package com.micro4j.mvc.template;
 
 import java.util.Map;
 
-import com.micro4j.mvc.Configuration;
+import com.micro4j.mvc.api.Configuration;
 
 public class Processor {
 

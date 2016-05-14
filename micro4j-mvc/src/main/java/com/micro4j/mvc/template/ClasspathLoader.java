@@ -26,9 +26,9 @@ import java.io.InputStream;
 
 import org.slf4j.Logger;
 
-import static com.micro4j.mvc.message.MvcMessages.getString;
-import com.micro4j.mvc.Configuration;
+import com.micro4j.mvc.api.Configuration;
 
+import static com.micro4j.mvc.message.MvcMessages.getString;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public abstract class ClasspathLoader extends AbstractContentLoader {

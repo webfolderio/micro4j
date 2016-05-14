@@ -30,7 +30,7 @@ import javax.ws.rs.ext.MessageBodyWriter;
 
 import org.glassfish.hk2.api.ServiceLocator;
 
-import com.micro4j.mvc.Configuration;
+import com.micro4j.mvc.api.Configuration;
 import com.micro4j.mvc.template.Processor;
 
 class MvcJerseyFeature implements Feature {

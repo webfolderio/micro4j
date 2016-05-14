@@ -32,7 +32,7 @@ import java.util.Scanner;
 
 import org.slf4j.Logger;
 
-import com.micro4j.mvc.Configuration;
+import com.micro4j.mvc.api.Configuration;
 
 public abstract class AbstractContentLoader implements ContentLoader {
 
