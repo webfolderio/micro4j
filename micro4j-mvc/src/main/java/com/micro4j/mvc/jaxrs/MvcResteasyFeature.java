@@ -20,33 +20,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.mvc;
-
-import static org.glassfish.jersey.ServiceLocatorProvider.getServiceLocator;
+package com.micro4j.mvc.jaxrs;
 
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
 import javax.ws.rs.ext.MessageBodyWriter;
 
-import org.glassfish.hk2.api.ServiceLocator;
+import org.jboss.resteasy.spi.InjectorFactory;
+import org.jboss.resteasy.spi.PropertyInjector;
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
+import com.micro4j.mvc.Configuration;
 import com.micro4j.mvc.template.Processor;
 
-class MvcJerseyFeature implements Feature {
+class MvcResteasyFeature implements Feature {
 
-    private ServiceLocator serviceLocator;
+    private ResteasyProviderFactory providerFactory;
 
     private Configuration configuration;
 
     private MessageBodyWriter<?> viewWriter;
 
-    MvcJerseyFeature(Configuration configuration) {
+    public MvcResteasyFeature(Configuration configuration) {
         this.configuration = configuration;
     }
 
     @Override
     public boolean configure(FeatureContext context) {
-        serviceLocator = getServiceLocator(context);
+        providerFactory = (ResteasyProviderFactory) context.getConfiguration();
         inject();
         context.register(viewWriter);
         return true;
@@ -54,12 +55,20 @@ class MvcJerseyFeature implements Feature {
 
     void inject() {
         for (Processor processor : configuration.getProcessors()) {
-            inject(processor);
+            inject(processor.getClass(), processor);
         }
     }
 
-    void inject(Object object) {
-        serviceLocator.inject(object);
+    void inject(Class<?> klass, Object object) {
+        InjectorFactory injectorFactory = getInjectorFactory();
+        PropertyInjector injector = injectorFactory.createPropertyInjector(klass, providerFactory);
+        injector.inject(object);
+    }
+
+    InjectorFactory getInjectorFactory() {
+        InjectorFactory injectorFactory = providerFactory.getInjectorFactory();
+        injectorFactory = providerFactory.getInjectorFactory();
+        return injectorFactory;
     }
 
     void setViewWriter(MessageBodyWriter<?> viewWriter) {

@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.mvc.view;
+package com.micro4j.mvc.jaxrs;
 
 import static javax.ws.rs.core.HttpHeaders.CACHE_CONTROL;
 import static javax.ws.rs.core.HttpHeaders.EXPIRES;
@@ -46,6 +46,8 @@ import javax.ws.rs.ext.MessageBodyWriter;
 
 import com.micro4j.mvc.mustache.MustacheBodyLamabda;
 import com.micro4j.mvc.template.TemplateEngine;
+import com.micro4j.mvc.view.View;
+import com.micro4j.mvc.view.ViewModel;
 
 public class ViewWriter implements MessageBodyWriter<Object> {
 

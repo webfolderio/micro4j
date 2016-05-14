@@ -20,9 +20,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.mvc;
+package com.micro4j.mvc.jaxrs;
 
-import static com.micro4j.mvc.Configuration.Builder;
+import static com.micro4j.mvc.message.MvcMessages.getString;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import javax.ws.rs.core.Feature;
@@ -31,11 +31,10 @@ import javax.ws.rs.ext.MessageBodyWriter;
 
 import org.slf4j.Logger;
 
+import com.micro4j.mvc.Configuration;
+import com.micro4j.mvc.Configuration.Builder;
 import com.micro4j.mvc.mustache.MustacheTemplateEngine;
 import com.micro4j.mvc.template.TemplateEngine;
-import com.micro4j.mvc.view.ViewWriter;
-
-import static com.micro4j.mvc.message.MvcMessages.getString;
 
 public class MvcFeature implements Feature {
 
