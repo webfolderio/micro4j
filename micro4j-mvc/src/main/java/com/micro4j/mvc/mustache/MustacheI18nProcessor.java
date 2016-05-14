@@ -43,6 +43,8 @@ import com.micro4j.mvc.template.Processor;
 import com.micro4j.mvc.template.TemplateException;
 import com.micro4j.mvc.template.TemplateWrapper;
 
+import static com.micro4j.mvc.message.MvcMessages.getString;
+
 public class MustacheI18nProcessor extends Processor {
 
     private String baseName;
@@ -93,7 +95,7 @@ public class MustacheI18nProcessor extends Processor {
             return null;
         }
         if (lang.length() > 8) {
-            throw new TemplateException("Length must be shorther than 8 for the Language [" + lang + "]");
+            throw new TemplateException(getString("MustacheI18nProcessor.lang.length.error") + lang);
         }
         Locale locale = new Locale(lang);
         return locale;
