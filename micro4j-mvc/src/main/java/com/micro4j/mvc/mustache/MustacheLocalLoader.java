@@ -27,7 +27,7 @@ import java.io.StringReader;
 import java.nio.file.Path;
 import java.util.Set;
 
-import com.micro4j.mvc.api.Configuration;
+import com.micro4j.mvc.Configuration;
 import com.micro4j.mvc.template.LocalLoader;
 import com.samskivert.mustache.Mustache.TemplateLoader;
 

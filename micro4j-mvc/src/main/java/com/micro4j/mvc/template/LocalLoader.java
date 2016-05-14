@@ -40,7 +40,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 
-import com.micro4j.mvc.api.Configuration;
+import com.micro4j.mvc.Configuration;
 import com.micro4j.mvc.message.MvcMessages;
 
 public class LocalLoader extends AbstractContentLoader {

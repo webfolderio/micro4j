@@ -44,8 +44,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.ext.MessageBodyWriter;
 
-import com.micro4j.mvc.api.View;
-import com.micro4j.mvc.api.ViewModel;
+import com.micro4j.mvc.View;
+import com.micro4j.mvc.ViewModel;
 import com.micro4j.mvc.mustache.MustacheBodyLamabda;
 import com.micro4j.mvc.template.TemplateEngine;
 

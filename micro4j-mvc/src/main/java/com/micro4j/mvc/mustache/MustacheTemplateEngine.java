@@ -24,7 +24,7 @@ package com.micro4j.mvc.mustache;
 
 import static com.samskivert.mustache.Mustache.compiler;
 
-import com.micro4j.mvc.api.Configuration;
+import com.micro4j.mvc.Configuration;
 import com.micro4j.mvc.template.AbstractTemplateEngine;
 import com.micro4j.mvc.template.ContentLoader;
 import com.micro4j.mvc.template.TemplateWrapper;

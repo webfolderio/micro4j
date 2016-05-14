@@ -20,21 +20,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.mvc.api;
+package com.micro4j.mvc;
 
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+public class ViewModel<T> {
 
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+    private String name;
 
-@Inherited
-@Target({ METHOD })
-@Retention(RUNTIME)
-public @interface View {
+    private String container;
 
-    String container() default "";
+    private T entity;
 
-    String value();
+    public ViewModel(String name, T entity) {
+        this(name, null, entity);
+    }
+
+    public ViewModel(String name, String container, T entity) {
+        this.name = name;
+        this.container = container;
+        this.entity = entity;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public T getEntity() {
+        return entity;
+    }
+
+    public String getContainer() {
+        return container;
+    }
+
+    @Override
+    public String toString() {
+        return "ViewModel [name=" + name + ", container=" + container + ", entity=" + entity + "]";
+    }
 }

@@ -31,8 +31,8 @@ import javax.ws.rs.ext.MessageBodyWriter;
 
 import org.slf4j.Logger;
 
-import com.micro4j.mvc.api.Configuration;
-import com.micro4j.mvc.api.Configuration.Builder;
+import com.micro4j.mvc.Configuration;
+import com.micro4j.mvc.Configuration.Builder;
 import com.micro4j.mvc.mustache.MustacheTemplateEngine;
 import com.micro4j.mvc.template.TemplateEngine;
 

@@ -26,7 +26,7 @@ import java.io.InputStream;
 
 import org.slf4j.Logger;
 
-import com.micro4j.mvc.api.Configuration;
+import com.micro4j.mvc.Configuration;
 
 import static com.micro4j.mvc.message.MvcMessages.getString;
 import static org.slf4j.LoggerFactory.getLogger;

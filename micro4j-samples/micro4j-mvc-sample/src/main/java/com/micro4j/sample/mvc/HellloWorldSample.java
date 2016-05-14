@@ -15,7 +15,7 @@ import javax.ws.rs.core.Application;
 
 import org.glassfish.jersey.server.ResourceConfig;
 
-import com.micro4j.mvc.api.View;
+import com.micro4j.mvc.View;
 import com.micro4j.mvc.jaxrs.MvcFeature;
 
 public class HellloWorldSample {

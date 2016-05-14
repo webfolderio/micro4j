@@ -25,7 +25,7 @@ package com.micro4j.mvc.mustache;
 import java.io.Reader;
 import java.io.StringReader;
 
-import com.micro4j.mvc.api.Configuration;
+import com.micro4j.mvc.Configuration;
 import com.micro4j.mvc.template.ClasspathLoader;
 import com.samskivert.mustache.Mustache.TemplateLoader;
 

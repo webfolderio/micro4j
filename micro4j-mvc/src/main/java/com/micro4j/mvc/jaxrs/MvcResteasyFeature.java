@@ -30,7 +30,7 @@ import org.jboss.resteasy.spi.InjectorFactory;
 import org.jboss.resteasy.spi.PropertyInjector;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
-import com.micro4j.mvc.api.Configuration;
+import com.micro4j.mvc.Configuration;
 import com.micro4j.mvc.template.Processor;
 
 class MvcResteasyFeature implements Feature {

@@ -25,7 +25,7 @@ package com.micro4j.mvc.template;
 import java.io.Writer;
 import java.util.Map;
 
-import com.micro4j.mvc.api.Configuration;
+import com.micro4j.mvc.Configuration;
 
 public interface TemplateEngine {
 
