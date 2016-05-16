@@ -59,6 +59,8 @@ import com.squareup.okhttp.logging.HttpLoggingInterceptor.Logger;
 
 public abstract class BaseTest {
 
+    private static OkHttpClient client;
+
     static {
         SLF4JBridgeHandler.install();
     }
@@ -168,10 +170,8 @@ public abstract class BaseTest {
         }
     }
 
-    private static OkHttpClient client;
-
     @BeforeClass
-    public static void setup() {
+    public static void setUp() {
         client = new OkHttpClient();
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(new HttpLogger());
         loggingInterceptor.setLevel(BODY);
