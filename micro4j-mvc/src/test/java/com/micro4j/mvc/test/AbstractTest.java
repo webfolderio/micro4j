@@ -22,6 +22,9 @@
  */
 package com.micro4j.mvc.test;
 
+import static com.squareup.okhttp.logging.HttpLoggingInterceptor.Level.BODY;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertEquals;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
@@ -29,7 +32,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -40,7 +42,7 @@ import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
-import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
@@ -53,7 +55,6 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.squareup.okhttp.logging.HttpLoggingInterceptor;
-import com.squareup.okhttp.logging.HttpLoggingInterceptor.Level;
 import com.squareup.okhttp.logging.HttpLoggingInterceptor.Logger;
 
 public abstract class AbstractTest {
@@ -167,44 +168,55 @@ public abstract class AbstractTest {
         }
     }
 
-    @Test
-    public void testView() throws IOException {
-        OkHttpClient client = new OkHttpClient();
+    private static OkHttpClient client;
 
+    @BeforeClass
+    public static void setup() {
+        client = new OkHttpClient();
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(new HttpLogger());
-        loggingInterceptor.setLevel(Level.BODY);
+        loggingInterceptor.setLevel(BODY);
         client.interceptors().add(loggingInterceptor);
+        client.setConnectTimeout(60, SECONDS);
+        client.setReadTimeout(60, SECONDS);
+        client.setWriteTimeout(60, SECONDS);
+    }
 
-        client.setConnectTimeout(60, TimeUnit.SECONDS);
-        client.setReadTimeout(60, TimeUnit.SECONDS);
-        client.setWriteTimeout(60, TimeUnit.SECONDS);
-
+    @Test
+    public void testHello() throws IOException {
         Request request = new Request.Builder().url("http://localhost:4040").build();
         Response response = client.newCall(request).execute();
-
-        Assert.assertEquals("Hello, foo", response.body().string());
+        assertEquals("Hello, foo", response.body().string());
 
         Request pageRequest = new Request.Builder().url("http://localhost:4040/page").build();
         String pageContent = client.newCall(pageRequest).execute().body().string();
-        Assert.assertEquals("<html><body>hi!</body></html>", pageContent);
+        assertEquals("<html><body>hi!</body></html>", pageContent);
+    }
 
+    public void testViewModel() throws IOException {
+        Request request = new Request.Builder().url("http://localhost:4040/test-return-view-model").build();
+        Response response = client.newCall(request).execute();
+        assertEquals("Hello, bar", response.body().string());
+    }
+
+    @Test
+    public void testPjax() throws IOException {
         Request pjaxRequest = new Request.Builder().url("http://localhost:4040/page").header("X-PJAX", "true").build();
         Response pjaxResponse = client.newCall(pjaxRequest).execute();
-        Assert.assertEquals("no-cache, no-store, must-revalidate", pjaxResponse.header("Cache-Control"));
+        assertEquals("no-cache, no-store, must-revalidate", pjaxResponse.header("Cache-Control"));
         String pjaxContent = pjaxResponse.body().string();
+        assertEquals("hi!", pjaxContent);        
+    }
 
-        Assert.assertEquals("hi!", pjaxContent);
+    @Test
+    public void testCaching() throws IOException {
+        Request request = new Request.Builder().url("http://localhost:4040/test-caching").build();
+        Response response = client.newCall(request).execute();
+        assertEquals("must-revalidate, no-transform, max-age=200", response.header(HttpHeaders.CACHE_CONTROL));
+    }
 
-        request = new Request.Builder().url("http://localhost:4040/test-return-view-model").build();
-        response = client.newCall(request).execute();
-        Assert.assertEquals("Hello, bar", response.body().string());
-
-        request = new Request.Builder().url("http://localhost:4040/test-include").build();
-        response = client.newCall(request).execute();
-        Assert.assertEquals("hello world", response.body().string());
-
-        request = new Request.Builder().url("http://localhost:4040/test-caching").build();
-        response = client.newCall(request).execute();
-        Assert.assertEquals("must-revalidate, no-transform, max-age=200", response.header(HttpHeaders.CACHE_CONTROL));
+    public void testInclude() throws IOException {
+        Request request = new Request.Builder().url("http://localhost:4040/test-include").build();
+        Response response = client.newCall(request).execute();
+        assertEquals("hello world", response.body().string());
     }
 }
