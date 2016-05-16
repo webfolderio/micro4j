@@ -30,7 +30,8 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({
     TemplateEngineTest.class,
     ResteasyTest.class,
-    JerseyTest.class
+    JerseyTest.class,
+    AssetScannerTest.class
 })
 public class AllTest {
 
