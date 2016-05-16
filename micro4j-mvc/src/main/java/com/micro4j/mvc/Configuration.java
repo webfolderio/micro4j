@@ -157,6 +157,11 @@ public final class Configuration {
             return this;
         }
 
+        public Builder defaultNullValue(String defaultNullValue) {
+            this.defaultNullValue = defaultNullValue;
+            return this;
+        }
+
         public Builder enableTemplateCaching(boolean enableTemplateCaching) {
             this.enableTemplateCaching = enableTemplateCaching;
             return this;
