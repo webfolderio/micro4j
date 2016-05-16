@@ -28,11 +28,11 @@ import java.io.Writer;
 import com.samskivert.mustache.Mustache.Lambda;
 import com.samskivert.mustache.Template.Fragment;
 
-public class MustacheBodyLamabda implements Lambda {
+public class MustacheContentLamabda implements Lambda {
 
     private String content;
 
-    public MustacheBodyLamabda(String content) {
+    public MustacheContentLamabda(String content) {
         this.content = content;
     }
 

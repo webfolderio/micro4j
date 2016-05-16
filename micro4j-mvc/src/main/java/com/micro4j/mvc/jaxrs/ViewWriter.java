@@ -43,7 +43,7 @@ import javax.ws.rs.ext.MessageBodyWriter;
 
 import com.micro4j.mvc.View;
 import com.micro4j.mvc.ViewModel;
-import com.micro4j.mvc.mustache.MustacheBodyLamabda;
+import com.micro4j.mvc.mustache.MustacheContentLamabda;
 import com.micro4j.mvc.template.TemplateEngine;
 
 public class ViewWriter implements MessageBodyWriter<Object> {
@@ -136,7 +136,7 @@ public class ViewWriter implements MessageBodyWriter<Object> {
             StringWriter pageWriter = new StringWriter();
             engine.execute(name, context, parentContext, pageWriter);
             try (OutputStreamWriter containerWriter = new OutputStreamWriter(entityStream, engine.getConfiguration().getCharset())) {
-                parentContext.put(engine.getConfiguration().getBodyName(), new MustacheBodyLamabda(pageWriter.toString()));
+                parentContext.put(engine.getConfiguration().getBodyName(), new MustacheContentLamabda(pageWriter.toString()));
                 engine.execute(container, context, parentContext, containerWriter);
             }
         }
