@@ -34,7 +34,7 @@ import org.glassfish.jersey.simple.SimpleServer;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
-public class JerseyTest extends AbstractTest {
+public class JerseyTest extends BaseTest {
 
     static {
         System.setProperty(DEFAULT_LOG_LEVEL_KEY, "debug");

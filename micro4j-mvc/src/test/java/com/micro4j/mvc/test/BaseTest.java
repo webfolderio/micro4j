@@ -57,7 +57,7 @@ import com.squareup.okhttp.Response;
 import com.squareup.okhttp.logging.HttpLoggingInterceptor;
 import com.squareup.okhttp.logging.HttpLoggingInterceptor.Logger;
 
-public abstract class AbstractTest {
+public abstract class BaseTest {
 
     static {
         SLF4JBridgeHandler.install();

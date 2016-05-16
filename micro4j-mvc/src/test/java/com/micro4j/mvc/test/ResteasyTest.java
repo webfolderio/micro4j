@@ -31,7 +31,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-public class ResteasyTest extends AbstractTest {
+public class ResteasyTest extends BaseTest {
 
     private static ResteasyDeployment deployment;
 
