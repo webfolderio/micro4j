@@ -75,8 +75,7 @@ public abstract class AssetScanner {
                             if (entry.isDirectory() || !isAsset(entry.getName())) {
                                 continue;
                             }
-                            String name = toPath(entry);
-                            name = removePrefix(name);
+                            String name = removePrefix(entry.getName());
                             assets.add(name);
                         }
                     }
@@ -120,10 +119,6 @@ public abstract class AssetScanner {
 
     protected int getPriority(String path) {
         return MIN_PRIORITY;
-    }
-
-    protected String toPath(JarEntry entry) {
-        return entry.getName();
     }
 
     protected String getPrefix() {
