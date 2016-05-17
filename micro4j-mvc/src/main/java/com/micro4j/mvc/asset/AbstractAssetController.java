@@ -65,11 +65,11 @@ public abstract class AbstractAssetController {
 
     protected String getContentType(String asset, URLConnection connection) {
         String ct = null;
+        String charset = configuration.getCharset().name();
         if (asset.endsWith(".js")) {
-            ct = "application/javascript; charset=" + configuration.getCharset().name();
+            ct = "application/javascript; charset=" + charset;
         } else if (asset.endsWith(".css")) {
-            URLConnection.guessContentTypeFromName(asset);
-            ct = "text/css";
+            ct = "text/css; charset=" + charset;
         }
         return ct;
     }
