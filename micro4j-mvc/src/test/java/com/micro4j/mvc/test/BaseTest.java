@@ -49,6 +49,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import com.micro4j.mvc.Configuration;
 import com.micro4j.mvc.View;
 import com.micro4j.mvc.ViewModel;
+import com.micro4j.mvc.asset.WebJarController;
 import com.micro4j.mvc.jaxrs.MvcFeature;
 import com.micro4j.mvc.mustache.MustacheI18nProcessor;
 import com.squareup.okhttp.OkHttpClient;
@@ -145,6 +146,7 @@ public abstract class BaseTest {
             Feature feature = new MvcFeature(configuration);
 
             singletons = new HashSet<>();
+            singletons.add(new WebJarController(configuration));
             singletons.add(new SampleController());
             singletons.add(feature);
         }
@@ -192,6 +194,7 @@ public abstract class BaseTest {
         assertEquals("<html><body>hi!</body></html>", pageContent);
     }
 
+    @Test
     public void testViewModel() throws IOException {
         Request request = new Request.Builder().url("http://localhost:4040/test-return-view-model").build();
         Response response = client.newCall(request).execute();
@@ -214,9 +217,24 @@ public abstract class BaseTest {
         assertEquals("must-revalidate, no-transform, max-age=200", response.header(HttpHeaders.CACHE_CONTROL));
     }
 
+    @Test
     public void testInclude() throws IOException {
         Request request = new Request.Builder().url("http://localhost:4040/test-include").build();
         Response response = client.newCall(request).execute();
         assertEquals("hello world", response.body().string());
+    }
+
+    @Test
+    public void testRequestJs() throws IOException {
+        Request request = new Request.Builder().url("http://localhost:4040/webjars/lib.js").build();
+        Response response = client.newCall(request).execute();
+        assertEquals("console.info('foo');", response.body().string());
+    }
+
+    @Test
+    public void testRequestCss() throws IOException {
+        Request request = new Request.Builder().url("http://localhost:4040/webjars/style.css").build();
+        Response response = client.newCall(request).execute();
+        assertEquals("body { }", response.body().string());
     }
 }
