@@ -13,18 +13,20 @@ import com.micro4j.mvc.jaxrs.MvcFeature;
 
 public class PjaxApplication extends Application {
 
-    @Override
-    public Set<Object> getSingletons() {
-        Set<Object> singletons = new HashSet<>();
+    private Set<Object> singletons = new HashSet<>();
 
+    public PjaxApplication() {
         Configuration configuration = new Builder()
-                                            .processors(new WebJarProcessor())
-                                            .build();
+                                        .processors(new WebJarProcessor())
+                                        .build();
 
         singletons.add(new MvcFeature(configuration));
         singletons.add(new WebJarController(configuration));
         singletons.add(new PjaxController());
+    }
 
+    @Override
+    public Set<Object> getSingletons() {
         return singletons;
     }
 }

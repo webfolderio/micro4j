@@ -97,13 +97,13 @@ public abstract class AssetController {
         String ct = null;
         String charset = configuration.getCharset().name();
         if (asset.endsWith(".js")) {
-            ct = "application/javascript; charset=" + charset; //$NON-NLS-1$
-        } else if (asset.endsWith(".css")) { //$NON-NLS-1$
-            ct = "text/css; charset=" + charset; //$NON-NLS-1$
-        } else if (asset.endsWith(".woff")) { //$NON-NLS-1$
-            ct = "application/font-woff"; //$NON-NLS-1$
-        } else if (asset.endsWith(".woff2")) { //$NON-NLS-1$
-            ct = "font/woff2"; //$NON-NLS-1$
+            ct = "application/javascript; charset=" + charset;
+        } else if (asset.endsWith(".css")) {
+            ct = "text/css; charset=" + charset;
+        } else if (asset.endsWith(".woff")) {
+            ct = "application/font-woff";
+        } else if (asset.endsWith(".woff2")) {
+            ct = "font/woff2";
         }
         return ct;
     }

@@ -25,18 +25,28 @@ package com.micro4j.mvc.asset;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+
 import com.micro4j.mvc.asset.WebJarScanner;
 import com.micro4j.mvc.template.Processor;
 import com.micro4j.mvc.template.TemplateWrapper;
 
 import static java.util.Collections.emptyList;
+import static com.micro4j.mvc.message.MvcMessages.getString;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 public class WebJarProcessor extends Processor {
+
+    private static final Logger LOG = getLogger(WebJarProcessor.class);
 
     private List<String> assets = emptyList();
 
     public WebJarProcessor() {
         assets = new WebJarScanner().scan();
+        for (String asset : assets) {
+            LOG.info(getString("WebJarProcessor.found.asset"), new Object[] { asset });
+        }
     }
 
     @Override
