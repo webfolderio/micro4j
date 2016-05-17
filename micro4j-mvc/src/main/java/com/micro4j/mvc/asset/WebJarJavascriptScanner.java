@@ -5,14 +5,6 @@ import java.util.jar.JarFile;
 
 public class WebJarJavascriptScanner extends AssetScanner {
 
-    public WebJarJavascriptScanner() {
-        this("META-INF/resources/");
-    }
-
-    public WebJarJavascriptScanner(String prefix) {
-        super(prefix);
-    }
-
     @Override
     protected boolean isAsset(JarFile jar, JarEntry entry) {
         return isJs(jar, entry) && !isRequireJs(jar, entry);

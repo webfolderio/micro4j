@@ -15,15 +15,9 @@ import java.util.jar.JarFile;
 
 public abstract class AssetScanner {
 
-    private String prefix;
-
     public static final int MIN_PRIORITY = MAX_VALUE;
     
     public static final int MAX_PRIORITY = 0;
-
-    public AssetScanner(String prefix) {
-        this.prefix = prefix;
-    }
 
     public List<String> scan() {
         String classpath = getProperty("java.class.path");
@@ -76,10 +70,14 @@ public abstract class AssetScanner {
         return entry.getName();
     }
 
+    protected String getPrefix() {
+        return "META-INF/resources/";
+    }
+
     protected String removePrefix(String path) {
-        int begin = path.indexOf(prefix);
+        int begin = path.indexOf(getPrefix());
         if (begin >= 0) {
-            return path.substring(prefix.length(), path.length());
+            return path.substring(getPrefix().length(), path.length());
         } else {
             return path;
         }
