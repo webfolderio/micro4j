@@ -3,7 +3,7 @@ package com.micro4j.mvc.asset;
 import java.util.List;
 import java.util.Map;
 
-import com.micro4j.mvc.asset.WebJarJavascriptScanner;
+import com.micro4j.mvc.asset.WebJarScanner;
 import com.micro4j.mvc.template.Processor;
 import com.micro4j.mvc.template.TemplateWrapper;
 
@@ -14,7 +14,7 @@ public class WebJarAssetProcessor extends Processor {
     private List<String> assets = emptyList();
 
     public WebJarAssetProcessor() {
-        assets = new WebJarJavascriptScanner().scan();
+        assets = new WebJarScanner().scan();
     }
 
     @Override

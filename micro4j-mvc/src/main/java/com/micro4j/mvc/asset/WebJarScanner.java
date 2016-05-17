@@ -3,7 +3,7 @@ package com.micro4j.mvc.asset;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-public class WebJarJavascriptScanner extends AssetScanner {
+public class WebJarScanner extends AssetScanner {
 
     @Override
     protected boolean isAsset(JarFile jar, JarEntry entry) {
