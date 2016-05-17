@@ -56,6 +56,7 @@ class MvcResteasyFeature implements Feature {
     protected void inject() {
         for (Processor processor : configuration.getProcessors()) {
             inject(processor.getClass(), processor);
+            processor.init();
         }
     }
 
