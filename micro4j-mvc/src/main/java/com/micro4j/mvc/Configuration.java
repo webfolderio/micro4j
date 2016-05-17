@@ -181,6 +181,7 @@ public final class Configuration {
             configuration.defaultLocale = defaultLocale;
             for (Processor processor : processors) {
                 processor.setConfiguration(configuration);
+                processor.init();
             }
             configuration.pocessors = unmodifiableList(processors);
             return configuration;

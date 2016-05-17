@@ -30,6 +30,9 @@ public class Processor {
 
     protected Configuration configuration;
 
+    public void init() {
+    }
+
     public String beforeCompile(String name, String content) {
         return content;
     }
