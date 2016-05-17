@@ -1,6 +1,7 @@
 package com.micro4j.mvc.asset;
 
 import static java.lang.String.valueOf;
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.HttpHeaders.IF_MODIFIED_SINCE;
 import static javax.ws.rs.core.HttpHeaders.LAST_MODIFIED;
 import static javax.ws.rs.core.Response.ok;
@@ -15,7 +16,6 @@ import java.net.URLConnection;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
@@ -37,7 +37,6 @@ public abstract class AbstractAssetController {
 
     @GET
     @Path("/{asset: .*}")
-    @Produces("application/javascript; charset=utf-8")
     public Response resource(@PathParam("asset") String asset) throws IOException {
         String path = getPrefix() + asset;
         URL url = configuration.getClassLoader().getResource(path);
@@ -50,8 +49,10 @@ public abstract class AbstractAssetController {
         if (lastModified.equals(ifModifiedSince)) {
             return status(NOT_MODIFIED).build();
         } else {
+            String contentType = "application/javascript; charset=" + configuration.getCharset().name();
             return ok(connection.getInputStream())
                     .header(LAST_MODIFIED, lastModified)
+                    .header(CONTENT_TYPE, contentType)
                     .build();
         }
     }
