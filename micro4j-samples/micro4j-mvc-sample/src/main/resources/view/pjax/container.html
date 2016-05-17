@@ -2,8 +2,9 @@
 <html>
     <head>
         <title>{{title}}</title>
-        <script type="text/javascript" src="webjars/jquery/1.11.1/jquery.min.js"></script>
-        <script type="text/javascript" src="webjars/jquery-pjax/1.9.6/jquery.pjax.js"></script>
+        {{#assets}}
+            <script type="text/javascript" src="{{this}}"></script>
+        {{/assets}}
         <script type="text/javascript">
             $(document).pjax('#menu a', '#container');
         </script>
