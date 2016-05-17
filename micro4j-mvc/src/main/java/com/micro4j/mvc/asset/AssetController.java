@@ -37,6 +37,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import javax.ws.rs.GET;
+import static com.micro4j.mvc.message.MvcMessages.*;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.CacheControl;
@@ -44,9 +45,15 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+
 import com.micro4j.mvc.Configuration;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 public abstract class AssetController {
+
+    private static final Logger LOG = getLogger(AssetController.class);
 
     @Context
     private HttpHeaders httpHeaders;
@@ -75,6 +82,7 @@ public abstract class AssetController {
         } else {
             String contentType = getContentType(asset, connection);
             if (contentType == null) {
+                LOG.error(getString("AssetController.content.type.not.found"), new Object[] { asset }); //$NON-NLS-1$
                 return status(UNSUPPORTED_MEDIA_TYPE).build();
             }
             return ok(connection.getInputStream())
@@ -89,13 +97,13 @@ public abstract class AssetController {
         String ct = null;
         String charset = configuration.getCharset().name();
         if (asset.endsWith(".js")) {
-            ct = "application/javascript; charset=" + charset;
-        } else if (asset.endsWith(".css")) {
-            ct = "text/css; charset=" + charset;
-        } else if (asset.endsWith(".woff")) {
-            ct = "application/font-woff";
-        } else if (asset.endsWith(".woff2")) {
-            ct = "font/woff2";
+            ct = "application/javascript; charset=" + charset; //$NON-NLS-1$
+        } else if (asset.endsWith(".css")) { //$NON-NLS-1$
+            ct = "text/css; charset=" + charset; //$NON-NLS-1$
+        } else if (asset.endsWith(".woff")) { //$NON-NLS-1$
+            ct = "application/font-woff"; //$NON-NLS-1$
+        } else if (asset.endsWith(".woff2")) { //$NON-NLS-1$
+            ct = "font/woff2"; //$NON-NLS-1$
         }
         return ct;
     }
