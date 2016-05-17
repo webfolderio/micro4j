@@ -8,6 +8,7 @@ import static javax.ws.rs.core.Response.ok;
 import static javax.ws.rs.core.Response.status;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NOT_MODIFIED;
+import static javax.ws.rs.core.Response.Status.UNSUPPORTED_MEDIA_TYPE;
 
 import java.io.IOException;
 import java.net.URL;
@@ -16,6 +17,7 @@ import java.net.URLConnection;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
@@ -27,9 +29,9 @@ public abstract class AbstractAssetController {
     @Context
     private HttpHeaders httpHeaders;
 
-    protected abstract String getPrefix();
-
     private Configuration configuration;
+
+    protected abstract String getPrefix();
 
     public AbstractAssetController(Configuration configuration) {
         this.configuration = configuration;
@@ -49,11 +51,33 @@ public abstract class AbstractAssetController {
         if (lastModified.equals(ifModifiedSince)) {
             return status(NOT_MODIFIED).build();
         } else {
-            String contentType = "application/javascript; charset=" + configuration.getCharset().name();
+            String contentType = getContentType(asset, connection);
+            if (contentType == null) {
+                return status(UNSUPPORTED_MEDIA_TYPE).build();
+            }
             return ok(connection.getInputStream())
+                    .cacheControl(getCacheControl(asset))
                     .header(LAST_MODIFIED, lastModified)
                     .header(CONTENT_TYPE, contentType)
                     .build();
         }
+    }
+
+    protected String getContentType(String asset, URLConnection connection) {
+        String ct = null;
+        if (asset.endsWith(".js")) {
+            ct = "application/javascript; charset=" + configuration.getCharset().name();
+        } else if (asset.endsWith(".css")) {
+            URLConnection.guessContentTypeFromName(asset);
+            ct = "text/css";
+        }
+        return ct;
+    }
+
+    protected CacheControl getCacheControl(String asset) {
+        CacheControl cache = new CacheControl();
+        cache.setNoStore(false);
+        cache.setMustRevalidate(true);
+        return cache;
     }
 }
