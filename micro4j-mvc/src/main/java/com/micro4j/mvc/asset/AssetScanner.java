@@ -24,19 +24,26 @@ package com.micro4j.mvc.asset;
 
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.compare;
+import static java.nio.file.Files.isRegularFile;
+import static java.nio.file.Files.walk;
 import static java.util.Collections.sort;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import com.micro4j.mvc.Configuration;
+
+import static java.lang.String.format;
 
 public abstract class AssetScanner {
 
@@ -46,7 +53,7 @@ public abstract class AssetScanner {
 
     private Configuration configuration;
 
-    protected abstract boolean isAsset(JarFile jar, JarEntry entry);
+    protected abstract boolean isAsset(String name);
 
     public AssetScanner(Configuration configuration) {
         this.configuration = configuration;
@@ -59,20 +66,40 @@ public abstract class AssetScanner {
             while (enumeration.hasMoreElements()) {
                 URL url = enumeration.nextElement();
                 URLConnection urlConnection = url.openConnection();
-                if (!(urlConnection instanceof JarURLConnection)) {
-                    continue;
-                }
-                JarURLConnection connection = (JarURLConnection) urlConnection;
-                try (JarFile jar = connection.getJarFile()) {
-                    Enumeration<JarEntry> entries = jar.entries();
-                    while (entries.hasMoreElements()) {
-                        JarEntry entry = entries.nextElement();
-                        if (entry.isDirectory() || !isAsset(jar, entry)) {
-                            continue;
+                if ((urlConnection instanceof JarURLConnection)) {
+                    JarURLConnection connection = (JarURLConnection) urlConnection;
+                    try (JarFile jar = connection.getJarFile()) {
+                        Enumeration<JarEntry> entries = jar.entries();
+                        while (entries.hasMoreElements()) {
+                            JarEntry entry = entries.nextElement();
+                            if (entry.isDirectory() || !isAsset(entry.getName())) {
+                                continue;
+                            }
+                            String name = toPath(entry);
+                            name = removePrefix(name);
+                            assets.add(name);
                         }
-                        String name = toPath(entry);
-                        name = removePrefix(name);
-                        assets.add(name);
+                    }
+                } else {
+                    String protocol = url.getProtocol();
+                    if (!"file".equals(protocol)) {
+                        continue;
+                    }
+                    File directory = new File(url.getFile());
+                    if (!directory.isDirectory()) {
+                        continue;
+                    }
+                    Path path = directory.toPath();
+                    Iterator<Path> iter = walk(path).iterator();
+                    while (iter.hasNext()) {
+                        Path next = iter.next();
+                        if (isRegularFile(next)) {
+                            String name = path.relativize(next).toString().replace('\\', '/');
+                            String location = format("%s/%s/%s", "META-INF", "resources", name);
+                            if (isAsset(location)) {
+                                assets.add(name);
+                            }
+                        }
                     }
                 }
             }
@@ -83,13 +110,12 @@ public abstract class AssetScanner {
         return assets;
     }
 
-    protected boolean isJs(JarFile jar, JarEntry entry) {
-        String name = entry.getName();
-        return name.endsWith(".js") && !isMinJs(jar, entry);
+    protected boolean isJs(String name) {
+        return name.endsWith(".js") && !isMinJs(name);
     }
 
-    protected boolean isMinJs(JarFile jar, JarEntry entry) {
-        return entry.getName().endsWith(".min.js");
+    protected boolean isMinJs(String name) {
+        return name.endsWith(".min.js");
     }
 
     protected int getPriority(String path) {
