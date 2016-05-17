@@ -70,6 +70,10 @@ public abstract class AssetController {
             ct = "application/javascript; charset=" + charset;
         } else if (asset.endsWith(".css")) {
             ct = "text/css; charset=" + charset;
+        } else if (asset.endsWith(".woff")) {
+            ct = "application/font-woff";
+        } else if (asset.endsWith(".woff2")) {
+            ct = "font/woff2";
         }
         return ct;
     }
