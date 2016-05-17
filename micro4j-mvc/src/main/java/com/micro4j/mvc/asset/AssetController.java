@@ -24,7 +24,7 @@ import javax.ws.rs.core.Response;
 
 import com.micro4j.mvc.Configuration;
 
-public abstract class AbstractAssetController {
+public abstract class AssetController {
 
     @Context
     private HttpHeaders httpHeaders;
@@ -33,7 +33,7 @@ public abstract class AbstractAssetController {
 
     protected abstract String getPrefix();
 
-    public AbstractAssetController(Configuration configuration) {
+    public AssetController(Configuration configuration) {
         this.configuration = configuration;
     }
 

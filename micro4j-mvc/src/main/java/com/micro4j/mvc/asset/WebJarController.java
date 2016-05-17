@@ -5,7 +5,7 @@ import javax.ws.rs.Path;
 import com.micro4j.mvc.Configuration;
 
 @Path("/webjars")
-public class WebJarController extends AbstractAssetController {
+public class WebJarController extends AssetController {
 
     public WebJarController(Configuration configuration) {
         super(configuration);

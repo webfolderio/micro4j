@@ -9,11 +9,11 @@ import com.micro4j.mvc.template.TemplateWrapper;
 
 import static java.util.Collections.emptyList;
 
-public class WebJarAssetProcessor extends Processor {
+public class WebJarProcessor extends Processor {
 
     private List<String> assets = emptyList();
 
-    public WebJarAssetProcessor() {
+    public WebJarProcessor() {
         assets = new WebJarScanner().scan();
     }
 
