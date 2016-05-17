@@ -56,6 +56,7 @@ class MvcJerseyFeature implements Feature {
     protected void inject() {
         for (Processor processor : configuration.getProcessors()) {
             inject(processor);
+            processor.init();
         }
     }
 

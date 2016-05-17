@@ -25,7 +25,13 @@ package com.micro4j.mvc.asset;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import com.micro4j.mvc.Configuration;
+
 public class WebJarScanner extends AssetScanner {
+
+    public WebJarScanner(Configuration configuration) {
+        super(configuration);
+    }
 
     @Override
     protected boolean isAsset(JarFile jar, JarEntry entry) {

@@ -1,19 +1,20 @@
 package com.micro4j.mvc.test;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.List;
 
 import org.junit.Test;
 
+import com.micro4j.mvc.Configuration;
 import com.micro4j.mvc.asset.AssetScanner;
 import com.micro4j.mvc.asset.WebJarScanner;
-
-import static org.junit.Assert.*;
 
 public class AssetScannerTest {
 
     @Test
     public void testWebJarJsScanner() {
-        AssetScanner scanner = new WebJarScanner();
+        AssetScanner scanner = new WebJarScanner(new Configuration.Builder().build());
         List<String> assets = scanner.scan();
         assertEquals(2, assets.size());
         assertEquals("webjars/jquery/1.11.1/jquery.js", assets.get(0));

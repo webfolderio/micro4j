@@ -24,52 +24,60 @@ package com.micro4j.mvc.asset;
 
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.compare;
-import static java.lang.System.getProperty;
 import static java.util.Collections.sort;
 
-import java.io.File;
 import java.io.IOException;
+import java.net.JarURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import com.micro4j.mvc.Configuration;
+
 public abstract class AssetScanner {
 
     public static final int MIN_PRIORITY = MAX_VALUE;
-    
+
     public static final int MAX_PRIORITY = 0;
 
-    public List<String> scan() {
-        String classpath = getProperty("java.class.path");
-        String[] paths = classpath.split(";");
-        return scan(paths);
-    }
+    private Configuration configuration;
 
     protected abstract boolean isAsset(JarFile jar, JarEntry entry);
 
-    public List<String> scan(String[] paths) {
+    public AssetScanner(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
+    public List<String> scan() {
         List<String> assets = new ArrayList<>();
-        for (String path : paths) {
-            File file = new File(path);
-            if (!file.isFile()) {
-                continue;
-            }
-            try (JarFile jar = new JarFile(path)) {
-                Enumeration<JarEntry> entries = jar.entries();
-                while (entries.hasMoreElements()) {
-                    JarEntry entry = entries.nextElement();
-                    if (entry.isDirectory() || !isAsset(jar, entry)) {
-                        continue;
-                    }
-                    String name = toPath(entry);
-                    name = removePrefix(name);
-                    assets.add(name);
+        try {
+            Enumeration<URL> enumeration = configuration.getClassLoader().getResources("META-INF/resources");
+            while (enumeration.hasMoreElements()) {
+                URL url = enumeration.nextElement();
+                URLConnection urlConnection = url.openConnection();
+                if (!(urlConnection instanceof JarURLConnection)) {
+                    continue;
                 }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+                JarURLConnection connection = (JarURLConnection) urlConnection;
+                try (JarFile jar = connection.getJarFile()) {
+                    Enumeration<JarEntry> entries = jar.entries();
+                    while (entries.hasMoreElements()) {
+                        JarEntry entry = entries.nextElement();
+                        if (entry.isDirectory() || !isAsset(jar, entry)) {
+                            continue;
+                        }
+                        String name = toPath(entry);
+                        name = removePrefix(name);
+                        assets.add(name);
+                    }
+                }
             }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         sort(assets, (a1, a2) -> compare(getPriority(a1), getPriority(a2)));
         return assets;
