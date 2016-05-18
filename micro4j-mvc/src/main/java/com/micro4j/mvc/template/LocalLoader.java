@@ -41,7 +41,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 
 import com.micro4j.mvc.Configuration;
-import com.micro4j.mvc.message.MvcMessages;
 
 public class LocalLoader extends AbstractContentLoader {
 
@@ -67,7 +66,7 @@ public class LocalLoader extends AbstractContentLoader {
                         new Object[] { next.toString() });
                 continue;
             }
-            LOG.info(MvcMessages.getString("LocalLoader.valid.directory"), //$NON-NLS-1$
+            LOG.info(getString("LocalLoader.valid.directory"), //$NON-NLS-1$
                     new Object[] { next.toString() });
             directories.add(next.toAbsolutePath().normalize());
         }
