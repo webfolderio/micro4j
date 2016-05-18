@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.mvc.asset;
+package com.micro4j.mvc.jaxrs;
 
 import static com.micro4j.mvc.message.MvcMessages.getString;
 import static java.lang.String.valueOf;

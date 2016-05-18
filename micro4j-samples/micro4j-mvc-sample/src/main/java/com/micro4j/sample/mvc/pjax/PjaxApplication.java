@@ -7,9 +7,9 @@ import javax.ws.rs.core.Application;
 
 import com.micro4j.mvc.Configuration;
 import com.micro4j.mvc.Configuration.Builder;
-import com.micro4j.mvc.asset.WebJarController;
 import com.micro4j.mvc.asset.AssetProcessor;
 import com.micro4j.mvc.jaxrs.MvcFeature;
+import com.micro4j.mvc.jaxrs.WebJarController;
 
 public class PjaxApplication extends Application {
 
