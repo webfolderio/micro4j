@@ -148,6 +148,7 @@
             <groupId>org.webjars</groupId>
             <artifactId>jquery-pjax</artifactId>
             <version>1.9.6</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
