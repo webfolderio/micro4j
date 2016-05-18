@@ -14,7 +14,7 @@ public class AssetScannerTest {
 
     @Test
     public void testWebJarJsScanner() {
-        AssetScanner scanner = new WebJarScanner(new Configuration.Builder().build()) {
+        AssetScanner scanner = new WebJarScanner() {
 
             @Override
             protected int getPriority(String path) {
@@ -23,11 +23,21 @@ public class AssetScannerTest {
                 }
                 return super.getPriority(path);
             }
+
+            @Override
+            protected boolean isAsset(String path) {
+                if (path.contains("bootstrap") && !path.endsWith("bootstrap.css")) {
+                    return false;
+                }
+                boolean asset = (isJs(path) && !isRequireJs(path)) || isCss(path);
+                return asset;
+            }
         };
-        List<String> assets = scanner.scan();
-        assertEquals(3, assets.size());
-        assertEquals("webjars/jquery/1.11.1/jquery.js", assets.get(0));
+        List<String> assets = scanner.scan(new Configuration.Builder().build());
+        assertEquals(4, assets.size());
+        assertEquals("webjars/bootstrap/3.3.6/css/bootstrap.css", assets.get(0));
         assertEquals("webjars/lib.js", assets.get(1));
-        assertEquals("webjars/jquery-pjax/1.9.6/jquery.pjax.js", assets.get(2));
+        assertEquals("webjars/jquery/1.11.1/jquery.js", assets.get(2));
+        assertEquals("webjars/jquery-pjax/1.9.6/jquery.pjax.js", assets.get(3));
     }
 }

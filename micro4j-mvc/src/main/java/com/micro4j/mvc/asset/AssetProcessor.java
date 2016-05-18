@@ -23,7 +23,6 @@
 package com.micro4j.mvc.asset;
 
 import static com.micro4j.mvc.message.MvcMessages.getString;
-import static java.util.Collections.emptyList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
@@ -31,27 +30,66 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 
+import com.micro4j.mvc.mustache.MustacheContentLamabda;
 import com.micro4j.mvc.template.Processor;
+import static java.lang.String.format;
 import com.micro4j.mvc.template.TemplateWrapper;
 
-public class WebJarProcessor extends Processor {
+public class AssetProcessor extends Processor {
 
-    private static final Logger LOG = getLogger(WebJarProcessor.class);
+    private static final Logger LOG = getLogger(AssetProcessor.class);
 
-    private List<String> assets = emptyList();
+    private AssetScanner scanner;
+
+    private MustacheContentLamabda lambda;
+
+    public AssetProcessor() {
+        this(new WebJarScanner());
+    }
+
+    public AssetProcessor(AssetScanner scanner) {
+        this.scanner = scanner;
+    }
 
     @Override
     public void init() {
-        assets = new WebJarScanner(configuration).scan();
+        List<String> assets = scanner.scan(configuration);
         for (String asset : assets) {
-            LOG.info(getString("WebJarProcessor.found.asset"), new Object[] { asset });
+            LOG.info(getString("AssetProcessor.found.asset"), new Object[] { asset });
+        }
+        StringBuilder builder = new StringBuilder();
+        for (String asset : assets) {
+            String resource = getResource(asset);
+            if (resource != null) {
+                builder.append(resource).append("\n");
+            }
+        }
+        String content = builder.toString().trim();
+        if (!content.isEmpty()) {
+            lambda = new MustacheContentLamabda(content);
         }
     }
 
     @Override
     public TemplateWrapper beforeExecute(String name, TemplateWrapper templateWrapper, Object context,
             Map<String, Object> parentContext) {
-        parentContext.put("assets", assets);
+        if (lambda != null) {
+            parentContext.put("assets", lambda);
+        }
         return templateWrapper;
+    }
+
+    protected String getResource(String asset) {
+        String resource = null;
+        if (asset.endsWith(".js")) {
+            resource = format("<script type=\"text/javascript\" src=\"%s\"></script>", getPath(asset));
+        } else if (asset.endsWith(".css")) {
+            resource = format("<link type=\"text/css\" rel=\"stylesheet\" href=\"%s\"></link>", getPath(asset));
+        }
+        return resource;
+    }
+
+    protected String getPath(String asset) {
+        return asset;
     }
 }

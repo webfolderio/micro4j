@@ -51,18 +51,16 @@ public abstract class AssetScanner {
 
     public static final int MAX_PRIORITY = 0;
 
-    private Configuration configuration;
-
     protected abstract boolean isAsset(String name);
 
-    public AssetScanner(Configuration configuration) {
-        this.configuration = configuration;
+    public List<String> scan(Configuration configuration) {
+        return scan(configuration.getClassLoader());
     }
 
-    public List<String> scan() {
+    public List<String> scan(ClassLoader classLoader) {
         List<String> assets = new ArrayList<>();
         try {
-            Enumeration<URL> enumeration = configuration.getClassLoader().getResources("META-INF/resources");
+            Enumeration<URL> enumeration = classLoader.getResources("META-INF/resources");
             while (enumeration.hasMoreElements()) {
                 URL url = enumeration.nextElement();
                 URLConnection urlConnection = url.openConnection();
@@ -109,15 +107,26 @@ public abstract class AssetScanner {
         return assets;
     }
 
-    protected boolean isJs(String name) {
-        return name.endsWith(".js") && !isMinJs(name);
+    protected boolean isCss(String path) {
+        return path.endsWith(".css") && !isMinCss(path);
     }
 
-    protected boolean isMinJs(String name) {
-        return name.endsWith(".min.js");
+    protected boolean isMinCss(String path) {
+        return path.endsWith(".min.css");
+    }
+
+    protected boolean isJs(String path) {
+        return path.endsWith(".js") && !isMinJs(path);
+    }
+
+    protected boolean isMinJs(String path) {
+        return path.endsWith(".min.js");
     }
 
     protected int getPriority(String path) {
+        if (isCss(path)) {
+            return MAX_PRIORITY;
+        }
         return MIN_PRIORITY;
     }
 

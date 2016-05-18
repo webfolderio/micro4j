@@ -7,8 +7,8 @@ import javax.ws.rs.core.Application;
 
 import com.micro4j.mvc.Configuration;
 import com.micro4j.mvc.Configuration.Builder;
-import com.micro4j.mvc.asset.WebJarProcessor;
 import com.micro4j.mvc.asset.WebJarController;
+import com.micro4j.mvc.asset.AssetProcessor;
 import com.micro4j.mvc.jaxrs.MvcFeature;
 
 public class PjaxApplication extends Application {
@@ -17,7 +17,7 @@ public class PjaxApplication extends Application {
 
     public PjaxApplication() {
         Configuration configuration = new Builder()
-                                        .processors(new WebJarProcessor())
+                                        .processors(new AssetProcessor())
                                         .build();
 
         singletons.add(new MvcFeature(configuration));

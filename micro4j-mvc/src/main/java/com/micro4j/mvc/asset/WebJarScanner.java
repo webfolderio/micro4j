@@ -22,17 +22,13 @@
  */
 package com.micro4j.mvc.asset;
 
-import com.micro4j.mvc.Configuration;
-
 public class WebJarScanner extends AssetScanner {
 
-    public WebJarScanner(Configuration configuration) {
-        super(configuration);
-    }
+    public static final int JQUERY_PRIORITY = MAX_PRIORITY + 1000;
 
     @Override
     protected boolean isAsset(String name) {
-        return isJs(name) && !isRequireJs(name);
+        return (isJs(name) && !isRequireJs(name)) || isCss(name);
     }
 
     protected boolean isRequireJs(String name) {
@@ -42,7 +38,7 @@ public class WebJarScanner extends AssetScanner {
     @Override
     protected int getPriority(String path) {
         return path.startsWith("webjars/jquery/") ?
-                        MAX_PRIORITY :
-                        MIN_PRIORITY;
+                        JQUERY_PRIORITY :
+                        super.getPriority(path);
     }
 }
