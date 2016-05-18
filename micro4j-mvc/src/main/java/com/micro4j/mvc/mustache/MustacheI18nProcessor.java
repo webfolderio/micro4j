@@ -63,7 +63,7 @@ public class MustacheI18nProcessor extends Processor {
     public TemplateWrapper beforeExecute(String name, TemplateWrapper templateWrapper, Object context, Map<String, Object> parentContext) {
         Locale locale = getPreferedLocale();
         if (locale == null) {
-            locale = getBrowserLocale();
+            locale = getRequestLocale();
         }
         if (locale == null) {
             locale = configuration.getDefaultLocale();
@@ -74,7 +74,7 @@ public class MustacheI18nProcessor extends Processor {
         return templateWrapper;
     }
 
-    protected Locale getBrowserLocale() {
+    protected Locale getRequestLocale() {
         List<Locale> languages = headers.getAcceptableLanguages();
         String acceptLanguage = headers.getHeaderString(ACCEPT_LANGUAGE);
         List<LanguageRange> ranges = emptyList();
