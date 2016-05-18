@@ -37,7 +37,7 @@ import org.junit.BeforeClass;
 public class JerseyTest extends BaseTest {
 
     static {
-        System.setProperty(DEFAULT_LOG_LEVEL_KEY, "debug");
+        System.setProperty(DEFAULT_LOG_LEVEL_KEY, "trace");
         System.setProperty(LOG_FILE_KEY, "System.out");
     }
 

@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 
 import javax.ws.rs.GET;
@@ -38,7 +39,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.CacheControl;
-import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
@@ -50,7 +50,9 @@ import com.micro4j.mvc.Configuration;
 import com.micro4j.mvc.View;
 import com.micro4j.mvc.ViewModel;
 import com.micro4j.mvc.asset.WebJarController;
+import com.micro4j.mvc.asset.WebJarProcessor;
 import com.micro4j.mvc.jaxrs.MvcFeature;
+import com.micro4j.mvc.message.MvcMessages;
 import com.micro4j.mvc.mustache.MustacheI18nProcessor;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -98,6 +100,14 @@ public abstract class BaseTest {
         }
 
         @GET
+        @Path("/assets")
+        @View("template/assets.html")
+        public Map<String, Object> assets() {
+            Map<String, Object> model = new LinkedHashMap<>();
+            return model;
+        }
+
+        @GET
         @Path("/test-return-view-model")
         public ViewModel<Map<String, Object>> testReturnViewModel() {
             ViewModel<Map<String, Object>> model = new ViewModel<Map<String,Object>>("template/message.html", new LinkedHashMap<>());
@@ -140,13 +150,13 @@ public abstract class BaseTest {
 
             Configuration configuration = new Configuration
                                                 .Builder()
-                                                .processors(new MustacheI18nProcessor("template.myapp"))
+                                                .processors(new MustacheI18nProcessor("template.myapp"), new WebJarProcessor())
                                                 .build();
 
-            Feature feature = new MvcFeature(configuration);
+            MvcFeature feature = new MvcFeature(configuration);
 
             singletons = new HashSet<>();
-            singletons.add(new WebJarController(configuration));
+            singletons.add(new WebJarController(feature.getConfiguration()));
             singletons.add(new SampleController());
             singletons.add(feature);
         }
@@ -236,5 +246,43 @@ public abstract class BaseTest {
         Request request = new Request.Builder().url("http://localhost:4040/webjars/style.css").build();
         Response response = client.newCall(request).execute();
         assertEquals("body { }", response.body().string());
+    }
+
+    @Test
+    public void testMissingAsset() throws IOException {
+        Request request = new Request.Builder().url("http://localhost:4040/webjars/mylib.css").build();
+        Response response = client.newCall(request).execute();
+        assertEquals(404, response.code());
+    }
+
+    @Test
+    public void testLastModified() throws IOException {
+        Request request = new Request.Builder().url("http://localhost:4040/webjars/style.css").build();
+        Response response = client.newCall(request).execute();
+        assertEquals(200, response.code());
+        String lastModified = response.header(HttpHeaders.LAST_MODIFIED);
+        request = new Request.Builder().url("http://localhost:4040/webjars/style.css").header(HttpHeaders.IF_MODIFIED_SINCE, lastModified).build();
+        response = client.newCall(request).execute();
+        assertEquals(304, response.code());
+    }
+
+    @Test
+    public void testAssetProcessor() throws IOException {
+        Request request = new Request.Builder().url("http://localhost:4040/assets").build();
+        Response response = client.newCall(request).execute();
+        Scanner scanner = new Scanner(response.body().string());
+        String line1 = scanner.nextLine();
+        String line2 = scanner.nextLine();
+        String line3 = scanner.nextLine();
+        assertEquals("<script type=\"text/javascript\" src=\"webjars/jquery/1.11.1/jquery.js\"></script>", line1);
+        assertEquals("<script type=\"text/javascript\" src=\"webjars/lib.js\"></script>", line2);
+        assertEquals("<script type=\"text/javascript\" src=\"webjars/jquery-pjax/1.9.6/jquery.pjax.js\"></script>", line3);
+        scanner.close();
+    }
+
+    @Test
+    public void testMissingKey() {
+        String value = MvcMessages.getString("invalid.key");
+        assertEquals("!invalid.key!", value);
     }
 }
