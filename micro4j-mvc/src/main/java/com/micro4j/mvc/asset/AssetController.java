@@ -29,6 +29,7 @@ import static javax.ws.rs.core.HttpHeaders.CONTENT_ENCODING;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.HttpHeaders.IF_MODIFIED_SINCE;
 import static javax.ws.rs.core.HttpHeaders.LAST_MODIFIED;
+import static javax.ws.rs.core.HttpHeaders.VARY;
 import static javax.ws.rs.core.Response.ok;
 import static javax.ws.rs.core.Response.status;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
@@ -52,8 +53,6 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import org.slf4j.Logger;
 
 import com.micro4j.mvc.Configuration;
-
-import static javax.ws.rs.core.HttpHeaders.VARY;
 
 public abstract class AssetController {
 
@@ -87,6 +86,7 @@ public abstract class AssetController {
         if (enableGzip && acceptEncoding != null && acceptEncoding.contains("gzip")) {
             URL gzUrl = configuration.getClassLoader().getResource(path + ".gz");
             if (gzUrl != null) {
+                connection = gzUrl.openConnection();
                 isGzResponse = true;
             }
         }
@@ -99,14 +99,14 @@ public abstract class AssetController {
             if (contentType == null) {
                 LOG.error(getString("AssetController.content.type.not.found"), new Object[] { asset }); //$NON-NLS-1$
                 return status(UNSUPPORTED_MEDIA_TYPE).build();
-            }
+            }            
             ResponseBuilder response = ok(connection.getInputStream())
                                         .cacheControl(getCacheControl(asset))
                                         .header(LAST_MODIFIED, lastModified)
                                         .header(CONTENT_TYPE, contentType);
             if (isGzResponse) {
-                response.header(VARY, ACCEPT_ENCODING);
-                response.header(CONTENT_ENCODING, "gzip");
+                response = response.header(VARY, ACCEPT_ENCODING);
+                response = response.header(CONTENT_ENCODING, "gzip");
             }
             return response.build();
         }
