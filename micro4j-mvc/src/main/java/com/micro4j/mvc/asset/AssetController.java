@@ -105,8 +105,8 @@ public abstract class AssetController {
                                         .header(LAST_MODIFIED, lastModified)
                                         .header(CONTENT_TYPE, contentType);
             if (isGzResponse) {
-                response = response.header(VARY, ACCEPT_ENCODING);
-                response = response.header(CONTENT_ENCODING, "gzip");
+                response.header(VARY, ACCEPT_ENCODING);
+                response.header(CONTENT_ENCODING, "gzip");
             }
             return response.build();
         }
