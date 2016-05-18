@@ -22,11 +22,9 @@
  */
 package com.micro4j.mvc.test;
 
-import static com.squareup.okhttp.logging.HttpLoggingInterceptor.Level.BODY;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -50,9 +48,9 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import com.micro4j.mvc.Configuration;
 import com.micro4j.mvc.View;
 import com.micro4j.mvc.ViewModel;
+import com.micro4j.mvc.asset.AssetProcessor;
 import com.micro4j.mvc.asset.AssetScanner;
 import com.micro4j.mvc.asset.WebJarController;
-import com.micro4j.mvc.asset.AssetProcessor;
 import com.micro4j.mvc.asset.WebJarScanner;
 import com.micro4j.mvc.jaxrs.MvcFeature;
 import com.micro4j.mvc.message.MvcMessages;
@@ -60,8 +58,6 @@ import com.micro4j.mvc.mustache.MustacheI18nProcessor;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
-import com.squareup.okhttp.logging.HttpLoggingInterceptor;
-import com.squareup.okhttp.logging.HttpLoggingInterceptor.Logger;
 
 public abstract class BaseTest {
 
@@ -148,7 +144,7 @@ public abstract class BaseTest {
 
         private Set<Object> singletons;
 
-        public TestApplication() {
+        public TestApplication(boolean readGz) {
             classes = new HashSet<>();
 
             AssetScanner scanner = new WebJarScanner() {
@@ -179,7 +175,7 @@ public abstract class BaseTest {
             MvcFeature feature = new MvcFeature(configuration);
 
             singletons = new HashSet<>();
-            singletons.add(new WebJarController(feature.getConfiguration()));
+            singletons.add(new WebJarController(feature.getConfiguration(), readGz));
             singletons.add(new SampleController());
             singletons.add(feature);
         }
@@ -195,22 +191,9 @@ public abstract class BaseTest {
         }
     }
 
-    private static class HttpLogger implements Logger {
-
-        private static final org.slf4j.Logger LOG = getLogger(HttpLogger.class);
-
-        @Override
-        public void log(String message) {
-            LOG.debug(message);
-        }
-    }
-
     @BeforeClass
     public static void setUp() {
         client = new OkHttpClient();
-        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(new HttpLogger());
-        loggingInterceptor.setLevel(BODY);
-        client.interceptors().add(loggingInterceptor);
         client.setConnectTimeout(60, SECONDS);
         client.setReadTimeout(60, SECONDS);
         client.setWriteTimeout(60, SECONDS);

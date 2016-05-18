@@ -47,7 +47,7 @@ public class ResteasyTest extends BaseTest {
     @BeforeClass
     public static void before() {
         deployment = new ResteasyDeployment();
-        deployment.setApplication(new TestApplication());
+        deployment.setApplication(new TestApplication(true));
 
         server = new SunHttpJaxrsServer();
         server.setPort(4040);

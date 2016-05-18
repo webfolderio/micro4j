@@ -21,7 +21,7 @@ public class PjaxApplication extends Application {
                                         .build();
 
         singletons.add(new MvcFeature(configuration));
-        singletons.add(new WebJarController(configuration));
+        singletons.add(new WebJarController(configuration, false));
         singletons.add(new PjaxController());
     }
 

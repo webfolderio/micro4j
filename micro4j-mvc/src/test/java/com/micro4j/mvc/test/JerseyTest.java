@@ -45,7 +45,7 @@ public class JerseyTest extends BaseTest {
  
     @BeforeClass
     public static void before() {
-        ResourceConfig config = ResourceConfig.forApplication(new TestApplication());
+        ResourceConfig config = ResourceConfig.forApplication(new TestApplication(false));
         server = SimpleContainerFactory.create(URI.create("http://localhost:4040"), config);
     }
 

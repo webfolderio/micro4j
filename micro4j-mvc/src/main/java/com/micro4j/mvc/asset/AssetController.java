@@ -22,7 +22,10 @@
  */
 package com.micro4j.mvc.asset;
 
+import static com.micro4j.mvc.message.MvcMessages.getString;
 import static java.lang.String.valueOf;
+import static javax.ws.rs.core.HttpHeaders.ACCEPT_ENCODING;
+import static javax.ws.rs.core.HttpHeaders.CONTENT_ENCODING;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.HttpHeaders.IF_MODIFIED_SINCE;
 import static javax.ws.rs.core.HttpHeaders.LAST_MODIFIED;
@@ -31,25 +34,26 @@ import static javax.ws.rs.core.Response.status;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NOT_MODIFIED;
 import static javax.ws.rs.core.Response.Status.UNSUPPORTED_MEDIA_TYPE;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 
 import javax.ws.rs.GET;
-import static com.micro4j.mvc.message.MvcMessages.*;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.slf4j.Logger;
 
 import com.micro4j.mvc.Configuration;
 
-import static org.slf4j.LoggerFactory.getLogger;
+import static javax.ws.rs.core.HttpHeaders.VARY;
 
 public abstract class AssetController {
 
@@ -60,10 +64,13 @@ public abstract class AssetController {
 
     private Configuration configuration;
 
+    private boolean enableGzip;
+
     protected abstract String getPrefix();
 
-    public AssetController(Configuration configuration) {
+    public AssetController(Configuration configuration, boolean enableGzip) {
         this.configuration = configuration;
+        this.enableGzip = enableGzip;
     }
 
     @GET
@@ -75,6 +82,14 @@ public abstract class AssetController {
             return status(NOT_FOUND).build();
         }
         URLConnection connection = url.openConnection();
+        String acceptEncoding = httpHeaders.getHeaderString(ACCEPT_ENCODING);
+        boolean isGzResponse = false;
+        if (enableGzip && acceptEncoding != null && acceptEncoding.contains("gzip")) {
+            URL gzUrl = configuration.getClassLoader().getResource(path + ".gz");
+            if (gzUrl != null) {
+                isGzResponse = true;
+            }
+        }
         String lastModified = valueOf(connection.getLastModified());
         String ifModifiedSince = httpHeaders.getHeaderString(IF_MODIFIED_SINCE);
         if (lastModified.equals(ifModifiedSince)) {
@@ -85,11 +100,15 @@ public abstract class AssetController {
                 LOG.error(getString("AssetController.content.type.not.found"), new Object[] { asset }); //$NON-NLS-1$
                 return status(UNSUPPORTED_MEDIA_TYPE).build();
             }
-            return ok(connection.getInputStream())
-                    .cacheControl(getCacheControl(asset))
-                    .header(LAST_MODIFIED, lastModified)
-                    .header(CONTENT_TYPE, contentType)
-                    .build();
+            ResponseBuilder response = ok(connection.getInputStream())
+                                        .cacheControl(getCacheControl(asset))
+                                        .header(LAST_MODIFIED, lastModified)
+                                        .header(CONTENT_TYPE, contentType);
+            if (isGzResponse) {
+                response.header(VARY, ACCEPT_ENCODING);
+                response.header(CONTENT_ENCODING, "gzip");
+            }
+            return response.build();
         }
     }
 
@@ -106,6 +125,14 @@ public abstract class AssetController {
             ct = "font/woff2";
         }
         return ct;
+    }
+
+    public boolean isEnableGzip() {
+        return enableGzip;
+    }
+
+    public void setEnableGzip(boolean enableGzip) {
+        this.enableGzip = enableGzip;
     }
 
     protected CacheControl getCacheControl(String asset) {

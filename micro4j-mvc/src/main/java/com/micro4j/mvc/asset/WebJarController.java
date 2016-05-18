@@ -29,8 +29,8 @@ import com.micro4j.mvc.Configuration;
 @Path("/webjars")
 public class WebJarController extends AssetController {
 
-    public WebJarController(Configuration configuration) {
-        super(configuration);
+    public WebJarController(Configuration configuration, boolean readGz) {
+        super(configuration, readGz);
     }
 
     @Override
