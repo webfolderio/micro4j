@@ -53,18 +53,7 @@ public class AssetProcessor extends Processor {
 
     @Override
     public void init() {
-        List<String> assets = scanner.scan(configuration);
-        for (String asset : assets) {
-            LOG.info(getString("AssetProcessor.found.asset"), new Object[] { asset });
-        }
-        StringBuilder builder = new StringBuilder();
-        for (String asset : assets) {
-            String resource = getResource(asset);
-            if (resource != null) {
-                builder.append(resource).append("\n");
-            }
-        }
-        String content = builder.toString().trim();
+        String content = getContent();
         if (!content.isEmpty()) {
             lambda = new MustacheContentLamabda(content);
         }
@@ -77,6 +66,22 @@ public class AssetProcessor extends Processor {
             parentContext.put("assets", lambda);
         }
         return templateWrapper;
+    }
+
+    protected String getContent() {
+        List<String> assets = scanner.scan(configuration);
+        for (String asset : assets) {
+            LOG.info(getString("AssetProcessor.found.asset"), new Object[] { asset });
+        }
+        StringBuilder builder = new StringBuilder();
+        for (String asset : assets) {
+            String resource = getResource(asset);
+            if (resource != null) {
+                builder.append(resource).append("\n");
+            }
+        }
+        String content = builder.toString().trim();
+        return content;
     }
 
     protected String getResource(String asset) {
