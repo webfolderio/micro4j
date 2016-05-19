@@ -10,7 +10,7 @@ import com.micro4j.mvc.Configuration.Builder;
 import com.micro4j.mvc.asset.AssetProcessor;
 import com.micro4j.mvc.jaxrs.MvcFeature;
 import com.micro4j.mvc.jaxrs.WebJarController;
-import com.micro4j.mvc.processor.MinimizeProcessor;
+import com.micro4j.mvc.minimize.MinimizeProcessor;
 
 public class PjaxApplication extends Application {
 

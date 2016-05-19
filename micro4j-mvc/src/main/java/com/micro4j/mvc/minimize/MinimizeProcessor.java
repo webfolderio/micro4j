@@ -1,4 +1,4 @@
-package com.micro4j.mvc.processor;
+package com.micro4j.mvc.minimize;
 
 import static org.attoparser.config.ParseConfiguration.htmlConfiguration;
 import static org.attoparser.minimize.MinimizeHtmlMarkupHandler.MinimizeMode.COMPLETE;

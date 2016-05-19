@@ -59,6 +59,10 @@
                                     <pattern>com.samskivert</pattern>
                                     <shadedPattern>com.micro4j.mvc.jmustache</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>org.attoparser</pattern>
+                                    <shadedPattern>com.micro4j.mvc.attoparser</shadedPattern>
+                                </relocation>
                             </relocations>
                             <transformers>
                                 <transformer
