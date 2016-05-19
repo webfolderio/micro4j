@@ -55,6 +55,7 @@ import com.micro4j.mvc.jaxrs.MvcFeature;
 import com.micro4j.mvc.jaxrs.WebJarController;
 import com.micro4j.mvc.message.MvcMessages;
 import com.micro4j.mvc.mustache.MustacheI18nProcessor;
+import com.micro4j.mvc.processor.MinimizeProcessor;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -169,7 +170,10 @@ public abstract class BaseTest {
 
             Configuration configuration = new Configuration
                                                 .Builder()
-                                                .processors(new MustacheI18nProcessor("template.myapp"), new AssetProcessor(scanner))
+                                                .processors(
+                                                        new MustacheI18nProcessor("template.myapp"),
+                                                        new AssetProcessor(scanner),
+                                                        new MinimizeProcessor())
                                                 .build();
 
             MvcFeature feature = new MvcFeature(configuration);
