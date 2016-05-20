@@ -69,7 +69,7 @@ public class AssetProcessor extends Processor {
     }
 
     protected String getContent() {
-        List<String> assets = scanner.scan(configuration);
+        List<String> assets = getAssets();
         for (String asset : assets) {
             LOG.info(getString("AssetProcessor.found.asset"), new Object[] { asset });
         }
@@ -82,6 +82,10 @@ public class AssetProcessor extends Processor {
         }
         String content = builder.toString().trim();
         return content;
+    }
+
+    protected List<String> getAssets() {
+        return scanner.scan(configuration);
     }
 
     protected String getResource(String asset) {
