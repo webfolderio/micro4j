@@ -81,6 +81,9 @@ public class BabelMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        if (invocable == null) {
+            init();
+        }
         for (Resource resource : project.getResources()) {
             File folder = new File(resource.getDirectory());
             if (isDirectory(folder.toPath())) {
@@ -135,13 +138,6 @@ public class BabelMojo extends AbstractMojo {
             getLog().error(e);
             throw new MojoExecutionException("Unable to conver esnext to es5", e);
         }
-    }
-
-    protected Invocable getInvocable() {
-        if (invocable == null) {
-            init();
-        }
-        return invocable;
     }
 
     protected void init() {
