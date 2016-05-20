@@ -10,6 +10,7 @@
     <modules>
         <module>micro4j-mvc</module>
         <module>micro4j-samples</module>
+        <module>micro4j-maven-plugin</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

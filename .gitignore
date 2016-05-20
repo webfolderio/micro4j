@@ -8,3 +8,7 @@
 /micro4j-samples/micro4j-mvc-sample/.settings
 /micro4j-samples/micro4j-mvc-sample/target
 /micro4j-samples/micro4j-mvc-sample/.classpath
+/micro4j-maven-plugin/.project
+/micro4j-maven-plugin/.settings
+/micro4j-maven-plugin/target
+/micro4j-maven-plugin/.classpath

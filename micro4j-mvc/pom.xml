@@ -59,10 +59,6 @@
                                     <pattern>com.samskivert</pattern>
                                     <shadedPattern>com.micro4j.mvc.jmustache</shadedPattern>
                                 </relocation>
-                                <relocation>
-                                    <pattern>org.attoparser</pattern>
-                                    <shadedPattern>com.micro4j.mvc.attoparser</shadedPattern>
-                                </relocation>
                             </relocations>
                             <transformers>
                                 <transformer
@@ -129,11 +125,6 @@
             <groupId>com.samskivert</groupId>
             <artifactId>jmustache</artifactId>
             <version>1.12</version>
-        </dependency>
-        <dependency>
-            <groupId>org.attoparser</groupId>
-            <artifactId>attoparser</artifactId>
-            <version>2.0.0.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
