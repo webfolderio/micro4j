@@ -67,7 +67,7 @@ public class BabelMojo extends AbstractMojo {
     private String[] excludes;
 
     @Parameter(defaultValue = "${project.build.sourceEncoding}")
-    private String encoding;
+    private String encoding = "utf-8";
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
