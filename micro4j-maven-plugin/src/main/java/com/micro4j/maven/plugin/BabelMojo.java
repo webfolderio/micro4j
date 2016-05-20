@@ -23,13 +23,12 @@
 package com.micro4j.maven.plugin;
 
 import static java.lang.String.valueOf;
+import static java.lang.System.currentTimeMillis;
+import static java.lang.Thread.currentThread;
 import static java.nio.charset.Charset.forName;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.nio.file.Files.exists;
-import static java.nio.file.Files.getLastModifiedTime;
 import static java.nio.file.Files.isDirectory;
 import static java.nio.file.Files.readAllBytes;
-import static java.nio.file.Files.setLastModifiedTime;
 import static java.nio.file.Files.write;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_RESOURCES;
 
@@ -40,7 +39,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.attribute.FileTime;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -57,8 +55,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.Scanner;
 import org.sonatype.plexus.build.incremental.BuildContext;
-
-import static java.lang.Thread.currentThread;
 
 @Mojo(name = "babel", defaultPhase = PROCESS_RESOURCES, threadSafe = false, requiresOnline = false, requiresReports = false)
 public class BabelMojo extends AbstractMojo {
@@ -85,13 +81,6 @@ public class BabelMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        if (invocable == null) {
-            init();
-        }
-        if (invocable == null) {
-            getLog().error("Unable to find JavaScript engine");
-            return;
-        }
         for (Resource resource : project.getResources()) {
             File folder = new File(resource.getDirectory());
             if (isDirectory(folder.toPath())) {
@@ -103,30 +92,6 @@ public class BabelMojo extends AbstractMojo {
             if (isDirectory(folder.toPath())) {
                 transform(folder, true);
             }
-        }
-    }
-
-    protected void init() {
-        getLog().info("Initializing the JavaScript engine");
-        try {
-            URL url = currentThread().getContextClassLoader().getResource(babelLocation);
-            if (url != null) {
-                try (InputStream is = new BufferedInputStream(url.openStream())) {
-                    ScriptEngineManager manager = new ScriptEngineManager(null);
-                    ScriptEngine engine = manager.getEngineByExtension("js");
-                    if (engine == null) {
-                        getLog().error("Unable to instantiate JavaScript engine");
-                        return;
-                    }
-                    engine.eval(new InputStreamReader(is, UTF_8.name()));
-                    engine.eval("var converToEs5 = function(input) { return Babel.transform(input, { presets: ['es2015', 'stage-3'] }).code; }");
-                    invocable = (Invocable) engine;
-                } catch (ScriptException e) {
-                    getLog().error(e);
-                }
-            }
-        } catch (IOException e) {
-            getLog().error(e);
         }
     }
 
@@ -153,33 +118,58 @@ public class BabelMojo extends AbstractMojo {
     }
 
     protected void transform(Path esNextFile, Path es5File) throws MojoExecutionException {
-        if (exists(es5File)) {
-            try {
-                FileTime esNextLastModified = getLastModifiedTime(esNextFile);
-                FileTime es5LastModified = getLastModifiedTime(es5File);
-                if (esNextLastModified.equals(es5LastModified)) {
-                    return;
-                }
-            } catch (IOException e) {
-                getLog().warn(e);
-            }
-        }
-        getLog().info("Converting esnext code [" + esNextFile.toString() + "] to es5 [" + es5File.toString() + "]");
+        long start = currentTimeMillis();
+        getLog().info("Compiling  javascript file [" + esNextFile.toString() + "] to [" + es5File.toString() + "]");
         String esNextcontent = null;
         try {
             esNextcontent = new String(readAllBytes(esNextFile), forName(encoding));
         } catch (IOException e) {
             getLog().error(e);
-            throw new MojoExecutionException("Unable to read file [" + esNextFile.toString() + "]", e);
+            throw new MojoExecutionException("Unable to read the file [" + esNextFile.toString() + "]", e);
         }
         try {
-            String es5Content = valueOf(invocable.invokeFunction("converToEs5", esNextcontent));
+            String es5Content = valueOf(invocable.invokeFunction("micro4jCompile", esNextcontent));
             write(es5File, es5Content.getBytes());
-            setLastModifiedTime(es5File, getLastModifiedTime(esNextFile));
-            getLog().info("Conversion done");
+            getLog().info("Compilation done [" + (currentTimeMillis() - start) + " ms]");
         } catch (NoSuchMethodException | ScriptException | IOException e) {
             getLog().error(e);
             throw new MojoExecutionException("Unable to conver esnext to es5", e);
+        }
+    }
+
+    protected Invocable getInvocable() {
+        if (invocable == null) {
+            init();
+        }
+        return invocable;
+    }
+
+    protected void init() {
+        try {
+            getLog().info("Initializing the babel from [" + babelLocation + "]");
+            URL url = currentThread().getContextClassLoader().getResource(babelLocation);
+            if (url == null) {
+                getLog().error("Unable to load babel from [" + babelLocation + "]");
+            }
+            if (url != null) {
+                long start = currentTimeMillis();
+                try (InputStream is = new BufferedInputStream(url.openStream())) {
+                    ScriptEngineManager manager = new ScriptEngineManager(null);
+                    ScriptEngine engine = manager.getEngineByExtension("js");
+                    if (engine == null) {
+                        getLog().error("Unable to instantiate JavaScript engine");
+                        return;
+                    }
+                    engine.eval(new InputStreamReader(is, UTF_8.name()));
+                    engine.eval("var micro4jCompile = function(input) { return Babel.transform(input, { presets: ['es2015', 'stage-3'] }).code; }");
+                    invocable = (Invocable) engine;
+                    getLog().info("babel initialized [" + (currentTimeMillis() - start) + " ms]");
+                } catch (ScriptException e) {
+                    getLog().error(e);
+                }
+            }
+        } catch (IOException e) {
+            getLog().error(e);
         }
     }
 }
