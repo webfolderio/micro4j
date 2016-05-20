@@ -62,6 +62,9 @@ public class BabelMojo extends AbstractMojo {
     @Parameter(defaultValue = "**/*.jsx, **/*.es6, *.es7, **/*.es")
     private String[] includes = new String[] { "**/*.jsx", "**/*.es6", "*.es7", "**/*.es" };
 
+    @Parameter
+    private String[] excludes;
+
     @Parameter(defaultValue = "${project.build.sourceEncoding}")
     private String encoding;
 
@@ -103,6 +106,9 @@ public class BabelMojo extends AbstractMojo {
         boolean ignoreDelta = incremental ? false : true;
         Scanner scanner = buildContext.newScanner(file, ignoreDelta);
         scanner.setIncludes(includes);
+        if (excludes != null && excludes.length > 0) {
+            scanner.setExcludes(excludes);
+        }
         scanner.scan();
         for (String includedFile : scanner.getIncludedFiles()) {
             Path esNextFile = file.toPath().resolve(includedFile);
