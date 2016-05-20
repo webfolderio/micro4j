@@ -81,7 +81,7 @@ public class BabelMojo extends AbstractMojo {
     @Component
     private BuildContext buildContext;
 
-    private Invocable invocable;
+    private static Invocable invocable;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -141,7 +141,7 @@ public class BabelMojo extends AbstractMojo {
             throw new MojoExecutionException("Unable to read the file [" + es6File.toString() + "]", e);
         }
         try {
-            String es5Content = valueOf(invocable.invokeFunction("micro4jCompile", es6content));
+            String es5Content = valueOf(getInvocable().invokeFunction("micro4jCompile", es6content));
             if (es5Content.startsWith("SyntaxError")) {
                 int begin = es5Content.indexOf("(");
                 int end = es5Content.indexOf(")");
@@ -158,12 +158,17 @@ public class BabelMojo extends AbstractMojo {
                 }
             } else {
                 write(es5File, es5Content.getBytes());
+                buildContext.removeMessages(es6File.toFile());
                 getLog().info("Compilation done [" + (currentTimeMillis() - start) + " ms]");
             }
         } catch (NoSuchMethodException | ScriptException | IOException e) {
             getLog().error(e);
             throw new MojoExecutionException("Unable to conver esnext to es5", e);
         }
+    }
+
+    protected static synchronized Invocable getInvocable() {
+        return invocable;
     }
 
     protected void init() {
