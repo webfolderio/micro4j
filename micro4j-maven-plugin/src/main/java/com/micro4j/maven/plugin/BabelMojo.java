@@ -39,7 +39,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Path;
-import static  org.sonatype.plexus.build.incremental.BuildContext.SEVERITY_ERROR;
+import static org.sonatype.plexus.build.incremental.BuildContext.SEVERITY_ERROR;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -75,17 +75,20 @@ public class BabelMojo extends AbstractMojo {
     @Parameter(defaultValue = "js")
     private String outputExtension;
 
+    @Parameter(defaultValue = "['es2015', 'stage-3']")
+    private String presets;
+
     @Parameter(defaultValue = "babel-standalone-6.7.7.min.js")
     private String babelLocation;
 
     @Component
     private BuildContext buildContext;
 
-    private static Invocable invocable;
+    private static Invocable engine;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        if (invocable == null) {
+        if (engine == null) {
             init();
         }
         for (Resource resource : project.getResources()) {
@@ -141,7 +144,7 @@ public class BabelMojo extends AbstractMojo {
             throw new MojoExecutionException("Unable to read the file [" + es6File.toString() + "]", e);
         }
         try {
-            String es5Content = valueOf(getInvocable().invokeFunction("micro4jCompile", es6content));
+            String es5Content = valueOf(getEngine().invokeFunction("micro4jCompile", es6content));
             if (es5Content.startsWith("SyntaxError")) {
                 int begin = es5Content.indexOf("(");
                 int end = es5Content.indexOf(")");
@@ -167,8 +170,8 @@ public class BabelMojo extends AbstractMojo {
         }
     }
 
-    protected static synchronized Invocable getInvocable() {
-        return invocable;
+    protected static synchronized Invocable getEngine() {
+        return engine;
     }
 
     protected void init() {
@@ -182,15 +185,17 @@ public class BabelMojo extends AbstractMojo {
                 long start = currentTimeMillis();
                 try (InputStream is = new BufferedInputStream(url.openStream())) {
                     ScriptEngineManager manager = new ScriptEngineManager(null);
-                    ScriptEngine engine = manager.getEngineByExtension("js");
-                    if (engine == null) {
+                    ScriptEngine scriptEngine = manager.getEngineByExtension("js");
+                    if (scriptEngine == null) {
                         getLog().error("Unable to instantiate JavaScript engine");
                         return;
                     }
-                    engine.eval(new InputStreamReader(is, UTF_8.name()));
-                    engine.eval("var micro4jCompile = function(input) { try { return Babel.transform(input, { presets: ['es2015', 'stage-3'] }).code; } catch(e) { return e;} }");
-                    invocable = (Invocable) engine;
-                    getLog().info("babel initialized [" + (currentTimeMillis() - start) + " ms]");
+                    scriptEngine.eval(new InputStreamReader(is, UTF_8.name()));
+                    scriptEngine
+                            .eval("var micro4jCompile = function(input) { try { return Babel.transform(input, { presets: "
+                                    + presets + " }).code; } catch(e) { return e;} }");
+                    engine = (Invocable) scriptEngine;
+                    getLog().info("Babel initialized [" + (currentTimeMillis() - start) + " ms]");
                 } catch (ScriptException e) {
                     getLog().error(e);
                 }
