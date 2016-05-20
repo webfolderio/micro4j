@@ -49,7 +49,7 @@ public class MinimizeMojo extends AbstractMojo {
     @Parameter
     private String[] excludes;
 
-    @Parameter(defaultValue = "utf-8")
+    @Parameter(defaultValue = "${project.build.sourceEncoding}")
     private String encoding;
 
     @SuppressWarnings("unchecked")
