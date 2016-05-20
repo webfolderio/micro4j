@@ -39,11 +39,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Path;
-
+import static  org.sonatype.plexus.build.incremental.BuildContext.SEVERITY_ERROR;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import static java.lang.Integer.parseInt;
 
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
@@ -101,45 +102,64 @@ public class BabelMojo extends AbstractMojo {
         }
     }
 
-    protected void transform(File file, boolean isTestFolder) throws MojoExecutionException {
+    protected void transform(File folder, boolean isTestFolder) throws MojoExecutionException, MojoFailureException {
         boolean incremental = buildContext.isIncremental();
         boolean ignoreDelta = incremental ? false : true;
-        Scanner scanner = buildContext.newScanner(file, ignoreDelta);
+        Scanner scanner = buildContext.newScanner(folder, ignoreDelta);
         scanner.setIncludes(includes);
         if (excludes != null && excludes.length > 0) {
             scanner.setExcludes(excludes);
         }
         scanner.scan();
         for (String includedFile : scanner.getIncludedFiles()) {
-            Path esNextFile = file.toPath().resolve(includedFile);
-            String esNextFileName = esNextFile.getFileName().toString();
-            int begin = esNextFileName.lastIndexOf('.');
+            Path es6File = folder.toPath().resolve(includedFile);
+            String es6FileName = es6File.getFileName().toString();
+            int begin = es6FileName.lastIndexOf('.');
             if (begin < 0) {
                 continue;
             }
-            String es5FileName = esNextFileName.substring(0, begin) + "." + outputExtension;
-            Path es5File = esNextFile.getParent().resolve(es5FileName);
+            String es5FileName = es6FileName.substring(0, begin) + "." + outputExtension;
+            Path es5File = es6File.getParent().resolve(es5FileName);
             Path baseDir = scanner.getBasedir().toPath();
             String outputDir = project.getBuild().getOutputDirectory();
             es5File = new File(outputDir).toPath().resolve(baseDir.relativize(es5File));
-            transform(esNextFile, es5File);
+            boolean isUptodate = buildContext.isUptodate(es5File.toFile(), es6File.toFile());
+            if (!isUptodate) {
+                transform(es6File, es5File);
+            }
         }
     }
 
-    protected void transform(Path esNextFile, Path es5File) throws MojoExecutionException {
+    protected void transform(Path es6File, Path es5File) throws MojoExecutionException, MojoFailureException {
         long start = currentTimeMillis();
-        getLog().info("Compiling  javascript file [" + esNextFile.toString() + "] to [" + es5File.toString() + "]");
-        String esNextcontent = null;
+        getLog().info("Compiling  javascript file [" + es6File.toString() + "] to [" + es5File.toString() + "]");
+        String es6content = null;
         try {
-            esNextcontent = new String(readAllBytes(esNextFile), forName(encoding));
+            es6content = new String(readAllBytes(es6File), forName(encoding));
         } catch (IOException e) {
             getLog().error(e);
-            throw new MojoExecutionException("Unable to read the file [" + esNextFile.toString() + "]", e);
+            throw new MojoExecutionException("Unable to read the file [" + es6File.toString() + "]", e);
         }
         try {
-            String es5Content = valueOf(invocable.invokeFunction("micro4jCompile", esNextcontent));
-            write(es5File, es5Content.getBytes());
-            getLog().info("Compilation done [" + (currentTimeMillis() - start) + " ms]");
+            String es5Content = valueOf(invocable.invokeFunction("micro4jCompile", es6content));
+            if (es5Content.startsWith("SyntaxError")) {
+                int begin = es5Content.indexOf("(");
+                int end = es5Content.indexOf(")");
+                if (begin >= 0 && end > begin) {
+                    String[] position = es5Content.substring(begin + 1, end).split(":");
+                    int line = parseInt(position[0]);
+                    int col = parseInt(position[1]);
+                    buildContext.addMessage(es6File.toFile(), line, col, es5Content, SEVERITY_ERROR, null);
+                } else {
+                    getLog().error(es5Content);
+                }
+                if (!buildContext.isIncremental()) {
+                    throw new MojoFailureException("Javascript compilation error [" + es6File.toString() + "]");
+                }
+            } else {
+                write(es5File, es5Content.getBytes());
+                getLog().info("Compilation done [" + (currentTimeMillis() - start) + " ms]");
+            }
         } catch (NoSuchMethodException | ScriptException | IOException e) {
             getLog().error(e);
             throw new MojoExecutionException("Unable to conver esnext to es5", e);
@@ -163,7 +183,7 @@ public class BabelMojo extends AbstractMojo {
                         return;
                     }
                     engine.eval(new InputStreamReader(is, UTF_8.name()));
-                    engine.eval("var micro4jCompile = function(input) { return Babel.transform(input, { presets: ['es2015', 'stage-3'] }).code; }");
+                    engine.eval("var micro4jCompile = function(input) { try { return Babel.transform(input, { presets: ['es2015', 'stage-3'] }).code; } catch(e) { return e;} }");
                     invocable = (Invocable) engine;
                     getLog().info("babel initialized [" + (currentTimeMillis() - start) + " ms]");
                 } catch (ScriptException e) {
