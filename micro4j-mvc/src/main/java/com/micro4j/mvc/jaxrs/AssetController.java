@@ -83,7 +83,7 @@ public abstract class AssetController {
         URLConnection connection = url.openConnection();
         String acceptEncoding = httpHeaders.getHeaderString(ACCEPT_ENCODING);
         boolean isGzResponse = false;
-        if (enableGzip && acceptEncoding != null && acceptEncoding.contains("gzip")) {
+        if (isEnableGzip() && acceptEncoding != null && acceptEncoding.contains("gzip")) {
             URL gzUrl = configuration.getClassLoader().getResource(path + ".gz");
             if (gzUrl != null) {
                 connection = gzUrl.openConnection();

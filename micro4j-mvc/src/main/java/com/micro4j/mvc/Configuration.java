@@ -63,6 +63,8 @@ public final class Configuration {
 
     private Locale locale;
 
+    private String delims;
+
     public static class Builder {
 
         private String container = "";
@@ -72,6 +74,8 @@ public final class Configuration {
         private String nullValue = "";
 
         private Charset charset = UTF_8;
+
+        private String delims = "{{ }}";
 
         private String bodyName = "body";
 
@@ -162,6 +166,14 @@ public final class Configuration {
             return this;
         }
 
+        public Builder delims(String delims) {
+            if (delims == null || delims.trim().isEmpty()) {
+                throw new IllegalArgumentException("delims");
+            }
+            this.delims = delims;
+            return this;
+        }
+
         public Builder enableTemplateCaching(boolean enableTemplateCaching) {
             this.enableTemplateCaching = enableTemplateCaching;
             return this;
@@ -179,6 +191,7 @@ public final class Configuration {
             configuration.nullValue = nullValue;
             configuration.enableTemplateCaching = enableTemplateCaching;
             configuration.locale = locale;
+            configuration.delims = delims;
             for (Processor processor : processors) {
                 processor.setConfiguration(configuration);
             }
@@ -202,7 +215,7 @@ public final class Configuration {
         return formatter;
     }
 
-    public String nullValue() {
+    public String getNullValue() {
         return nullValue;
     }
 
@@ -234,11 +247,15 @@ public final class Configuration {
         return locale;
     }
 
+    public String getDelims() {
+        return delims;
+    }
+
     @Override
     public String toString() {
         return "Configuration [fileTypeExtensions=" + fileTypeExtensions + ", pocessors=" + pocessors + ", bodyName="
                 + bodyName + ", classLoader=" + classLoader + ", charset=" + charset + ", formatter=" + formatter
                 + ", prefix=" + prefix + ", container=" + container + ", enableTemplateCaching=" + enableTemplateCaching
-                + ", nullValue=" + nullValue + ", locale=" + locale + "]";
+                + ", nullValue=" + nullValue + ", locale=" + locale + ", delims=" + delims + "]";
     }
 }

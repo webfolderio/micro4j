@@ -53,7 +53,7 @@ public abstract class AbstractContentLoader implements ContentLoader {
         if (begin > 0) {
             extension = name.substring(begin + 1);
         }
-        if (extension == null || extension.trim().isEmpty()) {
+        if (extension == null || extension.trim().isEmpty() || !configuration.getExtensions().contains(extension)) {
             LOG.error(getString("AbstractContentLoader.missing.file.extension"), //$NON-NLS-1$
                     new Object[] { join(",", configuration.getExtensions()) });
             return getDefaultContent();

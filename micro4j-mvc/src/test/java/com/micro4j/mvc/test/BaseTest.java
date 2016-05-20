@@ -27,8 +27,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
@@ -54,6 +56,7 @@ import com.micro4j.mvc.asset.WebJarScanner;
 import com.micro4j.mvc.jaxrs.MvcFeature;
 import com.micro4j.mvc.jaxrs.WebJarController;
 import com.micro4j.mvc.message.MvcMessages;
+import com.micro4j.mvc.mustache.MustacheFormatter;
 import com.micro4j.mvc.mustache.MustacheI18nProcessor;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -89,16 +92,6 @@ public abstract class BaseTest {
         }
 
         @GET
-        @Path("/my-form")
-        @View("template/myform.html")
-        public Map<String, Object> formPage() {
-            Map<String, Object> model = new LinkedHashMap<>();
-            model.put("firstName", "foo");
-            model.put("surname", "bar");
-            return model;
-        }
-
-        @GET
         @Path("/assets")
         @View("template/assets.html")
         public Map<String, Object> assets() {
@@ -128,6 +121,7 @@ public abstract class BaseTest {
             ViewModel<Map<String, Object>> model = new ViewModel<Map<String,Object>>("template/include.html", new LinkedHashMap<>());
             model.getEntity().put("name", "bar");
             CacheControl caching = new CacheControl();
+            System.out.println(model.toString());
             caching.setMaxAge(200);
             caching.setMustRevalidate(true);
             caching.setPrivate(false);
@@ -169,15 +163,31 @@ public abstract class BaseTest {
 
             Configuration configuration = new Configuration
                                                 .Builder()
+                                                .bodyName("body")
+                                                .fileTypeExtensions("html")
+                                                .container("")
+                                                .classLoader(BaseTest.class.getClassLoader())
+                                                .charset(Charset.forName("utf-8"))
+                                                .nullValue("")
+                                                .prefix("")
+                                                .delims("{{ }}")
+                                                .formatter(new MustacheFormatter())
+                                                .enableTemplateCaching(true)
+                                                .locale(Locale.ENGLISH)
                                                 .processors(
                                                         new MustacheI18nProcessor("template.myapp"),
                                                         new AssetProcessor(scanner))
                                                 .build();
 
+            System.out.println(configuration.toString());
+            
             MvcFeature feature = new MvcFeature(configuration);
 
+            WebJarController webJarController = new WebJarController(feature.getConfiguration(), readGz);
+            webJarController.setEnableGzip(true);
+
             singletons = new HashSet<>();
-            singletons.add(new WebJarController(feature.getConfiguration(), readGz));
+            singletons.add(webJarController);
             singletons.add(new SampleController());
             singletons.add(feature);
         }
@@ -288,6 +298,13 @@ public abstract class BaseTest {
         assertEquals("<script type=\"text/javascript\" src=\"webjars/jquery/1.11.1/jquery.js\"></script>", line3);
         assertEquals("<script type=\"text/javascript\" src=\"webjars/jquery-pjax/1.9.6/jquery.pjax.js\"></script>", line4);
         scanner.close();
+    }
+
+    @Test
+    public void testOverrideI18n() throws IOException {
+        Request request = new Request.Builder().url("http://localhost:4040/test-include?lang=es").build();
+        Response response = client.newCall(request).execute();
+        assertEquals("hello world", response.body().string());
     }
 
     @Test
