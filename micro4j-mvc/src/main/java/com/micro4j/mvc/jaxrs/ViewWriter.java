@@ -121,7 +121,7 @@ public class ViewWriter implements MessageBodyWriter<Object> {
     protected void writeTo(String name, String container, Object context, MultivaluedMap<String, Object> httpHeaders,
             OutputStream entityStream) throws IOException {
         if (container == null) {
-            container = engine.getConfiguration().getDefaultContainer();
+            container = engine.getConfiguration().getContainer();
         }
         if (!httpHeaders.containsKey(CACHE_CONTROL)) {
             httpHeaders.add(CACHE_CONTROL, "no-cache, no-store, must-revalidate");

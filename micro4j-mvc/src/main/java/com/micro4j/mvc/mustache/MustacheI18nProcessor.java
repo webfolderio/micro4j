@@ -66,7 +66,7 @@ public class MustacheI18nProcessor extends Processor {
             locale = getRequestLocale();
         }
         if (locale == null) {
-            locale = configuration.getDefaultLocale();
+            locale = configuration.getLocale();
         }
         ResourceBundle bundle = getBundle(baseName, locale, configuration.getClassLoader());
         MustacheI18nLambda lambda = new MustacheI18nLambda(bundle);

@@ -56,7 +56,7 @@ public class MustacheTemplateEngine extends AbstractTemplateEngine {
     protected Compiler createCompiler(ContentLoader contentLoader, Configuration configuration) {
         return compiler()
                 .withLoader((TemplateLoader) contentLoader)
-                .nullValue(configuration.defaultNullValue())
+                .nullValue(configuration.nullValue())
                 .withFormatter((Formatter) configuration.getFormatter());
     }
 }

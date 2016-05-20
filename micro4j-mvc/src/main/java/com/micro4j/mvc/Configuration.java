@@ -55,27 +55,27 @@ public final class Configuration {
 
     private String prefix;
 
-    private String defaultContainer;
+    private String container;
 
     private boolean enableTemplateCaching;
 
-    private String defaultNullValue;
+    private String nullValue;
 
-    private Locale defaultLocale;
+    private Locale locale;
 
     public static class Builder {
 
-        private String defaultContainer = "";
+        private String container = "";
 
         private String prefix = "";
 
-        private String defaultNullValue = "";
+        private String nullValue = "";
 
         private Charset charset = UTF_8;
 
         private String bodyName = "body";
 
-        private Locale defaultLocale = getDefault();
+        private Locale locale = getDefault();
 
         private boolean enableTemplateCaching = true;
 
@@ -97,11 +97,11 @@ public final class Configuration {
             return this;
         }
 
-        public Builder defaultContainer(String defaultContainer) {
-            if (defaultContainer == null) {
-                throw new IllegalArgumentException("defaultContainer");
+        public Builder container(String container) {
+            if (container == null) {
+                throw new IllegalArgumentException("container");
             }
-            this.defaultContainer = defaultContainer;
+            this.container = container;
             return this;
         }
 
@@ -149,16 +149,16 @@ public final class Configuration {
             return this;
         }
 
-        public Builder defaultLocale(Locale defaultLocale) {
-            if (defaultLocale == null) {
-                throw new IllegalArgumentException("defaultLocale");
+        public Builder locale(Locale locale) {
+            if (locale == null) {
+                throw new IllegalArgumentException("locale");
             }
-            this.defaultLocale = defaultLocale;
+            this.locale = locale;
             return this;
         }
 
-        public Builder defaultNullValue(String defaultNullValue) {
-            this.defaultNullValue = defaultNullValue;
+        public Builder nullValue(String nullValue) {
+            this.nullValue = nullValue;
             return this;
         }
 
@@ -170,15 +170,15 @@ public final class Configuration {
         public Configuration build() {
             Configuration configuration = new Configuration();
             configuration.bodyName = bodyName;
-            configuration.defaultContainer = defaultContainer;
+            configuration.container = container;
             configuration.fileTypeExtensions = unmodifiableSet(fileTypeExtensions);
             configuration.formatter = formatter;
             configuration.prefix = prefix;
             configuration.charset = charset;
             configuration.classLoader = classLoader;
-            configuration.defaultNullValue = defaultNullValue;
+            configuration.nullValue = nullValue;
             configuration.enableTemplateCaching = enableTemplateCaching;
-            configuration.defaultLocale = defaultLocale;
+            configuration.locale = locale;
             for (Processor processor : processors) {
                 processor.setConfiguration(configuration);
             }
@@ -202,16 +202,12 @@ public final class Configuration {
         return formatter;
     }
 
-    public String defaultNullValue() {
-        return defaultNullValue;
+    public String nullValue() {
+        return nullValue;
     }
 
-    public String getDefaultContainer() {
-        return defaultContainer;
-    }
-
-    public void getContainerName(String containerName) {
-        this.bodyName = containerName;
+    public String getContainer() {
+        return container;
     }
 
     public String getBodyName() {
@@ -234,16 +230,15 @@ public final class Configuration {
         return enableTemplateCaching;
     }
 
-    public Locale getDefaultLocale() {
-        return defaultLocale;
+    public Locale getLocale() {
+        return locale;
     }
 
     @Override
     public String toString() {
         return "Configuration [fileTypeExtensions=" + fileTypeExtensions + ", pocessors=" + pocessors + ", bodyName="
                 + bodyName + ", classLoader=" + classLoader + ", charset=" + charset + ", formatter=" + formatter
-                + ", prefix=" + prefix + ", defaultContainer=" + defaultContainer + ", enableTemplateCaching="
-                + enableTemplateCaching + ", defaultNullValue=" + defaultNullValue + ", defaultLocale=" + defaultLocale
-                + "]";
+                + ", prefix=" + prefix + ", container=" + container + ", enableTemplateCaching=" + enableTemplateCaching
+                + ", nullValue=" + nullValue + ", locale=" + locale + "]";
     }
 }
