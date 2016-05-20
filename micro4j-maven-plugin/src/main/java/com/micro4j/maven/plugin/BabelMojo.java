@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 
@@ -74,34 +75,19 @@ public class BabelMojo extends AbstractMojo {
     @Parameter(defaultValue = "js")
     private String outputExtension;
 
+    @Parameter(defaultValue = "babel-standalone-6.7.7.min.js")
+    private String babelLocation;
+
     @Component
     private BuildContext buildContext;
 
     private Invocable invocable;
 
-    public BabelMojo() {
-        getLog().info("Initializing the JavaScript engine");
-        try {
-            try (InputStream is = new BufferedInputStream(currentThread().getContextClassLoader().getResourceAsStream("babel-standalone-6.7.7.min.js"))) {
-                ScriptEngineManager manager = new ScriptEngineManager(null);
-                ScriptEngine engine = manager.getEngineByExtension("js");
-                if (engine == null) {
-                    getLog().error("Unable to instantiate JavaScript engine");
-                    return;
-                }
-                engine.eval(new InputStreamReader(is, UTF_8.name()));
-                engine.eval("var converToEs5 = function(input) { return Babel.transform(input, { presets: ['es2015', 'stage-3'] }).code; }");
-                invocable = (Invocable) engine;
-            } catch (ScriptException e) {
-                getLog().error(e);
-            }
-        } catch (IOException e) {
-            getLog().error(e);
-        }
-    }
-
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        if (invocable == null) {
+            init();
+        }
         if (invocable == null) {
             getLog().error("Unable to find JavaScript engine");
             return;
@@ -117,6 +103,30 @@ public class BabelMojo extends AbstractMojo {
             if (isDirectory(folder.toPath())) {
                 transform(folder, true);
             }
+        }
+    }
+
+    protected void init() {
+        getLog().info("Initializing the JavaScript engine");
+        try {
+            URL url = currentThread().getContextClassLoader().getResource(babelLocation);
+            if (url != null) {
+                try (InputStream is = new BufferedInputStream(url.openStream())) {
+                    ScriptEngineManager manager = new ScriptEngineManager(null);
+                    ScriptEngine engine = manager.getEngineByExtension("js");
+                    if (engine == null) {
+                        getLog().error("Unable to instantiate JavaScript engine");
+                        return;
+                    }
+                    engine.eval(new InputStreamReader(is, UTF_8.name()));
+                    engine.eval("var converToEs5 = function(input) { return Babel.transform(input, { presets: ['es2015', 'stage-3'] }).code; }");
+                    invocable = (Invocable) engine;
+                } catch (ScriptException e) {
+                    getLog().error(e);
+                }
+            }
+        } catch (IOException e) {
+            getLog().error(e);
         }
     }
 
