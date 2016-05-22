@@ -40,10 +40,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 
 import com.micro4j.mvc.template.TemplateIntereceptor;
-import com.micro4j.mvc.template.TemplateException;
 import com.micro4j.mvc.template.TemplateWrapper;
-
-import static com.micro4j.mvc.message.MvcMessages.getString;
 
 public class MustacheI18nInterceptor extends TemplateIntereceptor {
 
@@ -93,9 +90,6 @@ public class MustacheI18nInterceptor extends TemplateIntereceptor {
         String lang = parameters.getFirst(getPreferedLangParam());
         if (lang == null || lang.trim().isEmpty()) {
             return null;
-        }
-        if (lang.length() > 8) {
-            throw new TemplateException(getString("MustacheI18nInterceptor.lang.length.error") + lang); // // $NON-NLS-1$
         }
         Locale locale = new Locale(lang);
         return locale;
