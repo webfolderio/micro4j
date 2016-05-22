@@ -66,8 +66,7 @@ public abstract class AbstractContentLoader implements ContentLoader {
                         new Object[] { name });
                 return getDefaultContent();
             }
-            String content = toString(is);
-            return content;
+            return toString(is);
         } catch (IOException e) {
             LOG.error(e.getMessage(), e);
             return getDefaultContent();

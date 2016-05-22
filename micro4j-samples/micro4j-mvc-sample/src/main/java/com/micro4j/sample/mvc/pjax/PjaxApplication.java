@@ -19,9 +19,9 @@ public class PjaxApplication extends Application {
         Configuration configuration = new Builder()
                                         .interceptors(new AssetInterceptor())
                                         .build();
-
         singletons.add(new MvcFeature(configuration));
-        singletons.add(new WebJarController(configuration, true));
+        boolean enableAssetGzip = true;
+        singletons.add(new WebJarController(configuration, enableAssetGzip));
         singletons.add(new PjaxController());
     }
 

@@ -82,7 +82,7 @@ public class TemplateEngineTest {
 
     @Test
     public void testLocalTemplateLoader() {
-        Set<Path> templateDirectories = new HashSet<>(asList(Paths.get("src/test/resources").toAbsolutePath()));
+        Set<Path> templateDirectories = new HashSet<>(asList(Paths.get("src/test/resources").toAbsolutePath(), Paths.get("invalid-path")));
 
         Configuration configuration = new Configuration.Builder().build();
 

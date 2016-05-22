@@ -26,7 +26,6 @@ import static com.micro4j.mvc.message.MvcMessages.getString;
 import static java.nio.file.Files.isDirectory;
 import static java.nio.file.Files.isReadable;
 import static java.nio.file.Files.newInputStream;
-import static java.nio.file.Files.notExists;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -56,19 +55,15 @@ public class LocalLoader extends AbstractContentLoader {
         }
         List<Path> directories = new ArrayList<>();
         for (Path next : paths) {
-            if (notExists(next)) {
-                LOG.error(getString("LocalLoader.path.not.found"), //$NON-NLS-1$
+            if (isDirectory(next)) {
+                LOG.info(getString("LocalLoader.valid.directory"), //$NON-NLS-1$
                         new Object[] { next.toString() });
+                directories.add(next.toAbsolutePath().normalize());
                 continue;
-            }
-            if (!isDirectory(next)) {
+            } else {
                 LOG.error(getString("LocalLoader.path.is.not.valid"), //$NON-NLS-1$
                         new Object[] { next.toString() });
-                continue;
             }
-            LOG.info(getString("LocalLoader.valid.directory"), //$NON-NLS-1$
-                    new Object[] { next.toString() });
-            directories.add(next.toAbsolutePath().normalize());
         }
         this.directories = unmodifiableList(directories);
     }

@@ -108,6 +108,22 @@ public abstract class BaseTest {
         }
 
         @GET
+        @Path("/test-invalid-extension")
+        public ViewModel<Map<String, Object>> testInvalidExtension() {
+            ViewModel<Map<String, Object>> model = new ViewModel<Map<String,Object>>("template/message.htm", new LinkedHashMap<>());
+            model.getEntity().put("name", "bar");
+            return model;
+        }
+
+        @GET
+        @Path("/test-without-extension")
+        public ViewModel<Map<String, Object>> testWithoutExtension() {
+            ViewModel<Map<String, Object>> model = new ViewModel<Map<String,Object>>("template/message", new LinkedHashMap<>());
+            model.getEntity().put("name", "bar");
+            return model;
+        }
+
+        @GET
         @Path("/test-include")
         public ViewModel<Map<String, Object>> include() {
             ViewModel<Map<String, Object>> model = new ViewModel<Map<String,Object>>("template/include.html", new LinkedHashMap<>());
@@ -250,6 +266,20 @@ public abstract class BaseTest {
         Request request = new Request.Builder().url("http://localhost:4040/test-include").build();
         Response response = client.newCall(request).execute();
         assertEquals("hello world", response.body().string());
+    }
+
+    @Test
+    public void testInvalidExtension() throws IOException {
+        Request request = new Request.Builder().url("http://localhost:4040/test-invalid-extension").build();
+        Response response = client.newCall(request).execute();
+        assertEquals("", response.body().string());
+    }
+
+    @Test
+    public void testWithoutExtension() throws IOException {
+        Request request = new Request.Builder().url("http://localhost:4040/test-without-extension").build();
+        Response response = client.newCall(request).execute();
+        assertEquals("", response.body().string());
     }
 
     @Test
