@@ -39,7 +39,7 @@ import com.micro4j.mvc.mustache.MustacheFormatter;
 import com.micro4j.mvc.template.DefaultFormatter;
 import com.micro4j.mvc.template.TemplateIntereceptor;
 
-public final class Configuration {
+public class Configuration {
 
     private Set<String> fileTypeExtensions;
 

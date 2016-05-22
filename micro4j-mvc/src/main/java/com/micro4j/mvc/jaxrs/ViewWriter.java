@@ -120,15 +120,17 @@ public class ViewWriter implements MessageBodyWriter<Object> {
 
     protected void writeTo(String name, String container, Object context, MultivaluedMap<String, Object> httpHeaders,
             OutputStream entityStream) throws IOException {
-        if (container == null) {
-            container = engine.getConfiguration().getContainer();
+        String containerName = container;
+        String defaultContainer = engine.getConfiguration().getContainer();
+        if (container == null || container.isEmpty() && ! defaultContainer.isEmpty()) {
+            containerName = engine.getConfiguration().getContainer();
         }
         if (!httpHeaders.containsKey(CACHE_CONTROL)) {
             httpHeaders.add(CACHE_CONTROL, "no-cache, no-store, must-revalidate");
         }
         Map<String, Object> parentContext = new LinkedHashMap<>();
         boolean isPjax = isPjaxRequest(httpHeaders);
-        if (isPjax || container.trim().isEmpty()) {
+        if (isPjax || containerName.trim().isEmpty()) {
             try (OutputStreamWriter writer = new OutputStreamWriter(entityStream, engine.getConfiguration().getCharset())) {
                 engine.execute(name, context, parentContext, writer);
             }
@@ -137,7 +139,7 @@ public class ViewWriter implements MessageBodyWriter<Object> {
             engine.execute(name, context, parentContext, pageWriter);
             try (OutputStreamWriter containerWriter = new OutputStreamWriter(entityStream, engine.getConfiguration().getCharset())) {
                 parentContext.put(engine.getConfiguration().getBodyName(), new MustacheContentLamabda(pageWriter.toString()));
-                engine.execute(container, context, parentContext, containerWriter);
+                engine.execute(containerName, context, parentContext, containerWriter);
             }
         }
     }
