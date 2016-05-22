@@ -50,14 +50,14 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import com.micro4j.mvc.Configuration;
 import com.micro4j.mvc.View;
 import com.micro4j.mvc.ViewModel;
-import com.micro4j.mvc.asset.AssetProcessor;
+import com.micro4j.mvc.asset.AssetInterceptor;
 import com.micro4j.mvc.asset.AssetScanner;
 import com.micro4j.mvc.asset.WebJarScanner;
 import com.micro4j.mvc.jaxrs.MvcFeature;
 import com.micro4j.mvc.jaxrs.WebJarController;
 import com.micro4j.mvc.message.MvcMessages;
 import com.micro4j.mvc.mustache.MustacheFormatter;
-import com.micro4j.mvc.mustache.MustacheI18nProcessor;
+import com.micro4j.mvc.mustache.MustacheI18nInterceptor;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -174,9 +174,9 @@ public abstract class BaseTest {
                                                 .formatter(new MustacheFormatter())
                                                 .enableTemplateCaching(true)
                                                 .locale(Locale.ENGLISH)
-                                                .processors(
-                                                        new MustacheI18nProcessor("template.myapp"),
-                                                        new AssetProcessor(scanner))
+                                                .interceptors(
+                                                        new MustacheI18nInterceptor("template.myapp"),
+                                                        new AssetInterceptor(scanner))
                                                 .build();
 
             System.out.println(configuration.toString());
@@ -285,7 +285,7 @@ public abstract class BaseTest {
     }
 
     @Test
-    public void testAssetProcessor() throws IOException {
+    public void testAssetInterceptor() throws IOException {
         Request request = new Request.Builder().url("http://localhost:4040/assets").build();
         Response response = client.newCall(request).execute();
         Scanner scanner = new Scanner(response.body().string());

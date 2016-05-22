@@ -31,7 +31,7 @@ import javax.ws.rs.ext.MessageBodyWriter;
 import org.glassfish.hk2.api.ServiceLocator;
 
 import com.micro4j.mvc.Configuration;
-import com.micro4j.mvc.template.Processor;
+import com.micro4j.mvc.template.Intereceptor;
 
 class MvcJerseyFeature implements Feature {
 
@@ -54,9 +54,9 @@ class MvcJerseyFeature implements Feature {
     }
 
     protected void inject() {
-        for (Processor processor : configuration.getProcessors()) {
-            inject(processor);
-            processor.init();
+        for (Intereceptor interceptor : configuration.getInterceptors()) {
+            inject(interceptor);
+            interceptor.init();
         }
     }
 

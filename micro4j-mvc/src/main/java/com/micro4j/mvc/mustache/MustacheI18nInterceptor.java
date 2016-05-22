@@ -39,13 +39,13 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 
-import com.micro4j.mvc.template.Processor;
+import com.micro4j.mvc.template.Intereceptor;
 import com.micro4j.mvc.template.TemplateException;
 import com.micro4j.mvc.template.TemplateWrapper;
 
 import static com.micro4j.mvc.message.MvcMessages.getString;
 
-public class MustacheI18nProcessor extends Processor {
+public class MustacheI18nInterceptor extends Intereceptor {
 
     private String baseName;
 
@@ -55,7 +55,7 @@ public class MustacheI18nProcessor extends Processor {
     @Context
     private UriInfo uriInfo;
 
-    public MustacheI18nProcessor(String baseName) {
+    public MustacheI18nInterceptor(String baseName) {
         this.baseName = baseName;
     }
 
@@ -95,7 +95,7 @@ public class MustacheI18nProcessor extends Processor {
             return null;
         }
         if (lang.length() > 8) {
-            throw new TemplateException(getString("MustacheI18nProcessor.lang.length.error") + lang); // // $NON-NLS-1$
+            throw new TemplateException(getString("MustacheI18nInterceptor.lang.length.error") + lang); // // $NON-NLS-1$
         }
         Locale locale = new Locale(lang);
         return locale;

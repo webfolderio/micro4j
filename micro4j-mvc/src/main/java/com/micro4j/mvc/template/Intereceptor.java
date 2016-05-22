@@ -26,7 +26,7 @@ import java.util.Map;
 
 import com.micro4j.mvc.Configuration;
 
-public class Processor {
+public class Intereceptor {
 
     protected Configuration configuration;
 

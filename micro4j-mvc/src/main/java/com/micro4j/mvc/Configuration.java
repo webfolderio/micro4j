@@ -37,13 +37,13 @@ import java.util.Set;
 
 import com.micro4j.mvc.mustache.MustacheFormatter;
 import com.micro4j.mvc.template.DefaultFormatter;
-import com.micro4j.mvc.template.Processor;
+import com.micro4j.mvc.template.Intereceptor;
 
 public final class Configuration {
 
     private Set<String> fileTypeExtensions;
 
-    private List<Processor> pocessors;
+    private List<Intereceptor> interceptors;
 
     private String bodyName;
 
@@ -87,7 +87,7 @@ public final class Configuration {
 
         private Set<String> fileTypeExtensions = new HashSet<>(asList("html"));
 
-        private List<Processor> processors = new ArrayList<>();
+        private List<Intereceptor> interceptors = new ArrayList<>();
 
         private DefaultFormatter formatter = new MustacheFormatter();
 
@@ -121,11 +121,11 @@ public final class Configuration {
             return this;
         }
 
-        public Builder processors(Processor... processors) {
-            if (processors == null || processors.length <= 0) {
-                throw new IllegalArgumentException("processors");
+        public Builder interceptors(Intereceptor... interceptors) {
+            if (interceptors == null || interceptors.length <= 0) {
+                throw new IllegalArgumentException("interceptors");
             }
-            this.processors.addAll(asList(processors));
+            this.interceptors.addAll(asList(interceptors));
             return this;
         }
 
@@ -192,10 +192,10 @@ public final class Configuration {
             configuration.enableTemplateCaching = enableTemplateCaching;
             configuration.locale = locale;
             configuration.delims = delims;
-            for (Processor processor : processors) {
-                processor.setConfiguration(configuration);
+            for (Intereceptor interceptors : interceptors) {
+                interceptors.setConfiguration(configuration);
             }
-            configuration.pocessors = unmodifiableList(processors);
+            configuration.interceptors = unmodifiableList(interceptors);
             return configuration;
         }
     }
@@ -227,8 +227,8 @@ public final class Configuration {
         return bodyName;
     }
 
-    public List<Processor> getProcessors() {
-        return pocessors;
+    public List<Intereceptor> getInterceptors() {
+        return interceptors;
     }
 
     public ClassLoader getClassLoader() {
@@ -253,9 +253,10 @@ public final class Configuration {
 
     @Override
     public String toString() {
-        return "Configuration [fileTypeExtensions=" + fileTypeExtensions + ", pocessors=" + pocessors + ", bodyName="
-                + bodyName + ", classLoader=" + classLoader + ", charset=" + charset + ", formatter=" + formatter
-                + ", prefix=" + prefix + ", container=" + container + ", enableTemplateCaching=" + enableTemplateCaching
-                + ", nullValue=" + nullValue + ", locale=" + locale + ", delims=" + delims + "]";
+        return "Configuration [fileTypeExtensions=" + fileTypeExtensions + ", interceptors=" + interceptors
+                + ", bodyName=" + bodyName + ", classLoader=" + classLoader + ", charset=" + charset + ", formatter="
+                + formatter + ", prefix=" + prefix + ", container=" + container + ", enableTemplateCaching="
+                + enableTemplateCaching + ", nullValue=" + nullValue + ", locale=" + locale + ", delims=" + delims
+                + "]";
     }
 }

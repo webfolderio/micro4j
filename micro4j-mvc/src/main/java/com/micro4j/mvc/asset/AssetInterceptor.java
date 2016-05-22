@@ -31,23 +31,23 @@ import java.util.Map;
 import org.slf4j.Logger;
 
 import com.micro4j.mvc.mustache.MustacheContentLamabda;
-import com.micro4j.mvc.template.Processor;
+import com.micro4j.mvc.template.Intereceptor;
 import static java.lang.String.format;
 import com.micro4j.mvc.template.TemplateWrapper;
 
-public class AssetProcessor extends Processor {
+public class AssetInterceptor extends Intereceptor {
 
-    private static final Logger LOG = getLogger(AssetProcessor.class);
+    private static final Logger LOG = getLogger(AssetInterceptor.class);
 
     private AssetScanner scanner;
 
     private MustacheContentLamabda lambda;
 
-    public AssetProcessor() {
+    public AssetInterceptor() {
         this(new WebJarScanner());
     }
 
-    public AssetProcessor(AssetScanner scanner) {
+    public AssetInterceptor(AssetScanner scanner) {
         this.scanner = scanner;
     }
 
@@ -71,7 +71,7 @@ public class AssetProcessor extends Processor {
     protected String getContent() {
         List<String> assets = getAssets();
         for (String asset : assets) {
-            LOG.info(getString("AssetProcessor.found.asset"), new Object[] { asset });
+            LOG.info(getString("AssetInterceptor.found.asset"), new Object[] { asset });
         }
         StringBuilder builder = new StringBuilder();
         for (String asset : assets) {

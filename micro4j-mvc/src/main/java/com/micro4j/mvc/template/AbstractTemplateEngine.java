@@ -61,22 +61,22 @@ public abstract class AbstractTemplateEngine implements TemplateEngine {
         TemplateWrapper template = cache.get(name);
         if (template == null) {
             String content = contentLodaer.get(name);
-            for (Processor processor : configuration.getProcessors()) {
+            for (Intereceptor intereceptor : configuration.getInterceptors()) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(getString("AbstractTemplateEngine.beforeCompile"), //$NON-NLS-1$
-                            new Object[] { processor.getClass().getName() });
+                            new Object[] { intereceptor.getClass().getName() });
                 }
-                content = processor.beforeCompile(name, content);
+                content = intereceptor.beforeCompile(name, content);
             }
             LOG.info(getString("AbstractTemplateEngine.compiling"), new Object[] { //$NON-NLS-1$
                     name });
             template = compile(name, content);
-            for (Processor processor : configuration.getProcessors()) {
+            for (Intereceptor interceptor : configuration.getInterceptors()) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(getString("AbstractTemplateEngine.afterCompile"), //$NON-NLS-1$
-                            new Object[] { processor.getClass().getSimpleName() });
+                            new Object[] { interceptor.getClass().getSimpleName() });
                 }
-                template = processor.afterCompile(template);
+                template = interceptor.afterCompile(template);
             }
             if (configuration.isEnableTemplateCaching()) {
                 TemplateWrapper existingTemplate = cache.putIfAbsent(name, template);
@@ -89,22 +89,22 @@ public abstract class AbstractTemplateEngine implements TemplateEngine {
             LOG.debug(getString("AbstractTemplateEngine.executing.template"), new Object[] { //$NON-NLS-1$
                     name, context, parentContext });
         }
-        for (Processor processor : configuration.getProcessors()) {
+        for (Intereceptor interceptor : configuration.getInterceptors()) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(getString("AbstractTemplateEngine.beforeExecute"), //$NON-NLS-1$
-                        new Object[] { processor.getClass().getSimpleName() });
+                        new Object[] { interceptor.getClass().getSimpleName() });
             }
-            template = processor.beforeExecute(name, template, context, parentContext);
+            template = interceptor.beforeExecute(name, template, context, parentContext);
         }
         StringWriter buffer = new StringWriter();
         template.execute(context, parentContext, buffer);
         String content = buffer.toString();
-        for (Processor processor : configuration.getProcessors()) {
+        for (Intereceptor interceptor : configuration.getInterceptors()) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(getString("AbstractTemplateEngine.afterExecute"), //$NON-NLS-1$
-                        new Object[] { processor.getClass().getSimpleName() });
+                        new Object[] { interceptor.getClass().getSimpleName() });
             }
-            content = processor.afterExecute(name, content, context, parentContext);
+            content = interceptor.afterExecute(name, content, context, parentContext);
         }
         try (Writer wr = writer) {
             wr.write(content);
