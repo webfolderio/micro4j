@@ -286,7 +286,7 @@ public abstract class BaseTest {
     public void testRequestJs() throws IOException {
         Request request = new Request.Builder().url("http://localhost:4040/webjars/lib.js").build();
         Response response = client.newCall(request).execute();
-        assertEquals("console.info('foo');", response.body().string());
+        assertEquals("console.info(\"foo\");", response.body().string());
     }
 
     @Test
