@@ -31,7 +31,7 @@ import org.jboss.resteasy.spi.PropertyInjector;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
 import com.micro4j.mvc.Configuration;
-import com.micro4j.mvc.template.Intereceptor;
+import com.micro4j.mvc.template.TemplateIntereceptor;
 
 class MvcResteasyFeature implements Feature {
 
@@ -54,7 +54,7 @@ class MvcResteasyFeature implements Feature {
     }
 
     protected void inject() {
-        for (Intereceptor interceptor : configuration.getInterceptors()) {
+        for (TemplateIntereceptor interceptor : configuration.getInterceptors()) {
             inject(interceptor.getClass(), interceptor);
             interceptor.init();
         }

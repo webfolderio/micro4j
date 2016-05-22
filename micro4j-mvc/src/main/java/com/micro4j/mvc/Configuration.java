@@ -37,13 +37,13 @@ import java.util.Set;
 
 import com.micro4j.mvc.mustache.MustacheFormatter;
 import com.micro4j.mvc.template.DefaultFormatter;
-import com.micro4j.mvc.template.Intereceptor;
+import com.micro4j.mvc.template.TemplateIntereceptor;
 
 public final class Configuration {
 
     private Set<String> fileTypeExtensions;
 
-    private List<Intereceptor> interceptors;
+    private List<TemplateIntereceptor> interceptors;
 
     private String bodyName;
 
@@ -87,7 +87,7 @@ public final class Configuration {
 
         private Set<String> fileTypeExtensions = new HashSet<>(asList("html"));
 
-        private List<Intereceptor> interceptors = new ArrayList<>();
+        private List<TemplateIntereceptor> interceptors = new ArrayList<>();
 
         private DefaultFormatter formatter = new MustacheFormatter();
 
@@ -121,7 +121,7 @@ public final class Configuration {
             return this;
         }
 
-        public Builder interceptors(Intereceptor... interceptors) {
+        public Builder interceptors(TemplateIntereceptor... interceptors) {
             if (interceptors == null || interceptors.length <= 0) {
                 throw new IllegalArgumentException("interceptors");
             }
@@ -192,7 +192,7 @@ public final class Configuration {
             configuration.enableTemplateCaching = enableTemplateCaching;
             configuration.locale = locale;
             configuration.delims = delims;
-            for (Intereceptor interceptors : interceptors) {
+            for (TemplateIntereceptor interceptors : interceptors) {
                 interceptors.setConfiguration(configuration);
             }
             configuration.interceptors = unmodifiableList(interceptors);
@@ -227,7 +227,7 @@ public final class Configuration {
         return bodyName;
     }
 
-    public List<Intereceptor> getInterceptors() {
+    public List<TemplateIntereceptor> getInterceptors() {
         return interceptors;
     }
 

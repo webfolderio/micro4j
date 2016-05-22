@@ -61,7 +61,7 @@ public abstract class AbstractTemplateEngine implements TemplateEngine {
         TemplateWrapper template = cache.get(name);
         if (template == null) {
             String content = contentLodaer.get(name);
-            for (Intereceptor intereceptor : configuration.getInterceptors()) {
+            for (TemplateIntereceptor intereceptor : configuration.getInterceptors()) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(getString("AbstractTemplateEngine.beforeCompile"), //$NON-NLS-1$
                             new Object[] { intereceptor.getClass().getName() });
@@ -71,7 +71,7 @@ public abstract class AbstractTemplateEngine implements TemplateEngine {
             LOG.info(getString("AbstractTemplateEngine.compiling"), new Object[] { //$NON-NLS-1$
                     name });
             template = compile(name, content);
-            for (Intereceptor interceptor : configuration.getInterceptors()) {
+            for (TemplateIntereceptor interceptor : configuration.getInterceptors()) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(getString("AbstractTemplateEngine.afterCompile"), //$NON-NLS-1$
                             new Object[] { interceptor.getClass().getSimpleName() });
@@ -89,7 +89,7 @@ public abstract class AbstractTemplateEngine implements TemplateEngine {
             LOG.debug(getString("AbstractTemplateEngine.executing.template"), new Object[] { //$NON-NLS-1$
                     name, context, parentContext });
         }
-        for (Intereceptor interceptor : configuration.getInterceptors()) {
+        for (TemplateIntereceptor interceptor : configuration.getInterceptors()) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(getString("AbstractTemplateEngine.beforeExecute"), //$NON-NLS-1$
                         new Object[] { interceptor.getClass().getSimpleName() });
@@ -99,7 +99,7 @@ public abstract class AbstractTemplateEngine implements TemplateEngine {
         StringWriter buffer = new StringWriter();
         template.execute(context, parentContext, buffer);
         String content = buffer.toString();
-        for (Intereceptor interceptor : configuration.getInterceptors()) {
+        for (TemplateIntereceptor interceptor : configuration.getInterceptors()) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(getString("AbstractTemplateEngine.afterExecute"), //$NON-NLS-1$
                         new Object[] { interceptor.getClass().getSimpleName() });

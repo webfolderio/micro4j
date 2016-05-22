@@ -31,11 +31,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 
 import com.micro4j.mvc.mustache.MustacheContentLamabda;
-import com.micro4j.mvc.template.Intereceptor;
+import com.micro4j.mvc.template.TemplateIntereceptor;
 import static java.lang.String.format;
 import com.micro4j.mvc.template.TemplateWrapper;
 
-public class AssetInterceptor extends Intereceptor {
+public class AssetInterceptor extends TemplateIntereceptor {
 
     private static final Logger LOG = getLogger(AssetInterceptor.class);
 
