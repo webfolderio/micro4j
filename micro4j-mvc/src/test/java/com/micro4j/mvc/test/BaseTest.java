@@ -177,9 +177,11 @@ public abstract class BaseTest {
                 }
             };
 
+            Configuration defaultConfiguraton = Configuration.defaultConfiguration();
+
             Configuration configuration = new Configuration
                                                 .Builder()
-                                                .bodyName("body")
+                                                .bodyName(defaultConfiguraton.getBodyName())
                                                 .fileTypeExtensions("html")
                                                 .container("")
                                                 .classLoader(BaseTest.class.getClassLoader())

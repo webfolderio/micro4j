@@ -203,6 +203,10 @@ public class Configuration {
     private Configuration() {
     }
 
+    public static Configuration defaultConfiguration() {
+        return new Builder().build();
+    }
+
     public Set<String> getExtensions() {
         return fileTypeExtensions;
     }
