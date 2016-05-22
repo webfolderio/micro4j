@@ -35,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 
 import com.micro4j.mvc.Configuration;
+import com.micro4j.mvc.MvcException;
 
 public abstract class AbstractTemplateEngine implements TemplateEngine {
 
@@ -109,7 +110,7 @@ public abstract class AbstractTemplateEngine implements TemplateEngine {
         try (Writer wr = writer) {
             wr.write(content);
         } catch (IOException e) {
-            throw new TemplateException(e);
+            throw new MvcException(e);
         }
         if (LOG.isDebugEnabled()) {
             LOG.debug(getString("AbstractTemplateEngine.execution.done"), new Object[] { //$NON-NLS-1$

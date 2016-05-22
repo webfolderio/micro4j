@@ -20,15 +20,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.mvc.template;
+package com.micro4j.mvc;
 
 import java.io.IOException;
 
-public class TemplateException extends RuntimeException {
+public class MvcException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    public TemplateException(IOException e) {
+    public MvcException(IOException e) {
         super(e);
     }
 }

@@ -42,6 +42,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import com.micro4j.mvc.Configuration;
+import com.micro4j.mvc.MvcException;
 
 import static java.lang.String.format;
 
@@ -101,7 +102,7 @@ public abstract class AssetScanner {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new MvcException(e);
         }
         sort(assets, (a1, a2) -> compare(getPriority(a1), getPriority(a2)));
         return assets;
