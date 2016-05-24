@@ -21,7 +21,7 @@ then add the following dependency:
 
 ```xml
 <dependency>
-  <groupId>com.github.micro4j.micro4j</groupId>
+  <groupId>com.micro4j.micro4j</groupId>
   <artifactId>micro4j-mvc</artifactId>
   <version>1.2.1</version>
 </dependency>
@@ -43,7 +43,7 @@ and then add the dependency:
 
 ```groovy
 dependencies {
-  compile 'com.github.micro4j.micro4j:micro4j-mvc:1.2.1'
+  compile 'com.micro4j.micro4j:micro4j-mvc:1.2.1'
 }
 ```
 
