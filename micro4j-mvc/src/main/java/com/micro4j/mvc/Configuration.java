@@ -192,8 +192,8 @@ public class Configuration {
             configuration.enableTemplateCaching = enableTemplateCaching;
             configuration.locale = locale;
             configuration.delims = delims;
-            for (TemplateIntereceptor interceptors : interceptors) {
-                interceptors.setConfiguration(configuration);
+            for (TemplateIntereceptor interceptor : interceptors) {
+                interceptor.setConfiguration(configuration);
             }
             configuration.interceptors = unmodifiableList(interceptors);
             return configuration;
