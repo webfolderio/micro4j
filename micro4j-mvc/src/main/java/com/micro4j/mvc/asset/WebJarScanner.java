@@ -43,9 +43,9 @@ public class WebJarScanner extends AssetScanner {
     protected int getPriority(String path) {
         if (path.startsWith("webjars/jquery/")) {
             return JQUERY;
-        } else if (path.startsWith("webjars/incremental-dom.js")) {
+        } else if (path.startsWith("webjars/incremental-dom")) {
             return INCREMENTAL_DOM;
-        } else if (path.startsWith("webjars/html2incdom-withParser.js")) {
+        } else if (path.startsWith("webjars/html2incdom")) {
             return HTML2INCDOM;
         } else {
             return super.getPriority(path);
