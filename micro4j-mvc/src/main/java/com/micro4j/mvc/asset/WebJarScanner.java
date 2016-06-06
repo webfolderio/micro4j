@@ -24,7 +24,11 @@ package com.micro4j.mvc.asset;
 
 public class WebJarScanner extends AssetScanner {
 
-    public static final int JQUERY_PRIORITY = MAX_PRIORITY + 1000;
+    public static final int JQUERY = MAX_PRIORITY + 1000;
+
+    public static final int INCREMENTAL_DOM = JQUERY + 1;
+
+    public static final int HTML2INCDOM = INCREMENTAL_DOM + 1;
 
     @Override
     protected boolean isAsset(String name) {
@@ -37,8 +41,14 @@ public class WebJarScanner extends AssetScanner {
 
     @Override
     protected int getPriority(String path) {
-        return path.startsWith("webjars/jquery/") ?
-                        JQUERY_PRIORITY :
-                        super.getPriority(path);
+        if (path.startsWith("webjars/jquery/")) {
+            return JQUERY;
+        } else if (path.startsWith("webjars/incremental-dom.js")) {
+            return INCREMENTAL_DOM;
+        } else if (path.startsWith("webjars/html2incdom-withParser.js")) {
+            return HTML2INCDOM;
+        } else {
+            return super.getPriority(path);
+        }
     }
 }
