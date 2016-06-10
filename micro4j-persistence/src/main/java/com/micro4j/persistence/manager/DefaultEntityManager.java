@@ -102,7 +102,7 @@ public class DefaultEntityManager implements EntityManager, Constants {
             map.put(UPDATED_BY, getUsername());
         }
         if (table.hasColumn(ACTIVE)) {
-            map.put(ACTIVE, ACTIVE_STATUS);
+            map.put(ACTIVE, STATUS_ACTIVE);
         }
 
         long id = -1;
@@ -200,7 +200,7 @@ public class DefaultEntityManager implements EntityManager, Constants {
     public List<Map<String, Object>> listAll(String tableName) {
         TableDefinition table = getTable(tableName);
         String schema = getSchema(tableName);
-        String query = format("SELECT * FROM %s.%s WHERE ACTIVE = %s", schema, tableName, ACTIVE_STATUS);
+        String query = format("SELECT * FROM %s.%s WHERE ACTIVE = %s", schema, tableName, STATUS_ACTIVE);
         try (Connection conn =
                 getDataSource(tableName).getConnection();
                     PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -355,7 +355,7 @@ public class DefaultEntityManager implements EntityManager, Constants {
     protected String getDeleteQuery(String tableName) {
         String schema = getSchema(tableName);
         String query = format("UPDATE %s.%s set ACTIVE = %s, UPDATED_BY = ?, UPDATE_DATE = ? where %s = ?",
-                                        schema, tableName, PASSIVE_STATUS, ID);
+                                        schema, tableName, STATUS_PASSIVE, ID);
         return query;
     }
 

@@ -90,7 +90,7 @@ class DefaultAlterManager implements AlterManager {
 
         DatabaseVendor vendor = metaDataManager.getVendor();
 
-        String columnQuery = join(", \r\n", columns
+        String columnQuery = join(format(", %n"), columns
                                             .stream()
                                             .map(c -> c.getCreateSql(vendor))
                                             .collect(toList()));
@@ -110,7 +110,7 @@ class DefaultAlterManager implements AlterManager {
             }
         }
 
-        String tableDdl = format("\r\n%s (\r\n%s)", table.generateCreateScript(), columnQuery);
+        String tableDdl = format("%n%s (%n%s)", table.generateCreateScript(), columnQuery);
 
         try (Connection conn = ds.getConnection();
                 Statement stmt = conn.createStatement()) {

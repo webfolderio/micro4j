@@ -40,9 +40,9 @@ interface Constants {
 
     static final String ACTIVE = "ACTIVE";
 
-    static final String ACTIVE_STATUS = "1";
+    static final String STATUS_ACTIVE = "1";
 
-    static final String PASSIVE_STATUS = "0";
+    static final String STATUS_PASSIVE = "0";
 
     static final String DEFAULT_USER = "SYS";
 
