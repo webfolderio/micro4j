@@ -133,7 +133,7 @@ public class ColumnDefinition {
         return nullable;
     }
 
-    public String getCreateSql(DatabaseVendor vendor ) {
+    public String generateCreateSql(DatabaseVendor vendor ) {
         String sql = null;
         if (! hasSize() && ! hasScale()) {
             sql = format(" %s %s", getName(), getJdbcType().toString());
@@ -151,14 +151,14 @@ public class ColumnDefinition {
         return sql;
     }
 
-    public String getAlterDrop(String table, String schema, DatabaseVendor vendor) {
+    public String generateAlterDrop(String table, String schema, DatabaseVendor vendor) {
         switch (vendor) {
             default: return format("ALTER TABLE %s.%s DROP COLUMN %s", schema, table, getName());
         }
     }
 
-    public String getAlterAdd(String table, String schema, DatabaseVendor vendor) {
-        String sql = getCreateSql(vendor);
+    public String generateAlterAdd(String table, String schema, DatabaseVendor vendor) {
+        String sql = generateCreateSql(vendor);
         switch (vendor) {
             default:
             case hsql: return format("ALTER TABLE %s.%s ADD %s", schema, table, sql);

@@ -92,7 +92,7 @@ class DefaultAlterManager implements AlterManager {
 
         String columnQuery = join(format(", %n"), columns
                                             .stream()
-                                            .map(c -> c.getCreateSql(vendor))
+                                            .map(c -> c.generateCreateSql(vendor))
                                             .collect(toList()));
 
         DataSource ds = configuration.getDataSource();
@@ -169,13 +169,13 @@ class DefaultAlterManager implements AlterManager {
         List<String> alterAdd = alters
                                     .stream()
                                     .filter(alter -> CreateColumn.equals(alter.getType()))
-                                    .map(alter -> alter.getColumn().getAlterAdd(table.getName(), schema, vendor))
+                                    .map(alter -> alter.getColumn().generateAlterAdd(table.getName(), schema, vendor))
                                     .collect(toList());
 
         List<String> alterDrop = alters
                                     .stream()
                                     .filter(alter -> DropColumn.equals(alter.getType()))
-                                    .map(alter -> alter.getColumn().getAlterDrop(table.getName(), schema, vendor))
+                                    .map(alter -> alter.getColumn().generateAlterDrop(table.getName(), schema, vendor))
                                     .collect(toList());
 
         alterAdd.addAll(alterDrop);
