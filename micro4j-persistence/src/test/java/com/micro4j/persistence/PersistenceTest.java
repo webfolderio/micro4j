@@ -98,6 +98,9 @@ public class PersistenceTest {
         Map<String, Object> map = entityManager.get("SAMPLE_ENTITY", id);
         assertEquals("1", map.get("ACTIVE"));
 
+        List<Map<String, Object>> records = entityManager.listAll("SAMPLE_ENTITY");
+        assertEquals(1, records.size());
+        
         assertEquals("foo", map.get("NAME"));
         assertEquals("bar", map.get("SURNAME"));
 
@@ -105,7 +108,6 @@ public class PersistenceTest {
 
         map = entityManager.get("SAMPLE_ENTITY", id);
         assertEquals("0", map.get("ACTIVE"));
-
 
         Map<String, Object> updateMap = new HashMap<>();
         updateMap.put("ID", map.get("ID"));
