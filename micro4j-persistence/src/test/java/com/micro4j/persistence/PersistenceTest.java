@@ -70,6 +70,7 @@ public class PersistenceTest {
         metaDataManager = new DefaultMetaDataManager(configuration);
         entityManager = new DefaultEntityManager(configuration);
         alterManager = new DefaultAlterManager(configuration, metaDataManager);
+        alterManager.addListener(metaDataManager);
     }
 
     @Test

@@ -49,6 +49,8 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+import com.micro4j.persistence.alter.AlterListener;
+import com.micro4j.persistence.alter.DefaultAlterManager;
 import com.micro4j.persistence.core.ColumnDefinition;
 import com.micro4j.persistence.core.DatabaseVendor;
 import com.micro4j.persistence.core.PersistenceConfiguration;
@@ -71,11 +73,15 @@ public class DefaultEntityManager implements EntityManager, Constants {
 
     private String defaultSchema;
 
+    private DefaultAlterManager alterManager;
+
     public DefaultEntityManager(PersistenceConfiguration configuration) {
         this.configuration = configuration;
         this.defaultSequence = configuration.getDefaultSequence();
         this.defaultSchema = configuration.getDefaultSchema();
         this.metaDataManager = new DefaultMetaDataManager(configuration);
+        this.alterManager = new DefaultAlterManager(configuration, metaDataManager);
+        this.alterManager.addListener((AlterListener) this.metaDataManager);
     }
 
     @Override

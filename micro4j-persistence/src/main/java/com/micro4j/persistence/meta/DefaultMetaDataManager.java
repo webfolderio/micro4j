@@ -25,8 +25,10 @@ package com.micro4j.persistence.meta;
 import static com.micro4j.persistence.core.DatabaseVendor.h2;
 import static com.micro4j.persistence.core.DatabaseVendor.hsql;
 import static com.micro4j.persistence.core.DatabaseVendor.oracle;
+import static java.lang.String.format;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Locale.ENGLISH;
+import static java.util.stream.Collectors.toList;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -41,16 +43,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.sql.DataSource;
 
-import com.micro4j.persistence.core.PersistenceConfiguration;
+import com.micro4j.persistence.alter.AlterEvent;
+import com.micro4j.persistence.alter.AlterListener;
 import com.micro4j.persistence.core.ColumnDefinition;
 import com.micro4j.persistence.core.DatabaseVendor;
+import com.micro4j.persistence.core.PersistenceConfiguration;
 import com.micro4j.persistence.core.TableDefinition;
 import com.micro4j.persistence.exception.PersistenceException;
 
-public class DefaultMetaDataManager implements MetaDataManager {
+public class DefaultMetaDataManager implements MetaDataManager, AlterListener {
 
     private PersistenceConfiguration configuration;
 
@@ -72,6 +78,8 @@ public class DefaultMetaDataManager implements MetaDataManager {
 
     private Map<String, String> typeAlias = new HashMap<>();
 
+    private ConcurrentMap<String, TableDefinition> tables = new ConcurrentHashMap<>();
+
     private DatabaseVendor vendor;
 
     public DefaultMetaDataManager(PersistenceConfiguration configuration) {
@@ -87,10 +95,17 @@ public class DefaultMetaDataManager implements MetaDataManager {
     }
 
     public Optional<TableDefinition> getTable(String schema, String tableName) {
+        TableDefinition table = null;
+
+        String qualifiedName = format("%s.%s", schema, tableName);
+        table = tables.get(qualifiedName);
+        if (table != null) {
+            return Optional.of(table);
+        }
+
         DataSource ds = configuration.getDataSource();
         try (Connection conn = ds.getConnection()) {
             DatabaseMetaData meta = conn.getMetaData();
-            TableDefinition table = null;
             Set<String> primaryKeys = new HashSet<>();
             try (ResultSet rsPrimaryKey = meta.getPrimaryKeys(null, schema, tableName)) {
                 while (rsPrimaryKey.next()) {
@@ -121,7 +136,15 @@ public class DefaultMetaDataManager implements MetaDataManager {
                     table.add(column);
                 }
             }
-            return table == null ? Optional.empty() : Optional.of(table);
+            if (table != null) {
+                TableDefinition existingTable = tables.putIfAbsent(qualifiedName, table);
+                if (existingTable != null) {
+                    table = existingTable;
+                }
+                return Optional.of(table);
+            } else {
+                return Optional.empty();
+            }
         } catch (SQLException e) {
             throw new PersistenceException(e);
         }
@@ -216,5 +239,31 @@ public class DefaultMetaDataManager implements MetaDataManager {
                                             + vendor.toString() + " jdbc driver");
         }
         return unmodifiableList(sequences);
+    }
+
+    @Override
+    public void onTableDrop(AlterEvent event) {
+        removeTable(event);
+    }
+
+    @Override
+    public void onTableCreate(AlterEvent event) {
+        removeTable(event);
+    }
+
+    @Override
+    public void onTableAlterColumn(AlterEvent event) {
+        removeTable(event);
+    }
+
+    protected void removeTable(AlterEvent event) {
+        List<TableDefinition> removeList = tables
+                                            .values()
+                                            .stream()
+                                            .filter(table -> event.getTableName().equals(table.getName()))
+                                            .filter(table -> event.getSchema().equals(table.getSchema()))
+                                            .collect(toList());
+        removeList
+            .forEach(table -> tables.remove(format("%s.%s", table.getSchema(), table.getName())));
     }
 }
