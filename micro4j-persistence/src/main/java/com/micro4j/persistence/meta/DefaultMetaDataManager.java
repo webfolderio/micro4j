@@ -60,6 +60,10 @@ public class DefaultMetaDataManager implements MetaDataManager {
         this.configuration = configuration;
     }
 
+    @Override
+    public Optional<TableDefinition> getTable(String tableName) {
+        return getTable(configuration.getDefaultSchema(), tableName);
+    }
 
     public Optional<TableDefinition> getTable(String schema, String tableName) {
         DataSource ds = configuration.getDataSource();
