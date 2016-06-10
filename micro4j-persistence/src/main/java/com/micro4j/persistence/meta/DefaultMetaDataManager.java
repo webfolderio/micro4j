@@ -23,8 +23,10 @@ import java.util.Set;
 import javax.sql.DataSource;
 
 import com.micro4j.persistence.core.PersistenceConfiguration;
+import com.micro4j.persistence.core.ColumnDefinition;
 import com.micro4j.persistence.core.DatabaseVendor;
 import com.micro4j.persistence.core.TableDefinition;
+import com.micro4j.persistence.exception.PersistenceException;
 
 public class DefaultMetaDataManager implements MetaDataManager {
 
@@ -102,7 +104,7 @@ public class DefaultMetaDataManager implements MetaDataManager {
             }
             return table == null ? Optional.empty() : Optional.of(table);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new PersistenceException(e);
         }
     }
 
@@ -119,7 +121,7 @@ public class DefaultMetaDataManager implements MetaDataManager {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new PersistenceException(e);
         }
         return tables;
     }
@@ -142,7 +144,7 @@ public class DefaultMetaDataManager implements MetaDataManager {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new PersistenceException(e);
         }
     }
 
@@ -158,7 +160,7 @@ public class DefaultMetaDataManager implements MetaDataManager {
                                         driverName.contains(hsql.toString()) ? hsql :
                                             driverName.contains(h2.toString()) ? h2 : oracle;
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new PersistenceException(e);
             }
         }
         return vendor;
@@ -188,10 +190,10 @@ public class DefaultMetaDataManager implements MetaDataManager {
                     }
                 }
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new PersistenceException(e);
             }
         } else {
-            throw new RuntimeException("Method not implemented for the "
+            throw new PersistenceException("Method not implemented for the "
                                             + vendor.toString() + " jdbc driver");
         }
         return unmodifiableList(sequences);

@@ -25,10 +25,10 @@ import org.junit.Test;
 import com.micro4j.persistence.alter.Alter;
 import com.micro4j.persistence.alter.AlterType;
 import com.micro4j.persistence.alter.DefaultAlterManager;
+import com.micro4j.persistence.core.ColumnDefinition;
 import com.micro4j.persistence.core.PersistenceConfiguration;
 import com.micro4j.persistence.core.TableDefinition;
 import com.micro4j.persistence.entity.DefaultEntityManager;
-import com.micro4j.persistence.meta.ColumnDefinition;
 import com.micro4j.persistence.meta.DefaultMetaDataManager;
 
 @FixMethodOrder(NAME_ASCENDING)

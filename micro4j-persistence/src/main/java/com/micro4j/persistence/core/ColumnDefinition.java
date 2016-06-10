@@ -1,10 +1,8 @@
-package com.micro4j.persistence.meta;
+package com.micro4j.persistence.core;
 
 import static java.lang.String.format;
 
 import java.sql.JDBCType;
-
-import com.micro4j.persistence.core.DatabaseVendor;
 
 public class ColumnDefinition {
 

@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.micro4j.persistence.meta.ColumnDefinition;
-
 public class TableDefinition {
 
     private String name;

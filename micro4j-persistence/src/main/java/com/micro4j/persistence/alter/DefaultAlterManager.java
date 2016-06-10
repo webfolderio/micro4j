@@ -20,14 +20,15 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
+import com.micro4j.persistence.core.ColumnDefinition;
 import com.micro4j.persistence.core.DatabaseVendor;
 import com.micro4j.persistence.core.PersistenceConfiguration;
 import com.micro4j.persistence.core.TableDefinition;
 import com.micro4j.persistence.exception.AlterException;
 import com.micro4j.persistence.exception.CreateSequenceException;
+import com.micro4j.persistence.exception.PersistenceException;
 import com.micro4j.persistence.exception.TableCreateException;
 import com.micro4j.persistence.exception.TableDropException;
-import com.micro4j.persistence.meta.ColumnDefinition;
 import com.micro4j.persistence.meta.MetaDataManager;
 
 public class DefaultAlterManager implements AlterManager {
@@ -80,7 +81,7 @@ public class DefaultAlterManager implements AlterManager {
                 LOG.info(schemaGeneratorMarker, "Executing CREATE SCHEMA ddl {}", new Object[] { schemaDdl });
                 stmt.executeUpdate(schemaDdl);
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new PersistenceException(e);
             }
         }
 

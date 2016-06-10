@@ -1,6 +1,5 @@
 package com.micro4j.persistence.alter;
 
-
 public interface AlterListener {
 
     void onTableDrop(AlterEvent event);

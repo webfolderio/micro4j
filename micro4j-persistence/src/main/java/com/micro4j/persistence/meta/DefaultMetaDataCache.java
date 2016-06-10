@@ -13,7 +13,7 @@ import com.micro4j.persistence.alter.AlterListener;
 import com.micro4j.persistence.alter.AlterManager;
 import com.micro4j.persistence.core.TableDefinition;
 
-public class DefaultMetaDataCache implements MetaDataCache, AlterListener {
+class DefaultMetaDataCache implements MetaDataCache, AlterListener {
 
     private MetaDataManager metaDataManager;
 

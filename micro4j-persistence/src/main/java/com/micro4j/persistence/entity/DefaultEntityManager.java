@@ -22,24 +22,20 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.sql.DataSource;
 
-import com.micro4j.persistence.alter.AlterManager;
-import com.micro4j.persistence.alter.DefaultAlterManager;
-import com.micro4j.persistence.core.Constants;
-import com.micro4j.persistence.core.PersistenceConfiguration;
+import com.micro4j.persistence.core.ColumnDefinition;
 import com.micro4j.persistence.core.DatabaseVendor;
+import com.micro4j.persistence.core.PersistenceConfiguration;
 import com.micro4j.persistence.core.TableDefinition;
 import com.micro4j.persistence.exception.DeleteException;
 import com.micro4j.persistence.exception.InsertException;
 import com.micro4j.persistence.exception.QueryException;
 import com.micro4j.persistence.exception.UpdateException;
-import com.micro4j.persistence.meta.ColumnDefinition;
-import com.micro4j.persistence.meta.DefaultMetaDataCache;
 import com.micro4j.persistence.meta.DefaultMetaDataManager;
-import com.micro4j.persistence.meta.MetaDataCache;
 import com.micro4j.persistence.meta.MetaDataManager;
 
 public class DefaultEntityManager implements EntityManager, Constants {
@@ -47,8 +43,6 @@ public class DefaultEntityManager implements EntityManager, Constants {
     private PersistenceConfiguration configuration;
 
     private MetaDataManager metaDataManager;
-
-    private MetaDataCache metaDataCache;
 
     private String defaultSequence;
 
@@ -59,8 +53,6 @@ public class DefaultEntityManager implements EntityManager, Constants {
         this.defaultSequence = configuration.getDefaultSequence();
         this.defaultSchema = configuration.getDefaultSchema();
         this.metaDataManager = new DefaultMetaDataManager(configuration);
-        AlterManager alterManager = new DefaultAlterManager(configuration, metaDataManager);
-        this.metaDataCache = new DefaultMetaDataCache(alterManager, metaDataManager);
     }
 
     @Override
@@ -139,7 +131,8 @@ public class DefaultEntityManager implements EntityManager, Constants {
     }
 
     protected TableDefinition getTable(String entityName) {
-        return metaDataCache.getTable(entityName, defaultSchema);
+        Optional<TableDefinition> found = metaDataManager.getTable(getTableName(entityName));
+        return found.get();
     }
 
     @Override

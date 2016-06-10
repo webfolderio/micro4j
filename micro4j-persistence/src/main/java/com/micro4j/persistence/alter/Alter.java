@@ -1,6 +1,6 @@
 package com.micro4j.persistence.alter;
 
-import com.micro4j.persistence.meta.ColumnDefinition;
+import com.micro4j.persistence.core.ColumnDefinition;
 
 public class Alter {
 

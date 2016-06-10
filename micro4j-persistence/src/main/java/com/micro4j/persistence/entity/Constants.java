@@ -1,10 +1,10 @@
-package com.micro4j.persistence.core;
+package com.micro4j.persistence.entity;
 
 import static java.util.Arrays.asList;
 
 import java.util.List;
 
-public interface Constants {
+interface Constants {
 
     static final String ID = "ID";
 
