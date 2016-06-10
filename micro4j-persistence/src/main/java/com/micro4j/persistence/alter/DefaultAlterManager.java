@@ -37,7 +37,7 @@ public class DefaultAlterManager implements AlterManager {
 
     private List<AlterListener> listeners = new CopyOnWriteArrayList<>();
 
-    private Marker schemaGeneratorMarker = MarkerFactory.getMarker("REDMOUND-SCHEMA-GENERATOR");
+    private Marker schemaGeneratorMarker = MarkerFactory.getMarker("micro4j-persistence-alter");
 
     private PersistenceConfiguration configuration;
 
