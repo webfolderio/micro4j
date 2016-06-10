@@ -152,16 +152,11 @@ public class ColumnDefinition {
     }
 
     public String generateAlterDrop(String table, String schema, DatabaseVendor vendor) {
-        switch (vendor) {
-            default: return format("ALTER TABLE %s.%s DROP COLUMN %s", schema, table, getName());
-        }
+        return format("ALTER TABLE %s.%s DROP COLUMN %s", schema, table, getName());
     }
 
     public String generateAlterAdd(String table, String schema, DatabaseVendor vendor) {
         String sql = generateCreateSql(vendor);
-        switch (vendor) {
-            default:
-            case hsql: return format("ALTER TABLE %s.%s ADD %s", schema, table, sql);
-        }
+        return format("ALTER TABLE %s.%s ADD %s", schema, table, sql);
     }
 }
