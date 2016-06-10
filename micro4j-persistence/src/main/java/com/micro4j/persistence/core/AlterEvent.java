@@ -20,28 +20,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.persistence.meta;
+package com.micro4j.persistence.core;
 
-import java.util.List;
-import java.util.Optional;
+public class AlterEvent {
 
-import com.micro4j.persistence.alter.AlterListener;
-import com.micro4j.persistence.core.DatabaseVendor;
-import com.micro4j.persistence.core.TableDefinition;
+    private String schema;
 
-public interface MetaDataManager extends AlterListener {
+    private String tableName;
 
-    Optional<TableDefinition> getTable(String tableName);
+    public AlterEvent(String schema, String tableName) {
+        this.schema = schema;
+        this.tableName = tableName;
+    }
 
-    Optional<TableDefinition> getTable(String schema, String tableName);
+    public String getSchema() {
+        return schema;
+    }
 
-    List<String> getTables(String schema);
+    public String getTableName() {
+        return tableName;
+    }
 
-    List<String> getTables();
-
-    DatabaseVendor getVendor();
-
-    boolean hasSchema(String schema);
-
-    List<String> listSequences(String schema);
+    @Override
+    public String toString() {
+        return "AlterEvent [schema=" + schema + ", tableName=" + tableName + "]";
+    }
 }

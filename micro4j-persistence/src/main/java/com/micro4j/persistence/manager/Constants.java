@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.persistence.entity;
+package com.micro4j.persistence.manager;
 
 import static java.util.Arrays.asList;
 

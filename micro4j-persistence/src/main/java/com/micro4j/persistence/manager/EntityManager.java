@@ -20,25 +20,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.persistence.alter;
+package com.micro4j.persistence.manager;
 
 import java.util.List;
+import java.util.Map;
 
-import com.micro4j.persistence.core.TableDefinition;
+import com.micro4j.persistence.core.AlterManager;
 
-public interface AlterManager {
+public interface EntityManager {
 
-    void create(TableDefinition table);
+    long insert(String entityName, Map<String, Object> entity);
 
-    void drop(TableDefinition table);
+    long insertSelective(String entityName, Map<String, Object> entity);
 
-    List<Alter> prepareAlter(TableDefinition existingTable, TableDefinition newTable);
+    Map<String, Object> get(String entityName, long id);
 
-    void executeAlter(TableDefinition table, List<Alter> alters);
+    List<Map<String, Object>> listAll(String entityName);
 
-    boolean addListener(AlterListener listener);
+    boolean update(String entityName, Map<String, Object> entity);
 
-    boolean removeListener(AlterListener listener);
+    boolean updateSelective(String entityName, Map<String, Object> entity);
 
-    boolean createSequence(String schema, String sequence);
+    boolean delete(String entityName, long id);
+
+    AlterManager getAlterManager();
+
+    MetaDataManager getMetaDataManager();
 }

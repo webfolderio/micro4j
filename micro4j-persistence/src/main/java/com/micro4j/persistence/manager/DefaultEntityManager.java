@@ -20,10 +20,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.persistence.entity;
+package com.micro4j.persistence.manager;
 
-import static com.micro4j.persistence.core.Utils.camelCaseToTableName;
-import static com.micro4j.persistence.core.Utils.tableNameToCamelCase;
 import static java.lang.String.format;
 import static java.lang.String.join;
 import static java.util.Collections.emptyList;
@@ -49,8 +47,7 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
-import com.micro4j.persistence.alter.AlterManager;
-import com.micro4j.persistence.alter.DefaultAlterManager;
+import com.micro4j.persistence.core.AlterManager;
 import com.micro4j.persistence.core.ColumnDefinition;
 import com.micro4j.persistence.core.DatabaseVendor;
 import com.micro4j.persistence.core.PersistenceConfiguration;
@@ -60,8 +57,6 @@ import com.micro4j.persistence.exception.InsertException;
 import com.micro4j.persistence.exception.PersistenceException;
 import com.micro4j.persistence.exception.QueryException;
 import com.micro4j.persistence.exception.UpdateException;
-import com.micro4j.persistence.meta.DefaultMetaDataManager;
-import com.micro4j.persistence.meta.MetaDataManager;
 
 public class DefaultEntityManager implements EntityManager, Constants {
 
@@ -70,6 +65,8 @@ public class DefaultEntityManager implements EntityManager, Constants {
     private MetaDataManager metaDataManager;
 
     private AlterManager alterManager;
+
+    private Utils utils = new Utils();
 
     public DefaultEntityManager(PersistenceConfiguration configuration) {
         this.configuration = configuration;
@@ -190,7 +187,7 @@ public class DefaultEntityManager implements EntityManager, Constants {
                         if (table.hasColumn(column) ||
                                         DEFAULT_COLUMNS.contains(column)) {
                             Object value = rs.getObject(column);
-                            map.put(tableNameToCamelCase(column), value);
+                            map.put(utils.tableNameToCamelCase(column), value);
                         }
                     }
                     return map;
@@ -223,7 +220,7 @@ public class DefaultEntityManager implements EntityManager, Constants {
                         if (table.hasColumn(column) ||
                                         DEFAULT_COLUMNS.contains(column)) {
                             Object value = rs.getObject(column);
-                            row.put(tableNameToCamelCase(column), value);
+                            row.put(utils.tableNameToCamelCase(column), value);
                         }
                     }
                     rows.add(row);
@@ -342,7 +339,7 @@ public class DefaultEntityManager implements EntityManager, Constants {
     protected Map<String, Object> filterEntity(TableDefinition table, Map<String, Object> entity) {
         Map<String, Object> map = new LinkedHashMap<>();
         for (Entry<String, Object> entry : entity.entrySet()) {
-            String column = camelCaseToTableName(entry.getKey());
+            String column = utils.camelCaseToTableName(entry.getKey());
             if ( ! table.hasColumn(column)) {
                 entity.remove(column);
             }
@@ -385,7 +382,7 @@ public class DefaultEntityManager implements EntityManager, Constants {
     }
 
     protected String getTableName(String entityName) {
-        return camelCaseToTableName(entityName);
+        return utils.camelCaseToTableName(entityName);
     }
 
     protected String getSequence(String entityName, String columnName) {

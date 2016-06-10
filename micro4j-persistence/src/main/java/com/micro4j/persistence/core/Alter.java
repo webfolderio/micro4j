@@ -20,9 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.persistence.alter;
-
-import com.micro4j.persistence.core.ColumnDefinition;
+package com.micro4j.persistence.core;
 
 public class Alter {
 

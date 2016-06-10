@@ -44,15 +44,15 @@ import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 
-import com.micro4j.persistence.alter.Alter;
-import com.micro4j.persistence.alter.AlterManager;
-import com.micro4j.persistence.alter.AlterType;
+import com.micro4j.persistence.core.Alter;
+import com.micro4j.persistence.core.AlterManager;
+import com.micro4j.persistence.core.AlterType;
 import com.micro4j.persistence.core.ColumnDefinition;
 import com.micro4j.persistence.core.PersistenceConfiguration;
 import com.micro4j.persistence.core.TableDefinition;
-import com.micro4j.persistence.entity.DefaultEntityManager;
-import com.micro4j.persistence.entity.EntityManager;
-import com.micro4j.persistence.meta.MetaDataManager;
+import com.micro4j.persistence.manager.DefaultEntityManager;
+import com.micro4j.persistence.manager.EntityManager;
+import com.micro4j.persistence.manager.MetaDataManager;
 
 @FixMethodOrder(NAME_ASCENDING)
 public class PersistenceTest {

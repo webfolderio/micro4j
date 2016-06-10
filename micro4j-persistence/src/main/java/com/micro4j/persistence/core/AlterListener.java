@@ -20,31 +20,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.persistence.entity;
+package com.micro4j.persistence.core;
 
-import java.util.List;
-import java.util.Map;
+public interface AlterListener {
 
-import com.micro4j.persistence.alter.AlterManager;
-import com.micro4j.persistence.meta.MetaDataManager;
+    void onTableDrop(AlterEvent event);
 
-public interface EntityManager {
+    void onTableCreate(AlterEvent event);
 
-    long insert(String entityName, Map<String, Object> entity);
-
-    long insertSelective(String entityName, Map<String, Object> entity);
-
-    Map<String, Object> get(String entityName, long id);
-
-    List<Map<String, Object>> listAll(String entityName);
-
-    boolean update(String entityName, Map<String, Object> entity);
-
-    boolean updateSelective(String entityName, Map<String, Object> entity);
-
-    boolean delete(String entityName, long id);
-
-    AlterManager getAlterManager();
-
-    MetaDataManager getMetaDataManager();
+    void onTableAlterColumn(AlterEvent event);
 }

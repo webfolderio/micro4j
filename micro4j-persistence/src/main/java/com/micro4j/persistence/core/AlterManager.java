@@ -20,29 +20,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.persistence.alter;
+package com.micro4j.persistence.core;
 
-public class AlterEvent {
+import java.util.List;
 
-    private String schema;
+public interface AlterManager {
 
-    private String tableName;
+    void create(TableDefinition table);
 
-    public AlterEvent(String schema, String tableName) {
-        this.schema = schema;
-        this.tableName = tableName;
-    }
+    void drop(TableDefinition table);
 
-    public String getSchema() {
-        return schema;
-    }
+    List<Alter> prepareAlter(TableDefinition existingTable, TableDefinition newTable);
 
-    public String getTableName() {
-        return tableName;
-    }
+    void executeAlter(TableDefinition table, List<Alter> alters);
 
-    @Override
-    public String toString() {
-        return "AlterEvent [schema=" + schema + ", tableName=" + tableName + "]";
-    }
+    boolean addListener(AlterListener listener);
+
+    boolean removeListener(AlterListener listener);
+
+    boolean createSequence(String schema, String sequence);
 }

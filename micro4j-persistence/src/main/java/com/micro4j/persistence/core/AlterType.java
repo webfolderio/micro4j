@@ -20,13 +20,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.persistence.alter;
+package com.micro4j.persistence.core;
 
-public interface AlterListener {
-
-    void onTableDrop(AlterEvent event);
-
-    void onTableCreate(AlterEvent event);
-
-    void onTableAlterColumn(AlterEvent event);
+public enum AlterType {
+    CreateColumn,
+    DropColumn
 }

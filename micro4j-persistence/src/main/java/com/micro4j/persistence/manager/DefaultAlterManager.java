@@ -20,10 +20,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.persistence.alter;
+package com.micro4j.persistence.manager;
 
-import static com.micro4j.persistence.alter.AlterType.CreateColumn;
-import static com.micro4j.persistence.alter.AlterType.DropColumn;
+import static com.micro4j.persistence.core.AlterType.CreateColumn;
+import static com.micro4j.persistence.core.AlterType.DropColumn;
 import static java.lang.String.format;
 import static java.lang.String.join;
 import static java.util.stream.Collectors.toList;
@@ -42,6 +42,10 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
+import com.micro4j.persistence.core.Alter;
+import com.micro4j.persistence.core.AlterEvent;
+import com.micro4j.persistence.core.AlterListener;
+import com.micro4j.persistence.core.AlterManager;
 import com.micro4j.persistence.core.ColumnDefinition;
 import com.micro4j.persistence.core.DatabaseVendor;
 import com.micro4j.persistence.core.PersistenceConfiguration;
@@ -51,9 +55,8 @@ import com.micro4j.persistence.exception.CreateSequenceException;
 import com.micro4j.persistence.exception.PersistenceException;
 import com.micro4j.persistence.exception.TableCreateException;
 import com.micro4j.persistence.exception.TableDropException;
-import com.micro4j.persistence.meta.MetaDataManager;
 
-public class DefaultAlterManager implements AlterManager {
+class DefaultAlterManager implements AlterManager {
 
     private MetaDataManager metaDataManager;
 

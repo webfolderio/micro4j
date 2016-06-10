@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.persistence.core;
+package com.micro4j.persistence.manager;
 
 import static java.lang.Character.isUpperCase;
 import static java.lang.Character.toLowerCase;
@@ -29,17 +29,13 @@ import static java.lang.Character.toUpperCase;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class Utils {
+class Utils {
 
-    private static ConcurrentMap<String, String> camelCaseToTableName = new ConcurrentHashMap<>();
+    private ConcurrentMap<String, String> camelCaseToTableName = new ConcurrentHashMap<>();
 
-    private static ConcurrentMap<String, String> tableNameToCamelCase = new ConcurrentHashMap<>();
+    private ConcurrentMap<String, String> tableNameToCamelCase = new ConcurrentHashMap<>();
 
-    private static ConcurrentMap<String, String> tableNameToTitleCase = new ConcurrentHashMap<>();
-
-    private static ConcurrentMap<String, String> camelCaseToTitleCase = new ConcurrentHashMap<>();
-
-    public static String camelCaseToTableName(String name) {
+    public String camelCaseToTableName(String name) {
         if (name == null) {
             return null;
         }
@@ -60,7 +56,7 @@ public class Utils {
         return tableName;
     }
 
-    public static String tableNameToCamelCase(String name) {
+    public String tableNameToCamelCase(String name) {
         if (name == null) {
             return null;
         }
@@ -83,41 +79,4 @@ public class Utils {
         return camelCase;
     }
 
-    public static String tableNameToTitleCase(String name) {
-        if (name == null) {
-            return null;
-        }
-        String titleCase = tableNameToTitleCase.get(name);
-        if (titleCase != null) {
-            return titleCase;
-        }
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < name.length(); i++) {
-            char c = name.charAt(i);
-            if (i == 0) {
-                builder.append(toUpperCase(c));
-            } else if (isUpperCase(c) &&
-                        (i > 0 && name.charAt(i - 1) != '_')) {
-                builder.append(toLowerCase(c));
-            } else if (c != '_') {
-                builder.append(c);
-            }
-        }
-        titleCase = builder.toString();
-        tableNameToTitleCase.putIfAbsent(name, titleCase);
-        return titleCase;
-    }
-
-    public static String camelCaseToTitleCase(String name) {
-        if (name == null) {
-            return null;
-        }
-        String titleCase = camelCaseToTitleCase.get(name);
-        if (titleCase != null) {
-            return titleCase;
-        }
-        titleCase = toUpperCase(name.charAt(0)) + name.substring(1);
-        camelCaseToTitleCase.putIfAbsent(name, titleCase);
-        return titleCase;
-    }
 }

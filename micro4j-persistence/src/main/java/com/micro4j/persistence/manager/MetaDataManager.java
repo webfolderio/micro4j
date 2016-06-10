@@ -20,9 +20,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.persistence.alter;
+package com.micro4j.persistence.manager;
 
-public enum AlterType {
-    CreateColumn,
-    DropColumn
+import java.util.List;
+import java.util.Optional;
+
+import com.micro4j.persistence.core.AlterListener;
+import com.micro4j.persistence.core.DatabaseVendor;
+import com.micro4j.persistence.core.TableDefinition;
+
+public interface MetaDataManager extends AlterListener {
+
+    Optional<TableDefinition> getTable(String tableName);
+
+    Optional<TableDefinition> getTable(String schema, String tableName);
+
+    List<String> getTables(String schema);
+
+    List<String> getTables();
+
+    DatabaseVendor getVendor();
+
+    boolean hasSchema(String schema);
+
+    List<String> listSequences(String schema);
 }

@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.persistence.meta;
+package com.micro4j.persistence.manager;
 
 import static com.micro4j.persistence.core.DatabaseVendor.h2;
 import static com.micro4j.persistence.core.DatabaseVendor.hsql;
@@ -48,14 +48,14 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.sql.DataSource;
 
-import com.micro4j.persistence.alter.AlterEvent;
+import com.micro4j.persistence.core.AlterEvent;
 import com.micro4j.persistence.core.ColumnDefinition;
 import com.micro4j.persistence.core.DatabaseVendor;
 import com.micro4j.persistence.core.PersistenceConfiguration;
 import com.micro4j.persistence.core.TableDefinition;
 import com.micro4j.persistence.exception.PersistenceException;
 
-public class DefaultMetaDataManager implements MetaDataManager {
+class DefaultMetaDataManager implements MetaDataManager {
 
     private PersistenceConfiguration configuration;
 
