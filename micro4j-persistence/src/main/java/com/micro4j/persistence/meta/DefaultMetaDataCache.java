@@ -17,14 +17,11 @@ class DefaultMetaDataCache implements MetaDataCache, AlterListener {
 
     private MetaDataManager metaDataManager;
 
-    private AlterManager alterManager;
-
     private ConcurrentMap<String, TableDefinition> tables = new ConcurrentHashMap<>();
 
     public DefaultMetaDataCache(AlterManager alterManager, MetaDataManager metaDataManager) {
-        this.alterManager = alterManager;
         this.metaDataManager = metaDataManager;
-        this.alterManager.addListener(this);
+        alterManager.addListener(this);
     }
 
     @Override

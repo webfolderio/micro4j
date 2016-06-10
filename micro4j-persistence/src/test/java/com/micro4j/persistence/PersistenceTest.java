@@ -16,6 +16,7 @@ import java.sql.JDBCType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.hsqldb.jdbc.JDBCDataSource;
 import org.junit.BeforeClass;
@@ -134,7 +135,7 @@ public class PersistenceTest {
     public void t03_testCreateTable() {
         TableDefinition newTable = new TableDefinition("MYSCHEMA", "MYTABLE");
 
-        newTable.add(new ColumnDefinition("NAME", 255, 0, JDBCType.VARCHAR, false, false, null));
+        newTable.add(new ColumnDefinition("NAME", 255, 0, VARCHAR, false, false, null));
 
         alterManager.create(newTable);
 
@@ -152,17 +153,18 @@ public class PersistenceTest {
     @Test
     public void t04_testDropTable() {
         TableDefinition mytable = new TableDefinition("MYSCHEMA", "MYTABLE");
-
         alterManager.drop(mytable);
+        Optional<TableDefinition> found = metaDataManager.getTable("MYTABLE");
+        assertFalse(found.isPresent());
     }
 
     @Test
     public void t05_prepareAlter() {
         TableDefinition newTable = new TableDefinition("MYFOO");
-        newTable.add(new ColumnDefinition("NEWCOLUMN", 10, 2, JDBCType.VARCHAR, false, false, null));
+        newTable.add(new ColumnDefinition("NEWCOLUMN", 10, 2, VARCHAR, false, false, null));
 
         TableDefinition existingTable = new TableDefinition("MYFOO");
-        existingTable.add(new ColumnDefinition("OLDCOLUMN", 10, 2, JDBCType.VARCHAR, false, false, null));
+        existingTable.add(new ColumnDefinition("OLDCOLUMN", 10, 2, VARCHAR, false, false, null));
 
         List<Alter> list = alterManager.prepareAlter(existingTable, newTable);
 
@@ -185,7 +187,7 @@ public class PersistenceTest {
 
         TableDefinition newTable = new TableDefinition(existingTable);
         newTable.removeColumn("SURNAME");
-        newTable.add(new ColumnDefinition("NEWCOLUMN", 10, 0, JDBCType.VARCHAR, false, true, null));
+        newTable.add(new ColumnDefinition("NEWCOLUMN", 10, 0, VARCHAR, false, true, null));
 
         List<Alter> alter = alterManager.prepareAlter(existingTable, newTable);
 

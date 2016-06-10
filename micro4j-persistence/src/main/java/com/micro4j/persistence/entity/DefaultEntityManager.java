@@ -33,6 +33,7 @@ import com.micro4j.persistence.core.PersistenceConfiguration;
 import com.micro4j.persistence.core.TableDefinition;
 import com.micro4j.persistence.exception.DeleteException;
 import com.micro4j.persistence.exception.InsertException;
+import com.micro4j.persistence.exception.PersistenceException;
 import com.micro4j.persistence.exception.QueryException;
 import com.micro4j.persistence.exception.UpdateException;
 import com.micro4j.persistence.meta.DefaultMetaDataManager;
@@ -296,6 +297,8 @@ public class DefaultEntityManager implements EntityManager, Constants {
             case oracle:
                 query = format("select %s.%s.nextval FROM DUAL", schema, seqence);
             break;
+            default:
+                throw new PersistenceException("Unsupported vendor [" + vendor.name() + "]");
         }
 
         try (Connection conn = getDataSource(entityName).getConnection();
