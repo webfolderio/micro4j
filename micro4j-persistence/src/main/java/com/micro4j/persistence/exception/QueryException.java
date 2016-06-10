@@ -31,4 +31,8 @@ public class QueryException extends PersistenceException {
     public QueryException(SQLException e) {
         super(e);
     }
+
+    public QueryException(String message) {
+        super(message);
+    }
 }

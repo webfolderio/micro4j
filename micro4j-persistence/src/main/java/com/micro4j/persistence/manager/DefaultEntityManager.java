@@ -323,8 +323,11 @@ public class DefaultEntityManager implements EntityManager, Constants {
         try (Connection conn = getDataSource(tableName).getConnection();
                                 PreparedStatement pstmt = conn.prepareStatement(query);
                 ResultSet rs = pstmt.executeQuery()) {
-            rs.next();
-            return rs.getLong(1);
+            if (rs.next()) {
+                return rs.getLong(1);
+            } else {
+                throw new QueryException("Unable to get nextval from the sequence [" + seqence + "]");
+            }
         } catch (SQLException e) {
             throw new QueryException(e);
         }
@@ -334,7 +337,7 @@ public class DefaultEntityManager implements EntityManager, Constants {
         Map<String, Object> map = new LinkedHashMap<>();
         for (Entry<String, Object> entry : entity.entrySet()) {
             String column = entry.getKey();
-            if ( ! table.hasColumn(column)) {
+            if ( ! table.hasColumn(column) ) {
                 entity.remove(column);
             }
             map.put(column, entry.getValue());
