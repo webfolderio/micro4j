@@ -106,9 +106,4 @@ public class TableDefinition {
     public String generateDropScript() {
         return format("DROP TABLE %s.%s", schema, name);
     }
-
-    @Override
-    public String toString() {
-        return "TableDefinition [name=" + name + ", schema=" + schema + ", columns=" + columns + "]";
-    }
 }

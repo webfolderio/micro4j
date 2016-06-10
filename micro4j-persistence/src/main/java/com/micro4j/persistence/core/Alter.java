@@ -40,9 +40,4 @@ public class Alter {
     public AlterType getType() {
         return type;
     }
-
-    @Override
-    public String toString() {
-        return "Alter [column=" + column + ", type=" + type + "]";
-    }
 }

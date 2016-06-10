@@ -40,9 +40,4 @@ public class AlterEvent {
     public String getTableName() {
         return tableName;
     }
-
-    @Override
-    public String toString() {
-        return "AlterEvent [schema=" + schema + ", tableName=" + tableName + "]";
-    }
 }

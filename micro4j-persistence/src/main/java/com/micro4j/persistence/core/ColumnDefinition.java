@@ -164,10 +164,4 @@ public class ColumnDefinition {
             case hsql: return format("ALTER TABLE %s.%s ADD %s", schema, table, sql);
         }
     }
-
-    @Override
-    public String toString() {
-        return "ColumnDefinition [name=" + name + ", jdbcType=" + jdbcType + ", size=" + size + ", scale=" + scale
-                + ", sequence=" + sequence + ", primaryKey=" + primaryKey + ", nullable=" + nullable + "]";
-    }
 }
