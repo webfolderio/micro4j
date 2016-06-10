@@ -401,4 +401,14 @@ public class DefaultEntityManager implements EntityManager, Constants {
     protected String getUsername() {
         return DEFAULT_USER;
     }
+
+    @Override
+    public MetaDataManager getMetaDataManager() {
+        return metaDataManager;
+    }
+
+    @Override
+    public DefaultAlterManager getAlterManager() {
+        return alterManager;
+    }
 }

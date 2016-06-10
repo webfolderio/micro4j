@@ -45,20 +45,21 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 
 import com.micro4j.persistence.alter.Alter;
+import com.micro4j.persistence.alter.AlterManager;
 import com.micro4j.persistence.alter.AlterType;
-import com.micro4j.persistence.alter.DefaultAlterManager;
 import com.micro4j.persistence.core.ColumnDefinition;
 import com.micro4j.persistence.core.PersistenceConfiguration;
 import com.micro4j.persistence.core.TableDefinition;
 import com.micro4j.persistence.entity.DefaultEntityManager;
-import com.micro4j.persistence.meta.DefaultMetaDataManager;
+import com.micro4j.persistence.entity.EntityManager;
+import com.micro4j.persistence.meta.MetaDataManager;
 
 @FixMethodOrder(NAME_ASCENDING)
 public class PersistenceTest {
 
-    private static DefaultMetaDataManager metaDataManager;
-    private static DefaultEntityManager entityManager;
-    private static DefaultAlterManager alterManager;
+    private static MetaDataManager metaDataManager;
+    private static EntityManager entityManager;
+    private static AlterManager alterManager;
 
     @BeforeClass
     public static void before() {
@@ -67,10 +68,9 @@ public class PersistenceTest {
         dataSource.setUser("sa");
         dataSource.setPassword("");
         PersistenceConfiguration configuration = new PersistenceConfiguration("MYSCHEMA", "MY_SEQ", dataSource);
-        metaDataManager = new DefaultMetaDataManager(configuration);
         entityManager = new DefaultEntityManager(configuration);
-        alterManager = new DefaultAlterManager(configuration, metaDataManager);
-        alterManager.addListener(metaDataManager);
+        alterManager = entityManager.getAlterManager();
+        metaDataManager = entityManager.getMetaDataManager();
     }
 
     @Test

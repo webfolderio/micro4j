@@ -25,6 +25,9 @@ package com.micro4j.persistence.entity;
 import java.util.List;
 import java.util.Map;
 
+import com.micro4j.persistence.alter.AlterManager;
+import com.micro4j.persistence.meta.MetaDataManager;
+
 public interface EntityManager {
 
     long insert(String entityName, Map<String, Object> entity);
@@ -40,4 +43,8 @@ public interface EntityManager {
     boolean updateSelective(String entityName, Map<String, Object> entity);
 
     boolean delete(String entityName, long id);
+
+    AlterManager getAlterManager();
+
+    MetaDataManager getMetaDataManager();
 }
