@@ -399,4 +399,10 @@ public class DefaultEntityManager implements EntityManager, Constants {
     public AlterManager getAlterManager() {
         return alterManager;
     }
+
+    @Override
+    public void dispose() {
+        metaDataManager.dispose();
+        alterManager.dispose();
+    }
 }

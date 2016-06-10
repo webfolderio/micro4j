@@ -231,5 +231,7 @@ public class PersistenceTest {
     @Test
     public void t07listSequences() {
         assertTrue(metaDataManager.listSequences("MYSCHEMA").contains("MY_SEQ"));   
+
+        entityManager.dispose();
     }
 }

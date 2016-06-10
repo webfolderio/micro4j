@@ -44,4 +44,6 @@ public interface MetaDataManager extends AlterListener {
     boolean hasSchema(String schema);
 
     List<String> listSequences(String schema);
+
+    void dispose();
 }

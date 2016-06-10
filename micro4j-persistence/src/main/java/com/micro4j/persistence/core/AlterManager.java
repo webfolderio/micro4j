@@ -39,4 +39,6 @@ public interface AlterManager {
     boolean removeListener(AlterListener listener);
 
     boolean createSequence(String schema, String sequence);
+
+    void dispose();
 }

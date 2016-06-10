@@ -46,4 +46,6 @@ public interface EntityManager {
     AlterManager getAlterManager();
 
     MetaDataManager getMetaDataManager();
+
+    void dispose();
 }

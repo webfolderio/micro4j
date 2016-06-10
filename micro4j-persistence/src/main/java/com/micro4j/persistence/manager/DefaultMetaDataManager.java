@@ -265,4 +265,10 @@ class DefaultMetaDataManager implements MetaDataManager {
         removeList
             .forEach(table -> tables.remove(format("%s.%s", table.getSchema(), table.getName())));
     }
+
+    @Override
+    public void dispose() {
+        typeAlias.clear();
+        tables.clear();
+    }
 }

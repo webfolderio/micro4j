@@ -248,7 +248,8 @@ class DefaultAlterManager implements AlterManager {
         return false;
     }
 
-    public void onShutdown() {
+    @Override
+    public void dispose() {
         listeners.clear();
     }
 }
