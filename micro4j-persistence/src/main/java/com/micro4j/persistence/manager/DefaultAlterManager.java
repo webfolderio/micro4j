@@ -110,7 +110,7 @@ class DefaultAlterManager implements AlterManager {
             }
         }
 
-        String tableDdl = format("%n%s (%n%s)", table.generateCreateScript(), columnQuery);
+        String tableDdl = format("%n%s (%n%s%n)", table.generateCreateScript(), columnQuery);
 
         try (Connection conn = ds.getConnection();
                 Statement stmt = conn.createStatement()) {

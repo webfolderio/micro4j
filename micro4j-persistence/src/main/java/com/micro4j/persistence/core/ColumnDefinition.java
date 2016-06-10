@@ -136,11 +136,11 @@ public class ColumnDefinition {
     public String getCreateSql(DatabaseVendor vendor ) {
         String sql = null;
         if (! hasSize() && ! hasScale()) {
-            sql = format("%s %s", getName(), getJdbcType().toString());
+            sql = format(" %s %s", getName(), getJdbcType().toString());
         } else if (hasSize() && ! hasScale()) {
-            sql = format("%s %s(%s)", getName(), getJdbcType().toString(), getSize());
+            sql = format(" %s %s(%s)", getName(), getJdbcType().toString(), getSize());
         } else {
-            sql = format("%s %s(%s,%s)", getName(), getJdbcType().toString(), getSize(), getScale());
+            sql = format(" %s %s(%s,%s)", getName(), getJdbcType().toString(), getSize(), getScale());
         }
         if (isPrimaryKey()) {
             sql = sql + " PRIMARY KEY";
