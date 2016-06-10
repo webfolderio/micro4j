@@ -8,6 +8,8 @@ import com.micro4j.persistence.core.TableDefinition;
 
 public interface MetaDataManager {
 
+    Optional<TableDefinition> getTable(String tableName);
+
     Optional<TableDefinition> getTable(String schema, String tableName);
 
     List<String> getTables(String schema);
