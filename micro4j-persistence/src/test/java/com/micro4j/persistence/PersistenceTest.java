@@ -73,7 +73,7 @@ public class PersistenceTest {
     }
 
     @Test
-    public void t01_entityManager() {
+    public void t01entityManager() {
         TableDefinition table = new TableDefinition("MYSCHEMA", "SAMPLE_ENTITY");
         table.add(new ColumnDefinition("CREATED_BY").setSize(255).setJdbcType(VARCHAR));
         table.add(new ColumnDefinition("SURNAME").setSize(255).setJdbcType(VARCHAR).setNullable(true));
@@ -120,7 +120,7 @@ public class PersistenceTest {
     }
 
     @Test
-    public void t02_metaDataManager() {
+    public void t02metaDataManager() {
         assertEquals(1, metaDataManager.getTables().size());
 
         assertTrue(metaDataManager.getTables().contains("SAMPLE_ENTITY"));
@@ -153,7 +153,7 @@ public class PersistenceTest {
     }
 
     @Test
-    public void t03_testCreateTable() {
+    public void t03testCreateTable() {
         TableDefinition newTable = new TableDefinition("MYSCHEMA", "MYTABLE");
 
         newTable.add(new ColumnDefinition("NAME", 255, 0, VARCHAR, false, false, null));
@@ -172,7 +172,7 @@ public class PersistenceTest {
     }
 
     @Test
-    public void t04_testDropTable() {
+    public void t04testDropTable() {
         TableDefinition mytable = new TableDefinition("MYSCHEMA", "MYTABLE");
         alterManager.drop(mytable);
         Optional<TableDefinition> found = metaDataManager.getTable("MYTABLE");
@@ -180,7 +180,7 @@ public class PersistenceTest {
     }
 
     @Test
-    public void t05_prepareAlter() {
+    public void t05prepareAlter() {
         TableDefinition newTable = new TableDefinition("MYFOO");
         newTable.add(new ColumnDefinition("NEWCOLUMN", 10, 2, VARCHAR, false, false, null));
 
@@ -203,7 +203,7 @@ public class PersistenceTest {
     }
 
     @Test
-    public void t06_executeAlter() {
+    public void t06executeAlter() {
         TableDefinition existingTable = metaDataManager.getTable("MYSCHEMA", "SAMPLE_ENTITY").get();
 
         TableDefinition newTable = new TableDefinition(existingTable);
@@ -226,7 +226,7 @@ public class PersistenceTest {
     }
 
     @Test
-    public void t07_listSequences() {
+    public void t07listSequences() {
         assertTrue(metaDataManager.listSequences("MYSCHEMA").contains("MY_SEQ"));   
     }
 }

@@ -72,16 +72,13 @@ public class DefaultMetaDataManager implements MetaDataManager {
 
     private Map<String, String> typeAlias = new HashMap<>();
 
-    {
-        typeAlias.put("CHARACTER", "CHAR");
-        typeAlias.put("VARCHAR2", "VARCHAR");
-        typeAlias.put("NUMBER", "NUMERIC");
-    }
-
     private DatabaseVendor vendor;
 
     public DefaultMetaDataManager(PersistenceConfiguration configuration) {
         this.configuration = configuration;
+        typeAlias.put("CHARACTER", "CHAR");
+        typeAlias.put("VARCHAR2", "VARCHAR");
+        typeAlias.put("NUMBER", "NUMERIC");
     }
 
     @Override

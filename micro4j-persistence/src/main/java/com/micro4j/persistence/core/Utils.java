@@ -99,9 +99,7 @@ public class Utils {
             } else if (isUpperCase(c) &&
                         (i > 0 && name.charAt(i - 1) != '_')) {
                 builder.append(toLowerCase(c));
-            } else if (c == '_') {
-                // no op
-            } else {
+            } else if (c != '_') {
                 builder.append(c);
             }
         }
