@@ -26,24 +26,24 @@ import javax.sql.DataSource;
 
 public class PersistenceConfiguration {
 
-    private String defaultSchema;
+    private String schema;
 
-    private String defaultSequence;
+    private String sequence;
 
     private DataSource dataSource;
 
-    public PersistenceConfiguration(String defaultSchema, String defaultSequence, DataSource dataSource) {
-        this.defaultSchema = defaultSchema;
-        this.defaultSequence = defaultSequence;
+    public PersistenceConfiguration(String schema, String sequence, DataSource dataSource) {
+        this.schema = schema;
+        this.sequence = sequence;
         this.dataSource = dataSource;
     }
 
-    public String getDefaultSchema() {
-        return defaultSchema;
+    public String getSchema() {
+        return schema;
     }
 
-    public String getDefaultSequence() {
-        return defaultSequence;
+    public String getSequence() {
+        return sequence;
     }
 
     public DataSource getDataSource() {

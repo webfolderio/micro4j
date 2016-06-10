@@ -49,7 +49,7 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
-import com.micro4j.persistence.alter.AlterListener;
+import com.micro4j.persistence.alter.AlterManager;
 import com.micro4j.persistence.alter.DefaultAlterManager;
 import com.micro4j.persistence.core.ColumnDefinition;
 import com.micro4j.persistence.core.DatabaseVendor;
@@ -69,19 +69,19 @@ public class DefaultEntityManager implements EntityManager, Constants {
 
     private MetaDataManager metaDataManager;
 
-    private String defaultSequence;
-
-    private String defaultSchema;
-
-    private DefaultAlterManager alterManager;
+    private AlterManager alterManager;
 
     public DefaultEntityManager(PersistenceConfiguration configuration) {
         this.configuration = configuration;
-        this.defaultSequence = configuration.getDefaultSequence();
-        this.defaultSchema = configuration.getDefaultSchema();
         this.metaDataManager = new DefaultMetaDataManager(configuration);
         this.alterManager = new DefaultAlterManager(configuration, metaDataManager);
-        this.alterManager.addListener((AlterListener) this.metaDataManager);
+        this.alterManager.addListener(metaDataManager);
+    }
+
+    public DefaultEntityManager(PersistenceConfiguration configuration, MetaDataManager metaDataManager, AlterManager alterManager) {
+        this.configuration = configuration;
+        this.metaDataManager = metaDataManager;
+        this.alterManager = alterManager;
     }
 
     @Override
@@ -379,7 +379,7 @@ public class DefaultEntityManager implements EntityManager, Constants {
         TableDefinition table = getTable(entityName);
         String schema = table.getSchema();
         if (schema == null) {
-            return defaultSchema;
+            return configuration.getSchema();
         }
         return schema;
     }
@@ -393,7 +393,7 @@ public class DefaultEntityManager implements EntityManager, Constants {
         ColumnDefinition column = table.getColumn(columnName);
         String sequence = column.getSequence();
         if (sequence == null) {
-            return defaultSequence;
+            return configuration.getSequence();
         }
         return sequence;
     }
@@ -408,7 +408,7 @@ public class DefaultEntityManager implements EntityManager, Constants {
     }
 
     @Override
-    public DefaultAlterManager getAlterManager() {
+    public AlterManager getAlterManager() {
         return alterManager;
     }
 }

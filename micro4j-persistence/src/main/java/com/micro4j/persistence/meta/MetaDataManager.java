@@ -25,10 +25,11 @@ package com.micro4j.persistence.meta;
 import java.util.List;
 import java.util.Optional;
 
+import com.micro4j.persistence.alter.AlterListener;
 import com.micro4j.persistence.core.DatabaseVendor;
 import com.micro4j.persistence.core.TableDefinition;
 
-public interface MetaDataManager {
+public interface MetaDataManager extends AlterListener {
 
     Optional<TableDefinition> getTable(String tableName);
 

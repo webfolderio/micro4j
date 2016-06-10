@@ -131,8 +131,8 @@ public class DefaultAlterManager implements AlterManager {
                                                     existingTable.getName() + "] new table name [" + newTable.getName() + "]");
         }
 
-        String existingTableSchema = existingTable.getSchema() == null ? configuration.getDefaultSchema() : existingTable.getSchema();
-        String newTableSchema = newTable.getSchema() == null ? configuration.getDefaultSchema() : newTable.getSchema();
+        String existingTableSchema = existingTable.getSchema() == null ? configuration.getSchema() : existingTable.getSchema();
+        String newTableSchema = newTable.getSchema() == null ? configuration.getSchema() : newTable.getSchema();
 
         if ( ! newTableSchema.equals(existingTableSchema)) {
             throw new AlterException("Both table must have same schema. Existing table schema [" +
@@ -160,7 +160,7 @@ public class DefaultAlterManager implements AlterManager {
 
     @Override
     public void executeAlter(TableDefinition table, List<Alter> alters) {
-        String schema = table.getSchema() == null ? configuration.getDefaultSchema() : table.getSchema();
+        String schema = table.getSchema() == null ? configuration.getSchema() : table.getSchema();
         DatabaseVendor vendor = metaDataManager.getVendor();
 
         List<String> alterAdd = alters

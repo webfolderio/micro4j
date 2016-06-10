@@ -49,14 +49,13 @@ import java.util.concurrent.ConcurrentMap;
 import javax.sql.DataSource;
 
 import com.micro4j.persistence.alter.AlterEvent;
-import com.micro4j.persistence.alter.AlterListener;
 import com.micro4j.persistence.core.ColumnDefinition;
 import com.micro4j.persistence.core.DatabaseVendor;
 import com.micro4j.persistence.core.PersistenceConfiguration;
 import com.micro4j.persistence.core.TableDefinition;
 import com.micro4j.persistence.exception.PersistenceException;
 
-public class DefaultMetaDataManager implements MetaDataManager, AlterListener {
+public class DefaultMetaDataManager implements MetaDataManager {
 
     private PersistenceConfiguration configuration;
 
@@ -91,7 +90,7 @@ public class DefaultMetaDataManager implements MetaDataManager, AlterListener {
 
     @Override
     public Optional<TableDefinition> getTable(String tableName) {
-        return getTable(configuration.getDefaultSchema(), tableName);
+        return getTable(configuration.getSchema(), tableName);
     }
 
     public Optional<TableDefinition> getTable(String schema, String tableName) {
@@ -170,7 +169,7 @@ public class DefaultMetaDataManager implements MetaDataManager, AlterListener {
 
     @Override
     public List<String> getTables() {
-        return getTables(configuration.getDefaultSchema());
+        return getTables(configuration.getSchema());
     }
 
     @Override
