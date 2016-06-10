@@ -12,3 +12,7 @@
 /micro4j-maven-plugin/.settings
 /micro4j-maven-plugin/target
 /micro4j-maven-plugin/.classpath
+/micro4j-persistence/.project
+/micro4j-persistence/.settings
+/micro4j-persistence/target
+/micro4j-persistence/.classpath
