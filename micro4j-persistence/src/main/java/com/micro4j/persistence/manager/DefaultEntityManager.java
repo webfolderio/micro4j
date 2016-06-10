@@ -180,8 +180,7 @@ public class DefaultEntityManager implements EntityManager, Constants {
                     Map<String, Object> map = new LinkedHashMap<>();
                     for (int i = 0; i < count; i++) {
                         String column = meta.getColumnName(i + 1);
-                        if (table.hasColumn(column) ||
-                                        DEFAULT_COLUMNS.contains(column)) {
+                        if (table.hasColumn(column)) {
                             Object value = rs.getObject(column);
                             map.put(column, value);
                         }
@@ -212,8 +211,7 @@ public class DefaultEntityManager implements EntityManager, Constants {
                     Map<String, Object> row = new LinkedHashMap<>();
                     for (int i = 0; i < count; i++) {
                         String column = meta.getColumnName(i + 1);
-                        if (table.hasColumn(column) ||
-                                        DEFAULT_COLUMNS.contains(column)) {
+                        if (table.hasColumn(column)) {
                             Object value = rs.getObject(column);
                             row.put(column, value);
                         }

@@ -74,7 +74,7 @@ public class PersistenceTest {
     }
 
     @Test
-    public void t01Crud() {
+    public void t01crud() {
         TableDefinition table = new TableDefinition("MYSCHEMA", "SAMPLE_ENTITY");
         table.add(new ColumnDefinition("CREATED_BY").setSize(255).setJdbcType(VARCHAR));
         table.add(new ColumnDefinition("SURNAME").setSize(255).setJdbcType(VARCHAR).setNullable(true));
