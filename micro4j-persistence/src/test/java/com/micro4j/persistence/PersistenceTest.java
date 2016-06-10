@@ -74,7 +74,7 @@ public class PersistenceTest {
     }
 
     @Test
-    public void t01entityManager() {
+    public void t01Crud() {
         TableDefinition table = new TableDefinition("MYSCHEMA", "SAMPLE_ENTITY");
         table.add(new ColumnDefinition("CREATED_BY").setSize(255).setJdbcType(VARCHAR));
         table.add(new ColumnDefinition("SURNAME").setSize(255).setJdbcType(VARCHAR).setNullable(true));
@@ -91,33 +91,33 @@ public class PersistenceTest {
         alterManager.createSequence("MYSCHEMA", "MY_SEQ");
 
         Map<String, Object> entity = new HashMap<>();
-        entity.put("name", "foo");
-        entity.put("surname", "bar");
+        entity.put("NAME", "foo");
+        entity.put("SURNAME", "bar");
 
-        long id = entityManager.insert("SampleEntity", entity);
-        Map<String, Object> map = entityManager.get("SampleEntity", id);
-        assertEquals("1", map.get("active"));
+        long id = entityManager.insert("SAMPLE_ENTITY", entity);
+        Map<String, Object> map = entityManager.get("SAMPLE_ENTITY", id);
+        assertEquals("1", map.get("ACTIVE"));
 
-        assertEquals("foo", map.get("name"));
-        assertEquals("bar", map.get("surname"));
+        assertEquals("foo", map.get("NAME"));
+        assertEquals("bar", map.get("SURNAME"));
 
-        assertTrue(entityManager.delete("SampleEntity", id));
+        assertTrue(entityManager.delete("SAMPLE_ENTITY", id));
 
-        map = entityManager.get("SampleEntity", id);
-        assertEquals("0", map.get("active"));
+        map = entityManager.get("SAMPLE_ENTITY", id);
+        assertEquals("0", map.get("ACTIVE"));
 
 
         Map<String, Object> updateMap = new HashMap<>();
-        updateMap.put("id", map.get("id"));
-        updateMap.put("name", "foo-1");
-        updateMap.put("surname", "bar-1");
+        updateMap.put("ID", map.get("ID"));
+        updateMap.put("NAME", "foo-1");
+        updateMap.put("SURNAME", "bar-1");
 
-        assertTrue(entityManager.update("SampleEntity", updateMap));
+        assertTrue(entityManager.update("SAMPLE_ENTITY", updateMap));
 
-        entity = entityManager.get("SampleEntity", (long) updateMap.get("id"));
+        entity = entityManager.get("SAMPLE_ENTITY", (long) updateMap.get("ID"));
 
-        assertEquals("foo-1", entity.get("name"));
-        assertEquals("bar-1", entity.get("surname"));
+        assertEquals("foo-1", entity.get("NAME"));
+        assertEquals("bar-1", entity.get("SURNAME"));
     }
 
     @Test

@@ -66,8 +66,6 @@ public class DefaultEntityManager implements EntityManager, Constants {
 
     private AlterManager alterManager;
 
-    private Utils utils = new Utils();
-
     public DefaultEntityManager(PersistenceConfiguration configuration) {
         this.configuration = configuration;
         this.metaDataManager = new DefaultMetaDataManager(configuration);
@@ -82,11 +80,10 @@ public class DefaultEntityManager implements EntityManager, Constants {
     }
 
     @Override
-    public long insert(String entityName, Map<String, Object> entity) {
-        TableDefinition table = getTable(entityName);
+    public long insert(String tableName, Map<String, Object> entity) {
+        TableDefinition table = getTable(tableName);
 
-        String schema = getSchema(entityName);
-        String tableName = getTableName(entityName);
+        String schema = getSchema(tableName);
 
         Map<String, Object> map = filterEntity(table, entity);
 
@@ -111,7 +108,7 @@ public class DefaultEntityManager implements EntityManager, Constants {
         long id = -1;
 
         if (table.hasColumn(ID)) {
-            id = nextId(entityName);
+            id = nextId(tableName);
             map.put(ID, id);
         }
 
@@ -132,7 +129,7 @@ public class DefaultEntityManager implements EntityManager, Constants {
                                 .toString();
 
         try (Connection conn =
-                        getDataSource(entityName).getConnection();
+                        getDataSource(tableName).getConnection();
                             PreparedStatement pstmt = conn.prepareStatement(query)) {
             int i = 1;
             for (Entry<String, Object> entry : map.entrySet()) {
@@ -156,25 +153,24 @@ public class DefaultEntityManager implements EntityManager, Constants {
         }
     }
 
-    protected TableDefinition getTable(String entityName) {
-        Optional<TableDefinition> found = metaDataManager.getTable(getTableName(entityName));
+    protected TableDefinition getTable(String tableName) {
+        Optional<TableDefinition> found = metaDataManager.getTable(tableName);
         return found.get();
     }
 
     @Override
-    public long insertSelective(String entityName, Map<String, Object> entity) {
+    public long insertSelective(String tableName, Map<String, Object> entity) {
         removeNullValues(entity);
-        return insert(entityName, entity);
+        return insert(tableName, entity);
     }
 
     @Override
-    public Map<String, Object> get(String entityName, long id) {
-        TableDefinition table = getTable(entityName);
-        String schema = getSchema(entityName);
-        String tableName = getTableName(entityName);
+    public Map<String, Object> get(String tableName, long id) {
+        TableDefinition table = getTable(tableName);
+        String schema = getSchema(tableName);
         String query = format("SELECT * FROM %s.%s WHERE ID = ?", schema, tableName);
         try (Connection conn =
-                getDataSource(entityName).getConnection();
+                getDataSource(tableName).getConnection();
                     PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setLong(1, id);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -187,7 +183,7 @@ public class DefaultEntityManager implements EntityManager, Constants {
                         if (table.hasColumn(column) ||
                                         DEFAULT_COLUMNS.contains(column)) {
                             Object value = rs.getObject(column);
-                            map.put(utils.tableNameToCamelCase(column), value);
+                            map.put(column, value);
                         }
                     }
                     return map;
@@ -201,13 +197,12 @@ public class DefaultEntityManager implements EntityManager, Constants {
     }
 
     @Override
-    public List<Map<String, Object>> listAll(String entityName) {
-        TableDefinition table = getTable(entityName);
-        String schema = getSchema(entityName);
-        String tableName = getTableName(entityName);
+    public List<Map<String, Object>> listAll(String tableName) {
+        TableDefinition table = getTable(tableName);
+        String schema = getSchema(tableName);
         String query = format("SELECT * FROM %s.%s WHERE ACTIVE = %s", schema, tableName, ACTIVE_STATUS);
         try (Connection conn =
-                getDataSource(entityName).getConnection();
+                getDataSource(tableName).getConnection();
                     PreparedStatement pstmt = conn.prepareStatement(query)) {
             List<Map<String, Object>> rows = new ArrayList<>();
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -220,7 +215,7 @@ public class DefaultEntityManager implements EntityManager, Constants {
                         if (table.hasColumn(column) ||
                                         DEFAULT_COLUMNS.contains(column)) {
                             Object value = rs.getObject(column);
-                            row.put(utils.tableNameToCamelCase(column), value);
+                            row.put(column, value);
                         }
                     }
                     rows.add(row);
@@ -233,10 +228,9 @@ public class DefaultEntityManager implements EntityManager, Constants {
     }
 
     @Override
-    public boolean update(String entityName, Map<String, Object> entity) {
-        TableDefinition table = getTable(entityName);
-        String schema = getSchema(entityName);
-        String tableName = getTableName(entityName);
+    public boolean update(String tableName, Map<String, Object> entity) {
+        TableDefinition table = getTable(tableName);
+        String schema = getSchema(tableName);
 
         Map<String, Object> map = filterEntity(table, entity);
 
@@ -271,7 +265,7 @@ public class DefaultEntityManager implements EntityManager, Constants {
         String query = builder.toString();
 
         try (Connection conn =
-                getDataSource(entityName).getConnection();
+                getDataSource(tableName).getConnection();
                     PreparedStatement pstmt = conn.prepareStatement(query)) {
             int j = 1;
             for (Entry<String, Object> entry : map.entrySet()) {
@@ -285,16 +279,16 @@ public class DefaultEntityManager implements EntityManager, Constants {
     }
 
     @Override
-    public boolean updateSelective(String entityName, Map<String, Object> entity) {
+    public boolean updateSelective(String tableName, Map<String, Object> entity) {
         removeNullValues(entity);
-        return update(entityName, entity);
+        return update(tableName, entity);
     }
 
     @Override
-    public boolean delete(String entityName, long id) {
-        String query = getDeleteQuery(entityName);
+    public boolean delete(String tableName, long id) {
+        String query = getDeleteQuery(tableName);
         try (Connection conn =
-                        getDataSource(entityName).getConnection();
+                        getDataSource(tableName).getConnection();
                             PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, getUsername());
             pstmt.setTimestamp(2, new Timestamp(new Date().getTime()));
@@ -305,12 +299,12 @@ public class DefaultEntityManager implements EntityManager, Constants {
         }
     }
 
-    protected long nextId(String entityName) {
-        DatabaseVendor vendor = getDatabaseVendor(entityName);
+    protected long nextId(String tableName) {
+        DatabaseVendor vendor = getDatabaseVendor(tableName);
         String query = null;
 
-        String schema = getSchema(entityName);
-        String seqence = getSequence(entityName, "ID");
+        String schema = getSchema(tableName);
+        String seqence = getSequence(tableName, "ID");
 
         switch (vendor) {
             case hsql:
@@ -326,7 +320,7 @@ public class DefaultEntityManager implements EntityManager, Constants {
                 throw new PersistenceException("Unsupported vendor [" + vendor.name() + "]");
         }
 
-        try (Connection conn = getDataSource(entityName).getConnection();
+        try (Connection conn = getDataSource(tableName).getConnection();
                                 PreparedStatement pstmt = conn.prepareStatement(query);
                 ResultSet rs = pstmt.executeQuery()) {
             rs.next();
@@ -339,7 +333,7 @@ public class DefaultEntityManager implements EntityManager, Constants {
     protected Map<String, Object> filterEntity(TableDefinition table, Map<String, Object> entity) {
         Map<String, Object> map = new LinkedHashMap<>();
         for (Entry<String, Object> entry : entity.entrySet()) {
-            String column = utils.camelCaseToTableName(entry.getKey());
+            String column = entry.getKey();
             if ( ! table.hasColumn(column)) {
                 entity.remove(column);
             }
@@ -355,25 +349,23 @@ public class DefaultEntityManager implements EntityManager, Constants {
             .forEach(property -> entity.remove(property));
     }
 
-    protected String getDeleteQuery(String entityName) {
-        String schema = getSchema(entityName);
-        String table = getTableName(entityName);
+    protected String getDeleteQuery(String tableName) {
+        String schema = getSchema(tableName);
         String query = format("UPDATE %s.%s set ACTIVE = %s, UPDATED_BY = ?, UPDATE_DATE = ? where %s = ?",
-                                        schema, table, PASSIVE_STATUS, ID);
+                                        schema, tableName, PASSIVE_STATUS, ID);
         return query;
     }
 
-    protected DataSource getDataSource(String enityName) {
-        DataSource ds = configuration.getDataSource();
-        return ds;
+    protected DataSource getDataSource(String tableName) {
+        return configuration.getDataSource();
     }
 
-    protected DatabaseVendor getDatabaseVendor(String entityName) {
+    protected DatabaseVendor getDatabaseVendor(String tableName) {
         return metaDataManager.getVendor();
     }
 
-    protected String getSchema(String entityName) {
-        TableDefinition table = getTable(entityName);
+    protected String getSchema(String tableName) {
+        TableDefinition table = getTable(tableName);
         String schema = table.getSchema();
         if (schema == null) {
             return configuration.getSchema();
@@ -381,12 +373,8 @@ public class DefaultEntityManager implements EntityManager, Constants {
         return schema;
     }
 
-    protected String getTableName(String entityName) {
-        return utils.camelCaseToTableName(entityName);
-    }
-
-    protected String getSequence(String entityName, String columnName) {
-        TableDefinition table = getTable(entityName);
+    protected String getSequence(String tableName, String columnName) {
+        TableDefinition table = getTable(tableName);
         ColumnDefinition column = table.getColumn(columnName);
         String sequence = column.getSequence();
         if (sequence == null) {

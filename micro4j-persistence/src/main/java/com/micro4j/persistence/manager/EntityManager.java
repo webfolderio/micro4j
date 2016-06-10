@@ -29,19 +29,19 @@ import com.micro4j.persistence.core.AlterManager;
 
 public interface EntityManager {
 
-    long insert(String entityName, Map<String, Object> entity);
+    long insert(String tableName, Map<String, Object> entity);
 
-    long insertSelective(String entityName, Map<String, Object> entity);
+    long insertSelective(String tableName, Map<String, Object> entity);
 
-    Map<String, Object> get(String entityName, long id);
+    Map<String, Object> get(String tableName, long id);
 
-    List<Map<String, Object>> listAll(String entityName);
+    List<Map<String, Object>> listAll(String tableName);
 
-    boolean update(String entityName, Map<String, Object> entity);
+    boolean update(String tableName, Map<String, Object> entity);
 
-    boolean updateSelective(String entityName, Map<String, Object> entity);
+    boolean updateSelective(String tableName, Map<String, Object> entity);
 
-    boolean delete(String entityName, long id);
+    boolean delete(String tableName, long id);
 
     AlterManager getAlterManager();
 
