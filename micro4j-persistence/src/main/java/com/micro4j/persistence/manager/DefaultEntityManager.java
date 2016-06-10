@@ -284,7 +284,7 @@ public class DefaultEntityManager implements EntityManager, Constants {
 
     @Override
     public boolean delete(String tableName, long id) {
-        String query = getDeleteQuery(tableName);
+        String query = generateSoftDeleteQuery(tableName);
         try (Connection conn =
                         getDataSource(tableName).getConnection();
                             PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -302,7 +302,7 @@ public class DefaultEntityManager implements EntityManager, Constants {
         String query = null;
 
         String schema = getSchema(tableName);
-        String seqence = getSequence(tableName, "ID");
+        String seqence = nextSequence(tableName, "ID");
 
         switch (vendor) {
             case hsql:
@@ -350,7 +350,7 @@ public class DefaultEntityManager implements EntityManager, Constants {
             .forEach(property -> entity.remove(property));
     }
 
-    protected String getDeleteQuery(String tableName) {
+    protected String generateSoftDeleteQuery(String tableName) {
         String schema = getSchema(tableName);
         String query = format("UPDATE %s.%s set ACTIVE = %s, UPDATED_BY = ?, UPDATE_DATE = ? where %s = ?",
                                         schema, tableName, STATUS_PASSIVE, ID);
@@ -374,7 +374,7 @@ public class DefaultEntityManager implements EntityManager, Constants {
         return schema;
     }
 
-    protected String getSequence(String tableName, String columnName) {
+    protected String nextSequence(String tableName, String columnName) {
         TableDefinition table = getTable(tableName);
         ColumnDefinition column = table.getColumn(columnName);
         String sequence = column.getSequence();
