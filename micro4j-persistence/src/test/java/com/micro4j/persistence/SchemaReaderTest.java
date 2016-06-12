@@ -51,7 +51,7 @@ public class SchemaReaderTest {
 
         TableDefinition table = tables.get(0);
 
-        assertEquals("MY_SCHEMA", table.getSchema());
+        assertEquals("MY_SCHEMA2", table.getSchema());
         assertEquals("MY_TABLE", table.getName());
 
         List<ColumnDefinition> columns = table.columns();

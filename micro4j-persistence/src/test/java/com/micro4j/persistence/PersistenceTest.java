@@ -91,8 +91,6 @@ public class PersistenceTest {
         SchemaDefinition schema = new SchemaDefinition("MYSCHEMA", "MY_SEQ", Arrays.asList(table));
         alterManager.create(schema);
 
-        alterManager.createSequence("MYSCHEMA", "MY_SEQ");
-
         Map<String, Object> entity = new HashMap<>();
         entity.put("NAME", "foo");
         entity.put("SURNAME", "bar");

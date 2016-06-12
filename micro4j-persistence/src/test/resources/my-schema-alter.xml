@@ -1,4 +1,4 @@
-<schema name="MY_SCHEMA" sequence="MY_SEQ">
+<schema name="MY_SCHEMA2" sequence="MY_SEQ">
 
 	<table name="MY_TABLE">
 		<column name="ID" type="BIGINT" primaryKey="true" />
