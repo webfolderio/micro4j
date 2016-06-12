@@ -77,7 +77,7 @@ public class SchemaReaderTest {
         assertEquals(true, columns.get(6).isNullable());
 
         JDBCDataSource dataSource = new JDBCDataSource();
-        dataSource.setURL("jdbc:hsqldb:mem:mydb");
+        dataSource.setURL("jdbc:hsqldb:mem:mydb2");
         dataSource.setUser("sa");
         dataSource.setPassword("");
 
