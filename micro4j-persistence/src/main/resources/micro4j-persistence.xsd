@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="https://micro4j.com/micro4j-persistence"
+    xmlns="https://micro4j.com/micro4j-persistence"
+    elementFormDefault="qualified"
+    xmlns:micro4j="https://micro4j.com/micro4j-persistence">
+
+    <xs:element name="schema">
+        <xs:complexType>
+            <xs:sequence maxOccurs="unbounded">
+                <xs:element name="table" type="micro4j:table" minOccurs="0" maxOccurs="unbounded" />
+            </xs:sequence>
+            <xs:attribute name="name" use="required" type="xs:string" />
+            <xs:attribute name="sequence" use="optional" type="xs:string" />
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="table">
+        <xs:sequence>
+            <xs:element name="properties" type="micro4j:column" minOccurs="1" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute name="name" use="required" type="xs:string" />
+    </xs:complexType>
+
+    <xs:complexType name="column">
+        <xs:attribute name="name" use="required" type="xs:string" />
+        <xs:attribute name="type" use="required" type="micro4j:types" />
+        <xs:attribute name="size" use="optional" type="xs:positiveInteger" default="255" />
+        <xs:attribute name="scale" use="optional" type="xs:positiveInteger" />
+        <xs:attribute name="primaryKey" use="optional" type="xs:boolean" default="false" />
+        <xs:attribute name="nullable" use="optional" type="xs:boolean" default="false" />
+        <xs:attribute name="sequence" use="optional" type="xs:string" />
+    </xs:complexType>
+
+    <xs:simpleType name="types">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="BIT" />
+            <xs:enumeration value="TINYINT" />
+            <xs:enumeration value="SMALLINT" />
+            <xs:enumeration value="INTEGER" />
+            <xs:enumeration value="BIGINT" />
+            <xs:enumeration value="FLOAT" />
+            <xs:enumeration value="REAL" />
+            <xs:enumeration value="DOUBLE" />
+            <xs:enumeration value="NUMERIC" />
+            <xs:enumeration value="DECIMAL" />
+            <xs:enumeration value="CHAR" />
+            <xs:enumeration value="VARCHAR" />
+            <xs:enumeration value="LONGVARCHAR" />
+            <xs:enumeration value="DATE" />
+            <xs:enumeration value="TIME" />
+            <xs:enumeration value="TIMESTAMP" />
+            <xs:enumeration value="BINARY" />
+            <xs:enumeration value="VARBINARY" />
+            <xs:enumeration value="LONGVARBINARY" />
+            <xs:enumeration value="NULL" />
+            <xs:enumeration value="OTHER" />
+            <xs:enumeration value="JAVA_OBJECT" />
+            <xs:enumeration value="DISTINCT" />
+            <xs:enumeration value="STRUCT" />
+            <xs:enumeration value="ARRAY" />
+            <xs:enumeration value="BLOB" />
+            <xs:enumeration value="CLOB" />
+            <xs:enumeration value="REF" />
+            <xs:enumeration value="DATALINK" />
+            <xs:enumeration value="BOOLEAN" />
+            <xs:enumeration value="ROWID" />
+            <xs:enumeration value="NCHAR" />
+            <xs:enumeration value="NVARCHAR" />
+            <xs:enumeration value="LONGNVARCHAR" />
+            <xs:enumeration value="NCLOB" />
+            <xs:enumeration value="SQLXML" />
+            <xs:enumeration value="REF_CURSOR" />
+            <xs:enumeration value="TIME_WITH_TIMEZONE" />
+            <xs:enumeration value="TIMESTAMP_WITH_TIMEZONE" />
+        </xs:restriction>
+    </xs:simpleType>
+
+</xs:schema>

@@ -30,9 +30,14 @@ import java.sql.JDBCType;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -141,6 +146,14 @@ public class DefaultSchemaReader implements SchemaReader {
     }
 
     protected Document parse(InputStream is) {
+        /*SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        try {
+            Schema schema = schemaFactory.newSchema(DefaultSchemaReader.class.getResource("/micro4j-persistence.xsd"));
+            Validator validator = schema.newValidator();
+            validator.validate(new StreamSource(is));
+        } catch (SAXException | IOException e) {
+            throw new SchemaParseException(e);
+        }*/
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document document = null;
         try {
