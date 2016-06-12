@@ -45,10 +45,11 @@ import org.slf4j.MarkerFactory;
 import com.micro4j.persistence.core.Alter;
 import com.micro4j.persistence.core.AlterEvent;
 import com.micro4j.persistence.core.AlterListener;
-import com.micro4j.persistence.core.AlterManager;
+import com.micro4j.persistence.core.AlterType;
 import com.micro4j.persistence.core.ColumnDefinition;
 import com.micro4j.persistence.core.DatabaseVendor;
 import com.micro4j.persistence.core.PersistenceConfiguration;
+import com.micro4j.persistence.core.SchemaDefinition;
 import com.micro4j.persistence.core.TableDefinition;
 import com.micro4j.persistence.exception.AlterException;
 import com.micro4j.persistence.exception.CreateSequenceException;
@@ -58,19 +59,73 @@ import com.micro4j.persistence.exception.TableDropException;
 
 class DefaultAlterManager implements AlterManager {
 
-    private MetaDataManager metaDataManager;
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultAlterManager.class);
 
     private List<AlterListener> listeners = new CopyOnWriteArrayList<>();
 
     private Marker schemaGeneratorMarker = MarkerFactory.getMarker("micro4j-persistence-alter");
 
-    private PersistenceConfiguration configuration;
+    private MetaDataManager metaDataManager;
 
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultAlterManager.class);
+    private PersistenceConfiguration configuration;
 
     public DefaultAlterManager(PersistenceConfiguration configuration, MetaDataManager metaDataManager) {
         this.configuration = configuration;
         this.metaDataManager = metaDataManager;
+    }
+
+    @Override
+    public void createSchema(String schema) {
+        boolean hasSchema = metaDataManager.hasSchema(schema);
+        if ( ! hasSchema ) {
+            DataSource ds = configuration.getDataSource();
+            try (Connection conn = ds.getConnection();
+                    Statement stmt = conn.createStatement()) {
+                String schemaDdl = format("CREATE SCHEMA %s", schema);
+                LOG.info(schemaGeneratorMarker, "Creating schema {}", new Object[] { schema });
+                LOG.info(schemaGeneratorMarker, "Executing CREATE SCHEMA ddl {}", new Object[] { schemaDdl });
+                stmt.executeUpdate(schemaDdl);
+            } catch (SQLException e) {
+                throw new PersistenceException(e);
+            }
+        }
+    }
+
+    @Override
+    public void create(SchemaDefinition schema) {
+        boolean hasSchema = metaDataManager.hasSchema(schema.getName());
+        if ( ! hasSchema ) {
+            createSchema(schema.getName());
+        }
+
+        List<String> sequences = metaDataManager.listSequences(schema.getName());
+        if ( schema.getSequence() != null && ! schema.getSequence().trim().isEmpty() ) {
+            if ( ! sequences.contains(schema.getSequence()) ) {
+                createSequence(schema.getName(), schema.getSequence());
+            }
+        }
+
+        List<TableDefinition> tables = schema.getDefinitions();
+        for (TableDefinition newTable : tables) {
+            Optional<TableDefinition> found = metaDataManager.getTable(newTable.getSchema(), newTable.getName(), false);
+            if (found.isPresent()) {
+                TableDefinition existingTable = found.get();
+                List<Alter> alters = prepareAlter(existingTable, newTable);
+                if ( ! alters.isEmpty() ) {
+                    executeAlter(newTable, alters);
+                    for (Alter alter : alters) {
+                        if (AlterType.CreateColumn.equals(alter.getType())) {
+                            String sequence = alter.getColumn().getSequence();
+                            if ( sequence != null && ! sequence.trim().isEmpty() && ! sequences.contains(sequence) ) {
+                                createSequence(schema.getName(), sequence);
+                            }
+                        }
+                    }
+                }
+            } else {
+                create(newTable);
+            }
+        }
     }
 
     @Override
@@ -96,19 +151,6 @@ class DefaultAlterManager implements AlterManager {
                                             .collect(toList()));
 
         DataSource ds = configuration.getDataSource();
-
-        boolean hasSchema = metaDataManager.hasSchema(table.getSchema());
-        if ( ! hasSchema ) {
-            try (Connection conn = ds.getConnection();
-                    Statement stmt = conn.createStatement()) {
-                String schemaDdl = format("CREATE SCHEMA %s", table.getSchema());
-                LOG.info(schemaGeneratorMarker, "Creating schema {}", new Object[] { table.getSchema() });
-                LOG.info(schemaGeneratorMarker, "Executing CREATE SCHEMA ddl {}", new Object[] { schemaDdl });
-                stmt.executeUpdate(schemaDdl);
-            } catch (SQLException e) {
-                throw new PersistenceException(e);
-            }
-        }
 
         String tableDdl = format("%n%s (%n%s%n)", table.generateCreateScript(), columnQuery);
 

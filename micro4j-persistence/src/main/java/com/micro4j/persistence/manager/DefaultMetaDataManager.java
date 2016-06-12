@@ -93,13 +93,20 @@ class DefaultMetaDataManager implements MetaDataManager {
         return getTable(configuration.getSchema(), tableName);
     }
 
+    @Override
     public Optional<TableDefinition> getTable(String schema, String tableName) {
-        TableDefinition table = null;
+        return getTable(schema, tableName, true);
+    }
 
+    public Optional<TableDefinition> getTable(String schema, String tableName, boolean enableCache) {
+        TableDefinition table = null;
         String qualifiedName = format("%s.%s", schema, tableName);
-        table = tables.get(qualifiedName);
-        if (table != null) {
-            return Optional.of(table);
+
+        if (enableCache) {
+            table = tables.get(qualifiedName);
+            if (table != null) {
+                return Optional.of(table);
+            }
         }
 
         DataSource ds = configuration.getDataSource();
@@ -136,9 +143,11 @@ class DefaultMetaDataManager implements MetaDataManager {
                 }
             }
             if (table != null) {
-                TableDefinition existingTable = tables.putIfAbsent(qualifiedName, table);
-                if (existingTable != null) {
-                    table = existingTable;
+                if (enableCache) {
+                    TableDefinition existingTable = tables.putIfAbsent(qualifiedName, table);
+                    if (existingTable != null) {
+                        table = existingTable;
+                    }
                 }
                 return Optional.of(table);
             } else {

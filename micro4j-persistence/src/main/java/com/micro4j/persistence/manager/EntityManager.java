@@ -25,8 +25,6 @@ package com.micro4j.persistence.manager;
 import java.util.List;
 import java.util.Map;
 
-import com.micro4j.persistence.core.AlterManager;
-
 public interface EntityManager {
 
     long insert(String tableName, Map<String, Object> entity);

@@ -34,6 +34,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,11 +46,12 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 
 import com.micro4j.persistence.core.Alter;
-import com.micro4j.persistence.core.AlterManager;
 import com.micro4j.persistence.core.AlterType;
 import com.micro4j.persistence.core.ColumnDefinition;
 import com.micro4j.persistence.core.PersistenceConfiguration;
+import com.micro4j.persistence.core.SchemaDefinition;
 import com.micro4j.persistence.core.TableDefinition;
+import com.micro4j.persistence.manager.AlterManager;
 import com.micro4j.persistence.manager.DefaultEntityManager;
 import com.micro4j.persistence.manager.EntityManager;
 import com.micro4j.persistence.manager.MetaDataManager;
@@ -86,7 +88,8 @@ public class PersistenceTest {
         table.add(new ColumnDefinition("NAME").setSize(255).setJdbcType(VARCHAR).setNullable(true));
         table.add(new ColumnDefinition("AGE").setSize(10).setScale(2).setJdbcType(DECIMAL).setNullable(true));
 
-        alterManager.create(table);
+        SchemaDefinition schema = new SchemaDefinition("MYSCHEMA", "MY_SEQ", Arrays.asList(table));
+        alterManager.create(schema);
 
         alterManager.createSequence("MYSCHEMA", "MY_SEQ");
 

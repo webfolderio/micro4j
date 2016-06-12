@@ -20,11 +20,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.persistence.core;
+package com.micro4j.persistence.manager;
 
 import java.util.List;
 
+import com.micro4j.persistence.core.Alter;
+import com.micro4j.persistence.core.AlterListener;
+import com.micro4j.persistence.core.SchemaDefinition;
+import com.micro4j.persistence.core.TableDefinition;
+
 public interface AlterManager {
+
+    void createSchema(String schema);
+
+    void create(SchemaDefinition schema);
 
     void create(TableDefinition table);
 

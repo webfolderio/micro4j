@@ -35,6 +35,8 @@ public interface MetaDataManager extends AlterListener {
 
     Optional<TableDefinition> getTable(String schema, String tableName);
 
+    Optional<TableDefinition> getTable(String schema, String tableName, boolean enableCache);
+
     List<String> getTables(String schema);
 
     List<String> getTables();

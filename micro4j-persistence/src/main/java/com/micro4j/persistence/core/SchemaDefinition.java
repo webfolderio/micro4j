@@ -5,20 +5,20 @@ import java.util.List;
 
 public class SchemaDefinition {
 
-    private String schema;
+    private String name;
 
     private String sequence;
 
     private List<TableDefinition> definitions = new ArrayList<>();
 
-    public SchemaDefinition(String schema, String sequence, List<TableDefinition> definitions) {
-        this.schema = schema;
+    public SchemaDefinition(String name, String sequence, List<TableDefinition> definitions) {
+        this.name = name;
         this.sequence = sequence;
         this.definitions = definitions;
     }
 
-    public String getSchema() {
-        return schema;
+    public String getName() {
+        return name;
     }
 
     public String getSequence() {
@@ -31,6 +31,6 @@ public class SchemaDefinition {
 
     @Override
     public String toString() {
-        return "SchemaDefinition [schema=" + schema + ", sequence=" + sequence + ", definitions=" + definitions + "]";
+        return "SchemaDefinition [name=" + name + ", sequence=" + sequence + ", definitions=" + definitions + "]";
     }
 }

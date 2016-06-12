@@ -1,0 +1,14 @@
+<schema name="MY_SCHEMA" sequence="MY_SEQ">
+
+	<table name="MY_TABLE">
+		<column name="ID" type="BIGINT" primaryKey="true" />
+		<column name="ACTIVE" type="BOOLEAN" />
+		<column name="CREATE_DATE" type="TIMESTAMP" />
+		<column name="UPDATE_DATE" type="TIMESTAMP" />
+		<column name="CREATED_BY" size="32" type="VARCHAR" />
+		<column name="UPDATED_BY" size="32" type="VARCHAR" />
+		<column name="NAME" size="255" type="VARCHAR" nullable="true" />
+		<column name="SURNAME" size="255" type="VARCHAR" nullable="true" />
+	</table>
+
+</schema>

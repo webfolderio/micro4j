@@ -47,7 +47,6 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
-import com.micro4j.persistence.core.AlterManager;
 import com.micro4j.persistence.core.ColumnDefinition;
 import com.micro4j.persistence.core.DatabaseVendor;
 import com.micro4j.persistence.core.PersistenceConfiguration;
