@@ -1,4 +1,7 @@
-<schema name="MY_SCHEMA2" sequence="MY_SEQ">
+<schema xmlns="https://micro4j.com/micro4j-persistence"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="https://micro4j.com/micro4j-persistence https://raw.githubusercontent.com/micro4j/micro4j/master/micro4j-persistence/src/main/resources/micro4j-persistence.xsd"
+	name="MY_SCHEMA2" sequence="MY_SEQ">
 
 	<table name="MY_TABLE">
 		<column name="ID" type="BIGINT" primaryKey="true" />
