@@ -44,7 +44,7 @@ public class SchemaReaderTest {
     @Test
     public void test() {
         SchemaReader reader = new DefaultSchemaReader();
-        SchemaDefinition schema = reader.read(SchemaReaderTest.class.getClassLoader().getResourceAsStream("my-schema.xml"));
+        SchemaDefinition schema = reader.read(SchemaReaderTest.class.getClassLoader().getResource("my-schema.xml"));
         List<TableDefinition> tables = schema.getDefinitions();
 
         assertEquals(1, tables.size());
@@ -84,7 +84,7 @@ public class SchemaReaderTest {
         EntityManager manager = new DefaultEntityManager(new PersistenceConfiguration(schema.getName(), schema.getSequence(), dataSource));
         manager.getAlterManager().create(schema);
 
-        SchemaDefinition schemaAlter = reader.read(SchemaReaderTest.class.getClassLoader().getResourceAsStream("my-schema-alter.xml"));
+        SchemaDefinition schemaAlter = reader.read(SchemaReaderTest.class.getClassLoader().getResource("my-schema-alter.xml"));
         manager.getAlterManager().create(schemaAlter);
     }
 }

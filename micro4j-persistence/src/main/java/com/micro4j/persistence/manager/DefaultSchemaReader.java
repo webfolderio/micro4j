@@ -26,6 +26,7 @@ import static org.w3c.dom.Node.ELEMENT_NODE;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.sql.JDBCType;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,8 +54,8 @@ import com.micro4j.persistence.exception.SchemaParseException;
 public class DefaultSchemaReader implements SchemaReader {
 
     @Override
-    public SchemaDefinition read(InputStream is) {
-        Document document = parse(is);
+    public SchemaDefinition read(URL url) {
+        Document document = parse(url);
         Element schema = document.getDocumentElement();
         if ( ! schema.getTagName().equals("schema") ) {
             throw new SchemaParseException("Missing schema tag");
@@ -145,18 +146,32 @@ public class DefaultSchemaReader implements SchemaReader {
         return new SchemaDefinition(schemaName, defaultSequence, definitions);
     }
 
-    protected Document parse(InputStream is) {
-        /*SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+    protected Document parse(URL url) {
+        SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        StreamSource source = null;
         try {
+            try {
+                source = new StreamSource(url.openStream());
+            } catch (IOException e) {
+                throw new SchemaParseException(e);
+            }
             Schema schema = schemaFactory.newSchema(DefaultSchemaReader.class.getResource("/micro4j-persistence.xsd"));
             Validator validator = schema.newValidator();
-            validator.validate(new StreamSource(is));
+            validator.validate(source);
         } catch (SAXException | IOException e) {
             throw new SchemaParseException(e);
-        }*/
+        } finally {
+            InputStream is = source.getInputStream();
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                }
+            }
+        }
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document document = null;
-        try {
+        try (InputStream is = url.openStream()) {
             DocumentBuilder documentBuilder = factory.newDocumentBuilder();
             document = documentBuilder.parse(is);
         } catch (ParserConfigurationException | SAXException | IOException e) {
