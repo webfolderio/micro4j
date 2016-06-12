@@ -32,6 +32,10 @@ public class PersistenceException extends RuntimeException {
         super(e);
     }
 
+    public PersistenceException(Exception e) {
+        super(e);
+    }
+
     public PersistenceException(String message) {
         super(message);
     }

@@ -66,6 +66,7 @@ public class DefaultEntityManager implements EntityManager, Constants {
 
     private AlterManager alterManager;
 
+
     public DefaultEntityManager(PersistenceConfiguration configuration) {
         this.configuration = configuration;
         this.metaDataManager = new DefaultMetaDataManager(configuration);

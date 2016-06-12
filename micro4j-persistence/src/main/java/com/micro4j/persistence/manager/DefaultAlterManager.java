@@ -129,7 +129,7 @@ class DefaultAlterManager implements AlterManager {
 
     @Override
     public List<Alter> prepareAlter(TableDefinition existingTable, TableDefinition newTable) {
-        if ( ! existingTable.getName().equals(newTable.getName())) {
+        if ( ! existingTable.getName().equals(newTable.getName()) ) {
             throw new AlterException("Both table must have same table name. Existing table name [" +
                                                     existingTable.getName() + "] new table name [" + newTable.getName() + "]");
         }
@@ -137,7 +137,7 @@ class DefaultAlterManager implements AlterManager {
         String existingTableSchema = existingTable.getSchema() == null ? configuration.getSchema() : existingTable.getSchema();
         String newTableSchema = newTable.getSchema() == null ? configuration.getSchema() : newTable.getSchema();
 
-        if ( ! newTableSchema.equals(existingTableSchema)) {
+        if ( ! newTableSchema.equals(existingTableSchema) ) {
             throw new AlterException("Both table must have same schema. Existing table schema [" +
                                                     existingTableSchema + "] new table schema [" + newTableSchema + "]");
         }
@@ -242,7 +242,7 @@ class DefaultAlterManager implements AlterManager {
 
     @Override
     public boolean removeListener(AlterListener listener) {
-        if ( listener != null) {
+        if ( listener != null ) {
             return listeners.remove(listener);
         }
         return false;
