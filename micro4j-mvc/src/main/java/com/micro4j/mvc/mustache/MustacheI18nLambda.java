@@ -22,25 +22,37 @@
  */
 package com.micro4j.mvc.mustache;
 
+import static com.samskivert.mustache.Mustache.compiler;
+
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.concurrent.ConcurrentHashMap;
 
+import com.samskivert.mustache.Mustache.Compiler;
 import com.samskivert.mustache.Mustache.Lambda;
+import com.samskivert.mustache.Template;
 import com.samskivert.mustache.Template.Fragment;
 
 public class MustacheI18nLambda implements Lambda {
 
-    private ResourceBundle bundle;
+    private final Map<String, Template> templates = new ConcurrentHashMap<>();
 
     public MustacheI18nLambda(ResourceBundle bundle) {
-        this.bundle = bundle;
+        Compiler compiler = compiler().escapeHTML(false);
+        for (String key : bundle.keySet()) {
+            String value = bundle.getString(key);
+            Template template = compiler.compile(value);
+            templates.put(key, template);
+        }
     }
 
     @Override
     public void execute(Fragment frag, Writer out) throws IOException {
         String key = frag.execute();
-        String text = bundle.getString(key);
+        Template template = templates.get(key);
+        String text = template.execute(frag.context());
         out.write(text);
     }
 }

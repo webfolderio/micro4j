@@ -33,6 +33,8 @@ import java.util.Locale;
 import java.util.Locale.LanguageRange;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
@@ -52,6 +54,8 @@ public class MustacheI18nInterceptor extends TemplateIntereceptor {
     @Context
     private UriInfo uriInfo;
 
+    private ConcurrentMap<Locale, MustacheI18nLambda> lambdas = new ConcurrentHashMap<>();
+
     public MustacheI18nInterceptor(String baseName) {
         this.baseName = baseName;
     }
@@ -66,7 +70,7 @@ public class MustacheI18nInterceptor extends TemplateIntereceptor {
             locale = configuration.getLocale();
         }
         ResourceBundle bundle = getBundle(baseName, locale, configuration.getClassLoader());
-        MustacheI18nLambda lambda = new MustacheI18nLambda(bundle);
+        MustacheI18nLambda lambda = lambdas.computeIfAbsent(locale, (l) -> new MustacheI18nLambda(bundle));
         parentContext.put("i18n", lambda);
         return templateWrapper;
     }
