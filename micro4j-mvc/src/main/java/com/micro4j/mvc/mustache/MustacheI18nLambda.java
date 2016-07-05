@@ -25,6 +25,7 @@ package com.micro4j.mvc.mustache;
 import static com.samskivert.mustache.Mustache.compiler;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -50,9 +51,11 @@ public class MustacheI18nLambda implements Lambda {
 
     @Override
     public void execute(Fragment frag, Writer out) throws IOException {
-        String key = frag.execute();
+        String key = frag.execute().trim();
         Template template = templates.get(key);
-        String text = template.execute(frag.context());
-        out.write(text);
+        Object parentContext = frag.context(1);
+        StringWriter writer = new StringWriter();
+        template.execute(frag.context(), parentContext, writer);
+        out.write(writer.toString());
     }
 }
