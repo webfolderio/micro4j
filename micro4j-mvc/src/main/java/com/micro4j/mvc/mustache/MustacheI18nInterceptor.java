@@ -72,8 +72,8 @@ public class MustacheI18nInterceptor extends TemplateIntereceptor {
     }
 
     protected Locale getRequestLocale() {
-        List<Locale> languages = headers.getAcceptableLanguages();
-        String acceptLanguage = headers.getHeaderString(ACCEPT_LANGUAGE);
+        List<Locale> languages = getHttpHeaders().getAcceptableLanguages();
+        String acceptLanguage = getHttpHeaders().getHeaderString(ACCEPT_LANGUAGE);
         List<LanguageRange> ranges = emptyList();
         if (acceptLanguage != null && !acceptLanguage.trim().isEmpty()) {
             ranges = parse(acceptLanguage);
@@ -83,7 +83,7 @@ public class MustacheI18nInterceptor extends TemplateIntereceptor {
     }
 
     protected Locale getPreferedLocale() {
-        MultivaluedMap<String,String> parameters = uriInfo.getQueryParameters();
+        MultivaluedMap<String,String> parameters = getUriInfo().getQueryParameters();
         if (parameters.isEmpty()) {
             return null;
         }
@@ -93,6 +93,14 @@ public class MustacheI18nInterceptor extends TemplateIntereceptor {
         }
         Locale locale = new Locale(lang);
         return locale;
+    }
+
+    protected HttpHeaders getHttpHeaders() {
+        return headers;
+    }
+
+    protected UriInfo getUriInfo() {
+        return uriInfo;
     }
 
     protected String getPreferedLangParam() {
