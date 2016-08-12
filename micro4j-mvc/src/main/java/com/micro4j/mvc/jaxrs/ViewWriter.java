@@ -125,9 +125,7 @@ public class ViewWriter implements MessageBodyWriter<Object> {
         if (container == null || container.isEmpty() && ! defaultContainer.isEmpty()) {
             containerName = engine.getConfiguration().getContainer();
         }
-        if (!httpHeaders.containsKey(CACHE_CONTROL)) {
-            httpHeaders.add(CACHE_CONTROL, "no-cache, no-store, must-revalidate");
-        }
+        setHeader(name, context, httpHeaders);
         Map<String, Object> parentContext = new LinkedHashMap<>();
         boolean isPjax = isPjaxRequest(httpHeaders);
         if (isPjax || containerName.trim().isEmpty()) {
@@ -141,6 +139,12 @@ public class ViewWriter implements MessageBodyWriter<Object> {
                 parentContext.put(engine.getConfiguration().getBodyName(), new MustacheContentLamabda(pageWriter.toString()));
                 engine.execute(containerName, context, parentContext, containerWriter);
             }
+        }
+    }
+
+    protected void setHeader(String name, Object context, MultivaluedMap<String, Object> httpHeaders) {
+        if ( ! httpHeaders.containsKey(CACHE_CONTROL) ) {
+            httpHeaders.add(CACHE_CONTROL, "no-cache, no-store, must-revalidate");
         }
     }
 
