@@ -61,11 +61,12 @@ public class MustacheI18nLambda implements Lambda {
         Template template = templates.get(key);
         if (template == null) {
             LOG.error(getString("MustacheI18nLambda.key.not.found"), new Object[] { key });
-            return;
+            out.write(key);            
+        } else {
+            Object parentContext = frag.context(1);
+            StringWriter writer = new StringWriter();
+            template.execute(frag.context(), parentContext, writer);
+            out.write(writer.toString());
         }
-        Object parentContext = frag.context(1);
-        StringWriter writer = new StringWriter();
-        template.execute(frag.context(), parentContext, writer);
-        out.write(writer.toString());
     }
 }
