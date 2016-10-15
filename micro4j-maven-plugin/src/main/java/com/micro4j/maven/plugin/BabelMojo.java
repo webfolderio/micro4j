@@ -78,7 +78,7 @@ public class BabelMojo extends AbstractMojo {
     @Parameter(defaultValue = "['es2015', 'stage-3']")
     private String presets;
 
-    @Parameter(defaultValue = "babel-standalone-6.10.3.min.js")
+    @Parameter(defaultValue = "babel-standalone-6.17.0.min.js")
     private String babelLocation;
 
     @Component
