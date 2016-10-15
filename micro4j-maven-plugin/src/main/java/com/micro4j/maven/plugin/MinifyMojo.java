@@ -14,7 +14,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Path;
 
-import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -38,8 +37,8 @@ public class MinifyMojo extends AbstractMojo {
     @Parameter(defaultValue = "**/*.js")
     private String[] includes = new String[] { "**/*.js" };
 
-    @Parameter
-    private String[] excludes;
+    @Parameter(defaultValue = "**/*.min.js")
+    private String[] excludes = new String[] { "**/*.min.js" };
 
     @Parameter(defaultValue = "${project.build.sourceEncoding}")
     private String encoding = "utf-8";
@@ -55,21 +54,21 @@ public class MinifyMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        for (Resource resource : project.getResources()) {
-            File folder = new File(resource.getDirectory());
+        if (project.getBuild().getOutputDirectory() != null) {
+            File folder = new File(project.getBuild().getOutputDirectory());
             if (isDirectory(folder.toPath())) {
-                minify(folder, false);
+                minify(folder);
             }
         }
-        for (Resource resource : project.getTestResources()) {
-            File folder = new File(resource.getDirectory());
+        if (project.getBuild().getTestOutputDirectory() != null) {
+            File folder = new File(project.getBuild().getTestOutputDirectory());
             if (isDirectory(folder.toPath())) {
-                minify(folder, false);
+                minify(folder);
             }
         }
     }
 
-    protected void minify(File folder, boolean isTestFolder) throws MojoExecutionException, MojoFailureException {
+    protected void minify(File folder) throws MojoExecutionException, MojoFailureException {
         boolean incremental = buildContext.isIncremental();
         boolean ignoreDelta = incremental ? false : true;
         Scanner scanner = buildContext.newScanner(folder, ignoreDelta);
