@@ -69,10 +69,20 @@ public class MustacheI18nInterceptor extends TemplateIntereceptor {
         if (locale == null) {
             locale = configuration.getLocale();
         }
-        ResourceBundle bundle = getBundle(baseName, locale, configuration.getClassLoader());
-        MustacheI18nLambda lambda = lambdas.computeIfAbsent(locale, (l) -> new MustacheI18nLambda(bundle));
+        ResourceBundle bundle = getResourceBundle(locale);
+        MustacheI18nLambda lambda = null;
+        if (configuration.isEnableTemplateCaching()) {
+            lambda = lambdas.computeIfAbsent(locale, (l) -> new MustacheI18nLambda(bundle));
+        } else {
+            lambda = new MustacheI18nLambda(bundle);
+        }
         parentContext.put("i18n", lambda);
         return templateWrapper;
+    }
+
+    protected ResourceBundle getResourceBundle(Locale locale) {
+        ResourceBundle bundle = getBundle(baseName, locale, configuration.getClassLoader());
+        return bundle;
     }
 
     protected Locale getRequestLocale() {
