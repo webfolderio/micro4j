@@ -179,7 +179,7 @@ public class BabelV8Mojo extends AbstractMojo {
         }
     }
 
-    protected void init() {
+    protected void init() throws MojoFailureException {
         getLog().info("Initializing the babel from [" + babelLocation + "]");
         URL url = currentThread().getContextClassLoader().getResource(babelLocation);
         if (url == null) {
@@ -194,9 +194,11 @@ public class BabelV8Mojo extends AbstractMojo {
                         + presets + " }).code; } catch(e) { return e;} }");
                 getLog().info("Babel initialized [" + (currentTimeMillis() - start) + " ms]");
             } catch (Throwable e) {
+                getLog().error(e.getMessage(), e);
                 if (runtime != null) {
                     runtime.release();
                 }
+                throw new MojoFailureException(e.getMessage(), e);
             }
         }
     }
