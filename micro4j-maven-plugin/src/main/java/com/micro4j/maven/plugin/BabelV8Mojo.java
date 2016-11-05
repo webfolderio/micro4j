@@ -22,6 +22,7 @@
  */
 package com.micro4j.maven.plugin;
 
+import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
 import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.currentThread;
@@ -31,20 +32,14 @@ import static java.nio.file.Files.isDirectory;
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Files.write;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_RESOURCES;
+import static org.sonatype.plexus.build.incremental.BuildContext.SEVERITY_ERROR;
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Path;
-import static org.sonatype.plexus.build.incremental.BuildContext.SEVERITY_ERROR;
-import javax.script.Invocable;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-import static java.lang.Integer.parseInt;
 
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
@@ -54,11 +49,15 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.Scanner;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
-@Mojo(name = "babel", defaultPhase = PROCESS_RESOURCES, threadSafe = false, requiresOnline = false, requiresReports = false)
-public class BabelMojo extends AbstractMojo {
+import com.eclipsesource.v8.V8;
+import com.eclipsesource.v8.V8Array;
+
+@Mojo(name = "babel-v8", defaultPhase = PROCESS_RESOURCES, threadSafe = false, requiresOnline = false, requiresReports = false)
+public class BabelV8Mojo extends AbstractMojo {
 
     @Parameter(defaultValue = "**/*.jsx, **/*.es6, *.es7, **/*.es")
     private String[] includes = new String[] { "**/*.jsx", "**/*.es6", "*.es7", "**/*.es" };
@@ -84,24 +83,29 @@ public class BabelMojo extends AbstractMojo {
     @Component
     private BuildContext buildContext;
 
-    private static Invocable engine;
+    private V8 runtime;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        if (engine == null) {
-            init();
-        }
-        for (Resource resource : project.getResources()) {
-            File folder = new File(resource.getDirectory());
-            if (isDirectory(folder.toPath())) {
-                transform(folder, false);
+        init();
+        try {
+            for (Resource resource : project.getResources()) {
+                File folder = new File(resource.getDirectory());
+                if (isDirectory(folder.toPath())) {
+                    transform(folder, false);
+                }
             }
-        }
-        for (Resource resource : project.getTestResources()) {
-            File folder = new File(resource.getDirectory());
-            if (isDirectory(folder.toPath())) {
-                transform(folder, true);
+            for (Resource resource : project.getTestResources()) {
+                File folder = new File(resource.getDirectory());
+                if (isDirectory(folder.toPath())) {
+                    transform(folder, true);
+                }
             }
+        } catch (Throwable t) {
+            if ( runtime != null && ! runtime.isReleased() ) {
+                runtime.release();
+            }
+            throw t;
         }
     }
 
@@ -144,7 +148,12 @@ public class BabelMojo extends AbstractMojo {
             throw new MojoExecutionException("Unable to read the file [" + es6File.toString() + "]", e);
         }
         try {
-            String es5Content = valueOf(getEngine().invokeFunction("micro4jCompile", es6content));
+            V8Array arguments = new V8Array(runtime);
+            arguments.push(es6content);
+            String es5Content = valueOf(String.valueOf(runtime.executeFunction("micro4jCompile", arguments)));
+            if ( ! arguments.isReleased() ) {
+                arguments.release();
+            }
             if (es5Content.startsWith("SyntaxError")) {
                 int begin = es5Content.indexOf("(");
                 int end = es5Content.indexOf(")");
@@ -164,44 +173,31 @@ public class BabelMojo extends AbstractMojo {
                 buildContext.removeMessages(es6File.toFile());
                 getLog().info("Compilation done [" + (currentTimeMillis() - start) + " ms]");
             }
-        } catch (NoSuchMethodException | ScriptException | IOException e) {
+        } catch (IOException e) {
             getLog().error(e);
             throw new MojoExecutionException("Unable to conver esnext to es5", e);
         }
     }
 
-    protected static synchronized Invocable getEngine() {
-        return engine;
-    }
-
     protected void init() {
-        try {
-            getLog().info("Initializing the babel from [" + babelLocation + "]");
-            URL url = currentThread().getContextClassLoader().getResource(babelLocation);
-            if (url == null) {
-                getLog().error("Unable to load babel from [" + babelLocation + "]");
-            }
-            if (url != null) {
-                long start = currentTimeMillis();
-                try (InputStream is = new BufferedInputStream(url.openStream())) {
-                    ScriptEngineManager manager = new ScriptEngineManager(null);
-                    ScriptEngine scriptEngine = manager.getEngineByExtension("js");
-                    if (scriptEngine == null) {
-                        getLog().error("Unable to instantiate JavaScript engine");
-                        return;
-                    }
-                    scriptEngine.eval(new InputStreamReader(is, UTF_8.name()));
-                    scriptEngine
-                            .eval("var micro4jCompile = function(input) { try { return Babel.transform(input, { presets: "
-                                    + presets + " }).code; } catch(e) { return e;} }");
-                    engine = (Invocable) scriptEngine;
-                    getLog().info("Babel initialized [" + (currentTimeMillis() - start) + " ms]");
-                } catch (ScriptException e) {
-                    getLog().error(e);
+        getLog().info("Initializing the babel from [" + babelLocation + "]");
+        URL url = currentThread().getContextClassLoader().getResource(babelLocation);
+        if (url == null) {
+            getLog().error("Unable to load babel from [" + babelLocation + "]");
+        }
+        if (url != null) {
+            long start = currentTimeMillis();
+            try (InputStream is = new BufferedInputStream(url.openStream())) {
+                runtime = V8.createV8Runtime();
+                runtime.executeScript(IOUtil.toString(is, UTF_8.name()));
+                runtime.executeScript("var micro4jCompile = function(input) { try { return Babel.transform(input, { presets: "
+                        + presets + " }).code; } catch(e) { return e;} }");
+                getLog().info("Babel initialized [" + (currentTimeMillis() - start) + " ms]");
+            } catch (Throwable e) {
+                if (runtime != null) {
+                    runtime.release();
                 }
             }
-        } catch (IOException e) {
-            getLog().error(e);
         }
     }
 }
