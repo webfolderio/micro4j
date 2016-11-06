@@ -79,6 +79,9 @@ public class UglifyCssMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.build.sourceEncoding}")
     private String encoding;
 
+    @Parameter(defaultValue = "min.css")
+    private String outputPrefix;
+
     @Parameter(defaultValue = "uglifycss-0.0.25.js")
     private String uglifycssLocation;
 
@@ -95,9 +98,17 @@ public class UglifyCssMojo extends AbstractMojo {
             for (File file : files) {
                 Path relativePath = resources.toPath().relativize(file.toPath());
                 Path outputPath = outputDirectory.toPath().resolve(relativePath);
+                String fileName = outputPath.getFileName().toString();
+                int begin = fileName.lastIndexOf('.');
+                String minFileName = fileName;
+                if (begin > 0) {
+                    minFileName = fileName.substring(0, begin) + "." + outputPrefix;
+                }
                 String cssContent = new String(readAllBytes(file.toPath()), encoding);
                 String minifiedContent = valueOf(getEngine().invokeFunction("micro4jUglifyCss", cssContent));
-                write(outputPath, minifiedContent.getBytes(encoding));
+                getLog().info("Minimizing css content [" + relativePath.toString() + "]");
+                write(outputPath.getParent().resolve(minFileName), minifiedContent.getBytes(encoding));
+                getLog().info("css content minimized to [" + outputPath.getParent().resolve(minFileName).toString() + "]");
             }
         } catch (InclusionScanException | IOException | NoSuchMethodException | ScriptException e) {
             throw new MojoExecutionException(e.getMessage());

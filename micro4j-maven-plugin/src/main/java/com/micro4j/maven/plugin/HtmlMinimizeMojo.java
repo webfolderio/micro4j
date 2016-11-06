@@ -94,6 +94,7 @@ public class HtmlMinimizeMojo extends AbstractMojo {
                 try {
                     getLog().info("Minimizing html content [" + relativePath.toString() + "]");
                     parser.parse(content, minimizeHandler);
+                    getLog().info("html content minimized to [" + outputPath.toString().toString() + "]");
                 } catch (ParseException e) {
                     throw new MojoExecutionException(e.getMessage(), e);
                 }
