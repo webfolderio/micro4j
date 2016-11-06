@@ -31,8 +31,8 @@ import com.google.javascript.jscomp.CompilerOptions;
 import com.google.javascript.jscomp.Result;
 import com.google.javascript.jscomp.SourceFile;
 
-@Mojo(name = "minify", defaultPhase = PROCESS_RESOURCES, threadSafe = false, requiresOnline = false, requiresReports = false)
-public class MinifyMojo extends AbstractMojo {
+@Mojo(name = "closure", defaultPhase = PROCESS_RESOURCES, threadSafe = false, requiresOnline = false, requiresReports = false)
+public class ClosureMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "**/*.js")
     private String[] includes = new String[] { "**/*.js" };
