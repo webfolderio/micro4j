@@ -135,7 +135,7 @@ public class BabelMojo extends AbstractMojo {
 
     protected void transform(Path es6File, Path es5File) throws MojoExecutionException, MojoFailureException {
         long start = currentTimeMillis();
-        getLog().info("Compiling  javascript file [" + es6File.toString() + "] to [" + es5File.toString() + "]");
+        getLog().info("Compiling  javascript file [" + es6File.toString() + "]");
         String es6content = null;
         try {
             es6content = new String(readAllBytes(es6File), forName(encoding));
@@ -162,7 +162,7 @@ public class BabelMojo extends AbstractMojo {
             } else {
                 write(es5File, es5Content.getBytes());
                 buildContext.removeMessages(es6File.toFile());
-                getLog().info("Compilation done [" + (currentTimeMillis() - start) + " ms]");
+                getLog().info("javascript file compiled to [" + es5File.toString() + "] " + "[" + (currentTimeMillis() - start) + " ms]");
             }
         } catch (NoSuchMethodException | ScriptException | IOException e) {
             getLog().error(e);

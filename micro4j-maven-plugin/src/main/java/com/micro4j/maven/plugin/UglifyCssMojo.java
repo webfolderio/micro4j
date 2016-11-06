@@ -88,7 +88,10 @@ public class UglifyCssMojo extends AbstractMojo {
     private static Invocable engine;
 
     @SuppressWarnings("unchecked")
-    public void execute() throws MojoExecutionException {
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        if (engine == null) {
+            init();
+        }
         Set<String> setIncludes = includes != null ? new HashSet<>(asList(includes)) : singleton("**/*." + extension);
         Set<String> setExcludes = excludes != null ? new HashSet<>(asList(excludes)) : EMPTY_SET;
         SourceInclusionScanner scanner = new SimpleSourceInclusionScanner(setIncludes, setExcludes);
