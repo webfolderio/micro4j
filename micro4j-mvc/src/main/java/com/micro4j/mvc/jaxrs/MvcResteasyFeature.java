@@ -31,6 +31,7 @@ import org.jboss.resteasy.spi.PropertyInjector;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
 import com.micro4j.mvc.Configuration;
+import com.micro4j.mvc.template.DefaultFormatter;
 import com.micro4j.mvc.template.TemplateIntereceptor;
 
 class MvcResteasyFeature implements Feature {
@@ -57,6 +58,13 @@ class MvcResteasyFeature implements Feature {
         for (TemplateIntereceptor interceptor : configuration.getInterceptors()) {
             inject(interceptor.getClass(), interceptor);
             interceptor.init();
+        }
+        DefaultFormatter formatter = configuration.getFormatter();
+        if (formatter != null) {
+            inject(formatter.getClass(), formatter);
+        }
+        if (DefaultFormatter.class.isAssignableFrom(formatter.getClass())) {
+            ((DefaultFormatter) formatter).init();
         }
     }
 

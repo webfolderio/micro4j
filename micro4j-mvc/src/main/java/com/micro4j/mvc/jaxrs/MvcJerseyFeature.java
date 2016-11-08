@@ -31,6 +31,7 @@ import javax.ws.rs.ext.MessageBodyWriter;
 import org.glassfish.hk2.api.ServiceLocator;
 
 import com.micro4j.mvc.Configuration;
+import com.micro4j.mvc.template.DefaultFormatter;
 import com.micro4j.mvc.template.TemplateIntereceptor;
 
 class MvcJerseyFeature implements Feature {
@@ -57,6 +58,13 @@ class MvcJerseyFeature implements Feature {
         for (TemplateIntereceptor interceptor : configuration.getInterceptors()) {
             inject(interceptor);
             interceptor.init();
+        }
+        DefaultFormatter formatter = configuration.getFormatter();
+        if (formatter != null) {
+            inject(formatter);
+            if (DefaultFormatter.class.isAssignableFrom(formatter.getClass())) {
+                ((DefaultFormatter) formatter).init();
+            }
         }
     }
 
