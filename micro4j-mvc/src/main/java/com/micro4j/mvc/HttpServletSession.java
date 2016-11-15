@@ -22,17 +22,32 @@
  */
 package com.micro4j.mvc;
 
-import java.io.IOException;
+import javax.servlet.http.HttpSession;
+import javax.ws.rs.core.Context;
 
-public class MvcException extends RuntimeException {
+public class HttpServletSession implements MvcSession {
 
-    private static final long serialVersionUID = 1L;
+    @Context
+    private HttpSession session;
 
-    public MvcException(IOException e) {
-        super(e);
+    @Override
+    public void set(String key, Object value) {
+        session.setAttribute(key, value);
     }
 
-    public MvcException(String message) {
-        super(message);
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T get(String key) {
+        return (T) session.getAttribute(key);
+    }
+
+    @Override
+    public boolean contains(String key) {
+        return get(key) != null;
+    }
+
+    @Override
+    public void remove(String key) {
+        session.removeAttribute(key);
     }
 }

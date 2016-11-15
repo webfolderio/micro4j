@@ -67,6 +67,8 @@ public class Configuration {
 
     private boolean esacepHtml;
 
+    private boolean enableCsrfProtection;
+
     public static class Builder {
 
         private String container = "";
@@ -93,7 +95,9 @@ public class Configuration {
 
         private DefaultFormatter formatter = new MustacheFormatter();
 
-        private boolean escapeHtml = false;
+        private boolean escapeHtml;
+
+        private boolean enableCsrfProtection;
 
         public Builder prefix(String prefix) {
             this.prefix = prefix;
@@ -107,6 +111,11 @@ public class Configuration {
 
         public Builder escapeHtml(boolean esacepHtml) {
             this.escapeHtml = esacepHtml;
+            return this;
+        }
+
+        public Builder enableCsrfProtection(boolean enableCsrfProtection) {
+            this.enableCsrfProtection = enableCsrfProtection;
             return this;
         }
 
@@ -202,6 +211,7 @@ public class Configuration {
             configuration.locale = locale;
             configuration.delims = delims;
             configuration.esacepHtml = escapeHtml;
+            configuration.enableCsrfProtection = enableCsrfProtection;
             for (TemplateIntereceptor interceptor : interceptors) {
                 interceptor.setConfiguration(configuration);
             }
@@ -269,12 +279,16 @@ public class Configuration {
         return esacepHtml;
     }
 
+    public boolean isEnableCsrfProtection() {
+        return enableCsrfProtection;
+    }
+
     @Override
     public String toString() {
         return "Configuration [fileTypeExtensions=" + fileTypeExtensions + ", interceptors=" + interceptors
                 + ", bodyName=" + bodyName + ", classLoader=" + classLoader + ", charset=" + charset + ", formatter="
                 + formatter + ", prefix=" + prefix + ", container=" + container + ", enableTemplateCaching="
                 + enableTemplateCaching + ", nullValue=" + nullValue + ", locale=" + locale + ", delims=" + delims
-                + ", esacepHtml=" + esacepHtml + "]";
+                + ", esacepHtml=" + esacepHtml + ", enableCsrfProtection=" + enableCsrfProtection + "]";
     }
 }

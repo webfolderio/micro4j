@@ -20,19 +20,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.mvc;
+package com.micro4j.mvc.test;
 
-import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class MvcException extends RuntimeException {
+import com.micro4j.mvc.MvcSession;
 
-    private static final long serialVersionUID = 1L;
+public class DummySession implements MvcSession {
 
-    public MvcException(IOException e) {
-        super(e);
+    private Map<String, Object> session = new ConcurrentHashMap<>();
+
+    @Override
+    public void set(String key, Object value) {
+        session.put(key, value);
     }
 
-    public MvcException(String message) {
-        super(message);
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T get(String key) {
+        return (T) session.get(key);
+    }
+
+    @Override
+    public boolean contains(String key) {
+        return session.containsKey(key);
+    }
+
+    @Override
+    public void remove(String key) {
+        session.remove(key);
     }
 }

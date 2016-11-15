@@ -58,7 +58,7 @@ public class CSRFMojo extends AbstractMojo {
 
     private static final String DATA_CSRF = "data-csrf";
 
-    private static final String TOKEN_CSRF = "token-csrf";
+    private static final String CSRF_TOKEN = "csrf-token";
 
     @Parameter(defaultValue = "src/main/resources")
     private File resources;
@@ -122,8 +122,8 @@ public class CSRFMojo extends AbstractMojo {
                 modified = true;
                 continue;
             }
-            String input = format("%s<input type=\"hidden\" name=\"%s\" value=\"{{#%s}}{{/%s}}\" />", TOKEN_CSRF,
-                    TOKEN_CSRF, TOKEN_CSRF, source.getNewLine());
+            String input = format("%s<input type=\"hidden\" name=\"%s\" value=\"{{%s}}\" />", CSRF_TOKEN,
+                    CSRF_TOKEN, CSRF_TOKEN, source.getNewLine());
             document.getEstimatedMaximumOutputLength();
             StartTag tag = form.getFirstStartTag();
             document.replace(tag.getEnd(), tag.getEnd(), input);

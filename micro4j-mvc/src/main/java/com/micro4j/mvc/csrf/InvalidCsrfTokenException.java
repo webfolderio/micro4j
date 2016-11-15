@@ -20,19 +20,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.mvc;
+package com.micro4j.mvc.csrf;
 
-import java.io.IOException;
+import com.micro4j.mvc.MvcException;
 
-public class MvcException extends RuntimeException {
+public class InvalidCsrfTokenException extends MvcException {
 
     private static final long serialVersionUID = 1L;
 
-    public MvcException(IOException e) {
-        super(e);
-    }
-
-    public MvcException(String message) {
-        super(message);
+    public InvalidCsrfTokenException() {
+        super("Invalid csrf token");
     }
 }
