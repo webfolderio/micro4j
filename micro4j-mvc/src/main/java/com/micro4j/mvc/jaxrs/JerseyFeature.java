@@ -22,33 +22,33 @@
  */
 package com.micro4j.mvc.jaxrs;
 
+import static org.glassfish.jersey.ServiceLocatorProvider.getServiceLocator;
+
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
 import javax.ws.rs.ext.MessageBodyWriter;
 
-import org.jboss.resteasy.spi.InjectorFactory;
-import org.jboss.resteasy.spi.PropertyInjector;
-import org.jboss.resteasy.spi.ResteasyProviderFactory;
+import org.glassfish.hk2.api.ServiceLocator;
 
 import com.micro4j.mvc.Configuration;
 import com.micro4j.mvc.template.DefaultFormatter;
 import com.micro4j.mvc.template.TemplateIntereceptor;
 
-class MvcResteasyFeature implements Feature {
+class JerseyFeature implements Feature {
 
-    private ResteasyProviderFactory providerFactory;
+    private ServiceLocator serviceLocator;
 
     private Configuration configuration;
 
     private MessageBodyWriter<?> viewWriter;
 
-    public MvcResteasyFeature(Configuration configuration) {
+    JerseyFeature(Configuration configuration) {
         this.configuration = configuration;
     }
 
     @Override
     public boolean configure(FeatureContext context) {
-        providerFactory = (ResteasyProviderFactory) context.getConfiguration();
+        serviceLocator = getServiceLocator(context);
         inject();
         context.register(viewWriter);
         return true;
@@ -56,28 +56,20 @@ class MvcResteasyFeature implements Feature {
 
     protected void inject() {
         for (TemplateIntereceptor interceptor : configuration.getInterceptors()) {
-            inject(interceptor.getClass(), interceptor);
+            inject(interceptor);
             interceptor.init();
         }
         DefaultFormatter formatter = configuration.getFormatter();
         if (formatter != null) {
-            inject(formatter.getClass(), formatter);
-        }
-        if (DefaultFormatter.class.isAssignableFrom(formatter.getClass())) {
-            ((DefaultFormatter) formatter).init();
+            inject(formatter);
+            if (DefaultFormatter.class.isAssignableFrom(formatter.getClass())) {
+                ((DefaultFormatter) formatter).init();
+            }
         }
     }
 
-    protected void inject(Class<?> klass, Object object) {
-        InjectorFactory injectorFactory = getInjectorFactory();
-        PropertyInjector injector = injectorFactory.createPropertyInjector(klass, providerFactory);
-        injector.inject(object);
-    }
-
-    protected InjectorFactory getInjectorFactory() {
-        InjectorFactory injectorFactory = providerFactory.getInjectorFactory();
-        injectorFactory = providerFactory.getInjectorFactory();
-        return injectorFactory;
+    protected void inject(Object object) {
+        serviceLocator.inject(object);
     }
 
     protected void setViewWriter(MessageBodyWriter<?> viewWriter) {

@@ -20,20 +20,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.mvc.test;
+package com.micro4j.mvc.jaxrs;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Type;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-    TemplateEngineTest.class,
-    ResteasyTest.class,
-    JerseyTest.class,
-    AssetScannerTest.class,
-    HtmlEscapeTest.class
-})
-public class AllTest {
+import org.jboss.resteasy.core.PathParamInjector;
+import org.jboss.resteasy.spi.HttpRequest;
+import org.jboss.resteasy.spi.HttpResponse;
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
+class RestEasyPathParamInjector extends PathParamInjector {
+
+    @SuppressWarnings("rawtypes")
+    public RestEasyPathParamInjector(Class type, Type genericType, AccessibleObject target, String paramName,
+            String defaultValue, boolean encode, Annotation[] annotations, ResteasyProviderFactory factory) {
+        super(type, genericType, target, paramName, defaultValue, encode, annotations, factory);
+    }
+
+    @Override
+    public Object inject(HttpRequest request, HttpResponse response) {
+        Object value = super.inject(request, response);
+        if (value != null && value instanceof String) {
+            return Escaper.escapeHtml((String) value);
+        }
+        return value;
+    }   
 }

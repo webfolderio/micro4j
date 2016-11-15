@@ -20,20 +20,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.mvc.test;
+package com.micro4j.mvc.jaxrs;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Type;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-    TemplateEngineTest.class,
-    ResteasyTest.class,
-    JerseyTest.class,
-    AssetScannerTest.class,
-    HtmlEscapeTest.class
-})
-public class AllTest {
+import org.jboss.resteasy.core.CookieParamInjector;
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
+class RestEasyParamInjector extends CookieParamInjector {
+
+    @SuppressWarnings("rawtypes")
+    public RestEasyParamInjector(Class type, Type genericType, AccessibleObject target, String cookieName,
+            String defaultValue, Annotation[] annotations, ResteasyProviderFactory factory) {
+        super(type, genericType, target, cookieName, defaultValue, annotations, factory);
+    }
+
+    @Override
+    public Object extractValue(String strVal) {
+        String str = Escaper.escapeHtml(strVal);
+        return super.extractValue(str);
+    }
 }

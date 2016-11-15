@@ -65,6 +65,8 @@ public class Configuration {
 
     private String delims;
 
+    private boolean esacepHtml;
+
     public static class Builder {
 
         private String container = "";
@@ -91,6 +93,8 @@ public class Configuration {
 
         private DefaultFormatter formatter = new MustacheFormatter();
 
+        private boolean escapeHtml = false;
+
         public Builder prefix(String prefix) {
             this.prefix = prefix;
             return this;
@@ -98,6 +102,11 @@ public class Configuration {
 
         public Builder formatter(DefaultFormatter formatter) {
             this.formatter = formatter;
+            return this;
+        }
+
+        public Builder escapeHtml(boolean esacepHtml) {
+            this.escapeHtml = esacepHtml;
             return this;
         }
 
@@ -192,6 +201,7 @@ public class Configuration {
             configuration.enableTemplateCaching = enableTemplateCaching;
             configuration.locale = locale;
             configuration.delims = delims;
+            configuration.esacepHtml = escapeHtml;
             for (TemplateIntereceptor interceptor : interceptors) {
                 interceptor.setConfiguration(configuration);
             }
@@ -255,12 +265,16 @@ public class Configuration {
         return delims;
     }
 
+    public boolean isEsacepHtml() {
+        return esacepHtml;
+    }
+
     @Override
     public String toString() {
         return "Configuration [fileTypeExtensions=" + fileTypeExtensions + ", interceptors=" + interceptors
                 + ", bodyName=" + bodyName + ", classLoader=" + classLoader + ", charset=" + charset + ", formatter="
                 + formatter + ", prefix=" + prefix + ", container=" + container + ", enableTemplateCaching="
                 + enableTemplateCaching + ", nullValue=" + nullValue + ", locale=" + locale + ", delims=" + delims
-                + "]";
+                + ", esacepHtml=" + esacepHtml + "]";
     }
 }

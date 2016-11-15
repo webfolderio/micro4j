@@ -61,11 +61,11 @@ public class MvcFeature implements Feature {
     public boolean configure(FeatureContext context) {
         boolean initialized = false;
         if (isResteasy(context)) {
-            MvcResteasyFeature resteasyFeature = new MvcResteasyFeature(configuration);
+            ResteasyFeature resteasyFeature = new ResteasyFeature(configuration);
             resteasyFeature.setViewWriter(createViewWriter(templateEngine));
             initialized = resteasyFeature.configure(context);
         } else if (isJersey(context)) {
-            MvcJerseyFeature jerseyFeature = new MvcJerseyFeature(configuration);
+            JerseyFeature jerseyFeature = new JerseyFeature(configuration);
             jerseyFeature.setViewWriter(createViewWriter(templateEngine));
             initialized = jerseyFeature.configure(context);
         } else {

@@ -22,54 +22,65 @@
  */
 package com.micro4j.mvc.jaxrs;
 
-import static org.glassfish.jersey.ServiceLocatorProvider.getServiceLocator;
-
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
 import javax.ws.rs.ext.MessageBodyWriter;
 
-import org.glassfish.hk2.api.ServiceLocator;
+import org.jboss.resteasy.spi.InjectorFactory;
+import org.jboss.resteasy.spi.PropertyInjector;
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
 import com.micro4j.mvc.Configuration;
 import com.micro4j.mvc.template.DefaultFormatter;
 import com.micro4j.mvc.template.TemplateIntereceptor;
 
-class MvcJerseyFeature implements Feature {
+class ResteasyFeature implements Feature {
 
-    private ServiceLocator serviceLocator;
+    private ResteasyProviderFactory providerFactory;
 
     private Configuration configuration;
 
     private MessageBodyWriter<?> viewWriter;
 
-    MvcJerseyFeature(Configuration configuration) {
+    public ResteasyFeature(Configuration configuration) {
         this.configuration = configuration;
     }
 
     @Override
     public boolean configure(FeatureContext context) {
-        serviceLocator = getServiceLocator(context);
+        providerFactory = (ResteasyProviderFactory) context.getConfiguration();
         inject();
         context.register(viewWriter);
         return true;
     }
 
     protected void inject() {
+        if (configuration.isEsacepHtml()) {
+            providerFactory.setInjectorFactory(new RestEasyInjectorFactory());
+        }
         for (TemplateIntereceptor interceptor : configuration.getInterceptors()) {
-            inject(interceptor);
+            inject(interceptor.getClass(), interceptor);
             interceptor.init();
         }
         DefaultFormatter formatter = configuration.getFormatter();
         if (formatter != null) {
-            inject(formatter);
-            if (DefaultFormatter.class.isAssignableFrom(formatter.getClass())) {
-                ((DefaultFormatter) formatter).init();
-            }
+            inject(formatter.getClass(), formatter);
+        }
+        if (DefaultFormatter.class.isAssignableFrom(formatter.getClass())) {
+            ((DefaultFormatter) formatter).init();
         }
     }
 
-    protected void inject(Object object) {
-        serviceLocator.inject(object);
+    protected void inject(Class<?> klass, Object object) {
+        InjectorFactory injectorFactory = getInjectorFactory();
+        PropertyInjector injector = injectorFactory.createPropertyInjector(klass, providerFactory);
+        injector.inject(object);
+    }
+
+    protected InjectorFactory getInjectorFactory() {
+        InjectorFactory injectorFactory = providerFactory.getInjectorFactory();
+        injectorFactory = providerFactory.getInjectorFactory();
+        return injectorFactory;
     }
 
     protected void setViewWriter(MessageBodyWriter<?> viewWriter) {
