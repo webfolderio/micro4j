@@ -61,20 +61,20 @@ public class CSRFMojo extends AbstractMojo {
 
     private static final String CSRF_TOKEN = "csrf-token";
 
-    @Parameter(defaultValue = "src/main/resources")
-    private File resources;
+    @Parameter(name="csrfResources", defaultValue = "target/classes")
+    private File csrfResources;
 
-    @Parameter(defaultValue = "target/classes")
-    private File outputDirectory;
+    @Parameter(name ="csrfOutputDirectory", defaultValue = "target/classes")
+    private File csrfOutputDirectory;
 
-    @Parameter(defaultValue = "html")
-    private String extension;
+    @Parameter(name = "csrfExtension", defaultValue = "html")
+    private String csrfExtension;
 
-    @Parameter
-    private String[] includes;
+    @Parameter(name = "csrfIncludes")
+    private String[] csrfIncludes;
 
-    @Parameter
-    private String[] excludes;
+    @Parameter(name = "csrfExcludes")
+    private String[] csrfExcludes;
 
     @Parameter(defaultValue = "${project.build.sourceEncoding}")
     private String encoding;
@@ -83,19 +83,23 @@ public class CSRFMojo extends AbstractMojo {
     @SuppressWarnings("unchecked")
     public void execute() throws MojoExecutionException, MojoFailureException {
         Config.LoggerProvider = LoggerProvider.DISABLED;
-        Set<String> setIncludes = includes != null ? new HashSet<>(asList(includes)) : singleton("**/*." + extension);
-        Set<String> setExcludes = excludes != null ? new HashSet<>(asList(excludes)) : EMPTY_SET;
+        Set<String> setIncludes = csrfIncludes != null ? new HashSet<>(asList(csrfIncludes)) : singleton("**/*." + csrfExtension);
+        Set<String> setExcludes = csrfExcludes != null ? new HashSet<>(asList(csrfExcludes)) : EMPTY_SET;
         SourceInclusionScanner scanner = new SimpleSourceInclusionScanner(setIncludes, setExcludes);
-        scanner.addSourceMapping(new SuffixMapping("." + extension, "." + extension));
+        if ( ! csrfResources.equals(csrfOutputDirectory) ) {
+            scanner.addSourceMapping(new SuffixMapping("." + csrfExtension, "." + csrfExtension));
+        }
         try {
-            Set<File> files = scanner.getIncludedSources(resources, outputDirectory);
+            Set<File> files = scanner.getIncludedSources(csrfResources, csrfOutputDirectory);
             for (File file : files) {
-                Path relativePath = resources.toPath().relativize(file.toPath());
-                Path outputPath = outputDirectory.toPath().resolve(relativePath);
+                Path relativePath = csrfResources.toPath().relativize(file.toPath());
+                Path outputPath = csrfOutputDirectory.toPath().resolve(relativePath);
                 String content = new String(readAllBytes(file.toPath()), encoding);
                 String modifiedContent = injectCsrfInput(content);
                 if ( modifiedContent != null && ! modifiedContent.trim().isEmpty() ) {
+                    getLog().info("Adding csrf input [" + relativePath.toString() + "]");
                     write(outputPath, modifiedContent.getBytes(encoding));
+                    getLog().info("csrf input added [" + outputPath.toString().toString() + "]");
                 }
             }
         } catch (InclusionScanException | IOException e) {
