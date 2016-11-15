@@ -20,35 +20,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.mvc.test;
+package com.micro4j.mvc.csrf;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
-import com.micro4j.mvc.MvcSession;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.core.Form;
+import javax.ws.rs.core.MultivaluedMap;
 
-public class DummySession implements MvcSession {
+import org.glassfish.jersey.server.ContainerRequest;
 
-    private Map<String, Object> session = new ConcurrentHashMap<>();
+public class JerseyCsrfFilter extends AbstractCsrfFilter {
 
-    @Override
-    public void set(String key, Object value) {
-        session.put(key, value);
+    public JerseyCsrfFilter(Map<String, Boolean> cache) {
+        super(cache);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <T> T get(String key) {
-        return (T) session.get(key);
-    }
-
-    @Override
-    public boolean contains(String key) {
-        return session.containsKey(key);
-    }
-
-    @Override
-    public void remove(String key) {
-        session.remove(key);
+    protected MultivaluedMap<String, String> getFormParameters(ContainerRequestContext requestContext) {
+        // https://java.net/jira/browse/JERSEY-2664
+        ContainerRequest cr = (ContainerRequest) requestContext;
+        cr.bufferEntity();
+        Form form = cr.readEntity(Form.class);
+        return form.asMap();
     }
 }

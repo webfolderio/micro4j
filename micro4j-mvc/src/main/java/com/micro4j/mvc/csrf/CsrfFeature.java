@@ -27,16 +27,16 @@ import java.lang.reflect.Method;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.OPTIONS;
-import javax.ws.rs.container.ContainerResponseFilter;
+import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.DynamicFeature;
 import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.FeatureContext;
 
 public class CsrfFeature implements DynamicFeature {
 
-    private ContainerResponseFilter csrFilter;
+    private ContainerRequestFilter csrFilter;
 
-    public CsrfFeature(ContainerResponseFilter csrfFilter) {
+    public CsrfFeature(ContainerRequestFilter csrfFilter) {
         this.csrFilter = csrfFilter;
     }
 

@@ -22,59 +22,22 @@
  */
 package com.micro4j.mvc.csrf;
 
-import static javax.ws.rs.core.Response.Status.Family.SUCCESSFUL;
-
-import java.io.IOException;
-import java.util.Set;
+import java.util.Map;
 
 import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ContainerResponseContext;
-import javax.ws.rs.container.ContainerResponseFilter;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.jboss.resteasy.core.interception.PreMatchContainerRequestContext;
 
-import com.micro4j.mvc.MvcSession;
+public class RestEasyCsrfFilter extends AbstractCsrfFilter {
 
-public class CsrfFilter implements ContainerResponseFilter {
-
-    protected static final String SESSION_KEY_CSRF_TOKENS = "micro4j.csrf.tokens";
-
-    protected static final String CSRF_TOKEN = "csrf-token";
-
-    @Context
-    protected MvcSession session;
+    public RestEasyCsrfFilter(Map<String, Boolean> cache) {
+        super(cache);
+    }
 
     @Override
-    public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
-            throws IOException {
-        
-        boolean successful = responseContext.getStatusInfo().getFamily().equals(SUCCESSFUL);
-
-        if ( ! successful ) {
-            return;
-        }
-
+    protected MultivaluedMap<String, String> getFormParameters(ContainerRequestContext requestContext) {
         PreMatchContainerRequestContext ctx = (PreMatchContainerRequestContext) requestContext;
-        MultivaluedMap<String,String> parameters = ctx.getHttpRequest().getFormParameters();
-        
-        if (parameters == null) {
-            return;
-        }
-
-        String token = parameters.getFirst(CSRF_TOKEN);
-
-        if (token == null || token.trim().isEmpty()) {
-            return;
-        }
-
-        Set<String> tokens = session.get(SESSION_KEY_CSRF_TOKENS);
-
-        if ( tokens == null || tokens.isEmpty() || ! tokens.contains(token) ) {
-            throw new InvalidCsrfTokenException();
-        } else {
-            tokens.remove(token);
-        }
+        return ctx.getHttpRequest().getFormParameters();
     }
 }

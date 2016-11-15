@@ -114,14 +114,14 @@ public class HtmlEscapeTest {
 
     @Test
     public void test() throws Exception {
-        Request request1 = new Request.Builder().url("http://localhost:4040/page?param=<div click='javascript: alert('hello');'>").get().build();
-        Response response1 = client.newCall(request1).execute();
-        Assert.assertEquals("&lt;div click=&#39;javascript: alert(&#39;hello&#39;);&#39;&gt;", response1.body().string());
+        Request request = new Request.Builder().url("http://localhost:4040/page?param=<div click='javascript: alert('hello');'>").get().build();
+        Response response = client.newCall(request).execute();
+        Assert.assertEquals("&lt;div click=&#39;javascript: alert(&#39;hello&#39;);&#39;&gt;", response.body().string());
 
         RequestBody body = new FormEncodingBuilder().add("param", "<p1>").add("param", "<p2>").build();
-        Request request2 = new Request.Builder().url("http://localhost:4040/form").post(body).build();
-        Response response2 = client.newCall(request2).execute();
+        request = new Request.Builder().url("http://localhost:4040/form").post(body).build();
+        response = client.newCall(request).execute();
 
-        Assert.assertEquals("[&lt;p1&gt;, &lt;p2&gt;]", response2.body().string());
+        Assert.assertEquals("[&lt;p1&gt;, &lt;p2&gt;]", response.body().string());
     }
 }

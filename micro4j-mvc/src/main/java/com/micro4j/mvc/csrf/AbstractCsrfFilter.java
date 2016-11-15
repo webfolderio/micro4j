@@ -22,31 +22,45 @@
  */
 package com.micro4j.mvc.csrf;
 
-import static java.lang.Boolean.FALSE;
-import static java.lang.Long.toHexString;
+import static java.lang.Boolean.TRUE;
 
-import java.security.SecureRandom;
+import java.io.IOException;
 import java.util.Map;
 
-import com.micro4j.mvc.template.TemplateIntereceptor;
-import com.micro4j.mvc.template.TemplateWrapper;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.core.MultivaluedMap;
 
-public class MustacheCsrfInterceptor extends TemplateIntereceptor {
+public abstract class AbstractCsrfFilter implements ContainerRequestFilter {
 
-    private final SecureRandom random = new SecureRandom();
+    protected static final String CSRF_TOKEN = "csrf-token";
 
     private final Map<String, Boolean> cache;
 
-    public MustacheCsrfInterceptor(Map<String, Boolean> cache) {
+    public AbstractCsrfFilter(Map<String, Boolean> cache) {
         this.cache = cache;
     }
 
+    protected abstract MultivaluedMap<String, String> getFormParameters(ContainerRequestContext requestContext);
+
     @Override
-    public TemplateWrapper beforeExecute(String name, TemplateWrapper templateWrapper, Object context,
-            Map<String, Object> parentContext) {
-        String token = toHexString(random.nextLong());
-        cache.put(token, FALSE);
-        parentContext.put("csrf-token", token);
-        return templateWrapper;
+    public void filter(ContainerRequestContext requestContext) throws IOException {
+        if ( ! requestContext.hasEntity() ) {
+            return;
+        }
+        MultivaluedMap<String, String> parameters = getFormParameters(requestContext);
+        if (parameters == null) {
+            return;
+        }
+        String token = parameters.getFirst(CSRF_TOKEN);
+        if (token == null || token.trim().isEmpty()) {
+            throw new InvalidCsrfTokenException();
+        }
+        Boolean expired = cache.get(token);
+        if ( expired == null || TRUE.equals(expired) ) {
+            throw new InvalidCsrfTokenException();
+        } else {
+            cache.put(token, TRUE);
+        }
     }
 }

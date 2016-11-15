@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -46,10 +47,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.micro4j.mvc.Configuration.Builder;
-import com.micro4j.mvc.MvcSession;
 import com.micro4j.mvc.View;
 import com.micro4j.mvc.csrf.CsrfFeature;
-import com.micro4j.mvc.csrf.CsrfFilter;
+import com.micro4j.mvc.csrf.AbstractCsrfFilter;
 import com.micro4j.mvc.csrf.MustacheCsrfInterceptor;
 import com.micro4j.mvc.jaxrs.MvcFeature;
 import com.squareup.okhttp.FormEncodingBuilder;
@@ -64,13 +64,13 @@ public class CsrfTest {
 
         @Override
         public Set<Object> getSingletons() {
+            Map<String, Boolean> tokens = new ConcurrentHashMap<>();
             Set<Object> singletons = new HashSet<>();
             singletons.add(new MvcFeature(
                         new Builder()
-                            .interceptors(new MustacheCsrfInterceptor())                            
+                            .interceptors(new MustacheCsrfInterceptor(tokens))                            
                         .build()));
-            singletons.add(new CsrfFeature(new CsrfFilter()));
-            singletons.add(new DummySession());
+            singletons.add(new CsrfFeature(new AbstractCsrfFilter(tokens)));
             singletons.add(new TestController());
             return singletons;
         }
@@ -86,7 +86,6 @@ public class CsrfTest {
     public static void beforeTest() {
         deployment = new ResteasyDeployment();
         deployment.setApplication(new TestApplication());
-        deployment.getDefaultContextObjects().put(MvcSession.class, new DummySession());
         server = new SunHttpJaxrsServer();
         server.setPort(4040);
         server.setRootResourcePath("/");
@@ -128,10 +127,10 @@ public class CsrfTest {
 
     @Test
     public void test() throws Exception {
-        Request request1 = new Request.Builder().url("http://localhost:4040/page").get().build();
-        Response response1 = client.newCall(request1).execute();
+        Request request = new Request.Builder().url("http://localhost:4040/page").get().build();
+        Response response = client.newCall(request).execute();
 
-        String csrfToken = response1.body().string();
+        String csrfToken = response.body().string();
 
         Assert.assertNotNull(csrfToken);
 
@@ -140,19 +139,19 @@ public class CsrfTest {
                                 .add("csrf-token", csrfToken)
                             .build();
 
-        Request request2 = new Request.Builder().url("http://localhost:4040/form").post(body).build();
-        Response response2 = client.newCall(request2).execute();
+        request = new Request.Builder().url("http://localhost:4040/form").post(body).build();
+        response = client.newCall(request).execute();
 
-        Assert.assertTrue(response2.isSuccessful());
+        Assert.assertTrue(response.isSuccessful());
 
         body = new FormEncodingBuilder()
                 .add("param", "myvalue-2")
                 .add("csrf-token", csrfToken)
             .build();
 
-        request2 = new Request.Builder().url("http://localhost:4040/form").post(body).build();
-        response2 = client.newCall(request2).execute();
+        request = new Request.Builder().url("http://localhost:4040/form").post(body).build();
+        response = client.newCall(request).execute();
 
-        Assert.assertFalse(response2.isSuccessful());
+        Assert.assertFalse(response.isSuccessful());
     }
 }
