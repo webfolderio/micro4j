@@ -5,7 +5,7 @@
     <parent>
         <artifactId>micro4j</artifactId>
         <groupId>com.micro4j.micro4j</groupId>
-        <version>1.4.11</version>
+        <version>1.4.12</version>
     </parent>
     <artifactId>micro4j-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>

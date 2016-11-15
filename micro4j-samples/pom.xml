@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.micro4j.micro4j</groupId>
         <artifactId>micro4j</artifactId>    
-        <version>1.4.11</version>
+        <version>1.4.12</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <packaging>pom</packaging>

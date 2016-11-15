@@ -55,7 +55,9 @@ import org.codehaus.plexus.compiler.util.scan.SimpleSourceInclusionScanner;
 import org.codehaus.plexus.compiler.util.scan.SourceInclusionScanner;
 import org.codehaus.plexus.compiler.util.scan.mapping.SuffixMapping;
 
+import net.htmlparser.jericho.Config;
 import net.htmlparser.jericho.Element;
+import net.htmlparser.jericho.LoggerProvider;
 import net.htmlparser.jericho.OutputDocument;
 import net.htmlparser.jericho.Source;
 import net.htmlparser.jericho.StartTag;
@@ -87,6 +89,8 @@ public class HtmlMojo extends AbstractMojo {
 
     @SuppressWarnings("unchecked")
     public void execute() throws MojoExecutionException {
+        Config.LoggerProvider = LoggerProvider.DISABLED;
+
         Set<String> setIncludes = includes != null ? new HashSet<>(asList(includes)) : singleton("**/*." + extension);
         Set<String> setExcludes = excludes != null ? new HashSet<>(asList(excludes)) : EMPTY_SET;
         SourceInclusionScanner scanner = new SimpleSourceInclusionScanner(setIncludes, setExcludes);
