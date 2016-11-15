@@ -61,19 +61,19 @@ public class CSRFMojo extends AbstractMojo {
 
     private static final String CSRF_TOKEN = "csrf-token";
 
-    @Parameter(name="csrfResources", defaultValue = "target/classes")
+    @Parameter(defaultValue = "target/classes")
     private File csrfResources;
 
-    @Parameter(name ="csrfOutputDirectory", defaultValue = "target/classes")
+    @Parameter(defaultValue = "target/classes")
     private File csrfOutputDirectory;
 
-    @Parameter(name = "csrfExtension", defaultValue = "html")
+    @Parameter(defaultValue = "html")
     private String csrfExtension;
 
-    @Parameter(name = "csrfIncludes")
+    @Parameter
     private String[] csrfIncludes;
 
-    @Parameter(name = "csrfExcludes")
+    @Parameter
     private String[] csrfExcludes;
 
     @Parameter(defaultValue = "${project.build.sourceEncoding}")
