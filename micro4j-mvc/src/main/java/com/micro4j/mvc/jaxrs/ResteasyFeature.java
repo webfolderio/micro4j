@@ -31,8 +31,6 @@ import org.jboss.resteasy.spi.PropertyInjector;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
 import com.micro4j.mvc.Configuration;
-import com.micro4j.mvc.csrf.CsrfFeature;
-import com.micro4j.mvc.csrf.CsrfFilter;
 import com.micro4j.mvc.template.DefaultFormatter;
 import com.micro4j.mvc.template.TemplateIntereceptor;
 
@@ -53,9 +51,6 @@ class ResteasyFeature implements Feature {
         providerFactory = (ResteasyProviderFactory) context.getConfiguration();
         inject();
         context.register(viewWriter);
-        if (configuration.isEnableCsrfProtection()) {
-            context.register(new CsrfFeature(new CsrfFilter()));
-        }
         return true;
     }
 

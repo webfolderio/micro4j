@@ -48,6 +48,8 @@ import org.junit.Test;
 import com.micro4j.mvc.Configuration.Builder;
 import com.micro4j.mvc.MvcSession;
 import com.micro4j.mvc.View;
+import com.micro4j.mvc.csrf.CsrfFeature;
+import com.micro4j.mvc.csrf.CsrfFilter;
 import com.micro4j.mvc.csrf.MustacheCsrfInterceptor;
 import com.micro4j.mvc.jaxrs.MvcFeature;
 import com.squareup.okhttp.FormEncodingBuilder;
@@ -66,8 +68,8 @@ public class CsrfTest {
             singletons.add(new MvcFeature(
                         new Builder()
                             .interceptors(new MustacheCsrfInterceptor())                            
-                            .enableCsrfProtection(true)
                         .build()));
+            singletons.add(new CsrfFeature(new CsrfFilter()));
             singletons.add(new DummySession());
             singletons.add(new TestController());
             return singletons;
