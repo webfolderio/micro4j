@@ -23,29 +23,26 @@
 package com.micro4j.maven.plugin;
 
 import static java.lang.String.format;
+import static java.nio.file.Files.isDirectory;
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Files.write;
-import static java.util.Arrays.asList;
-import static java.util.Collections.EMPTY_SET;
-import static java.util.Collections.singleton;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_RESOURCES;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
+import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.codehaus.plexus.compiler.util.scan.InclusionScanException;
-import org.codehaus.plexus.compiler.util.scan.SimpleSourceInclusionScanner;
-import org.codehaus.plexus.compiler.util.scan.SourceInclusionScanner;
-import org.codehaus.plexus.compiler.util.scan.mapping.SuffixMapping;
+import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.util.Scanner;
+import org.sonatype.plexus.build.incremental.BuildContext;
 
 import net.htmlparser.jericho.Config;
 import net.htmlparser.jericho.Element;
@@ -61,17 +58,11 @@ public class CSRFMojo extends AbstractMojo {
 
     private static final String CSRF_TOKEN = "csrf-token";
 
-    @Parameter(defaultValue = "target/classes")
-    private File csrfResources;
-
-    @Parameter(defaultValue = "target/classes")
-    private File csrfOutputDirectory;
-
     @Parameter(defaultValue = "html")
     private String csrfExtension;
 
-    @Parameter
-    private String[] csrfIncludes;
+    @Parameter(defaultValue = "**/*.html")
+    private String[] csrfIncludes = new String[] { "**/*.html" };
 
     @Parameter
     private String[] csrfExcludes;
@@ -79,30 +70,55 @@ public class CSRFMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.build.sourceEncoding}")
     private String encoding;
 
+    @Component
+    private BuildContext buildContext;
+
+    @Parameter(defaultValue = "${project}", readonly = true, required = true)
+    private MavenProject project;
+
     @Override
-    @SuppressWarnings("unchecked")
     public void execute() throws MojoExecutionException, MojoFailureException {
         Config.LoggerProvider = LoggerProvider.DISABLED;
-        Set<String> setIncludes = csrfIncludes != null ? new HashSet<>(asList(csrfIncludes)) : singleton("**/*." + csrfExtension);
-        Set<String> setExcludes = csrfExcludes != null ? new HashSet<>(asList(csrfExcludes)) : EMPTY_SET;
-        SourceInclusionScanner scanner = new SimpleSourceInclusionScanner(setIncludes, setExcludes);
-        if ( ! csrfResources.equals(csrfOutputDirectory) ) {
-            scanner.addSourceMapping(new SuffixMapping("." + csrfExtension, "." + csrfExtension));
-        }
         try {
-            Set<File> files = scanner.getIncludedSources(csrfResources, csrfOutputDirectory);
-            for (File file : files) {
-                Path relativePath = csrfResources.toPath().relativize(file.toPath());
-                Path outputPath = csrfOutputDirectory.toPath().resolve(relativePath);
-                String content = new String(readAllBytes(file.toPath()), encoding);
-                String modifiedContent = injectCsrfInput(content);
-                if ( modifiedContent != null && ! modifiedContent.trim().isEmpty() ) {
-                    getLog().info("Adding csrf input [" + relativePath.toString() + "]");
-                    write(outputPath, modifiedContent.getBytes(encoding));
-                    getLog().info("csrf input added [" + outputPath.toString().toString() + "]");
+            for (Resource resource : project.getResources()) {
+                File folder = new File(resource.getTargetPath());
+                if (isDirectory(folder.toPath())) {
+                    transform(folder);
                 }
             }
-        } catch (InclusionScanException | IOException e) {
+            for (Resource resource : project.getTestResources()) {
+                File folder = new File(resource.getTargetPath());
+                if (isDirectory(folder.toPath())) {
+                    transform(folder);
+                }
+            }
+        } catch (Throwable t) {
+            getLog().error(t);
+            throw t;
+        }
+    }
+
+    protected void transform(File folder) throws MojoExecutionException {
+        boolean incremental = buildContext.isIncremental();
+        boolean ignoreDelta = incremental ? false : true;
+        Scanner scanner = buildContext.newScanner(folder, ignoreDelta);
+        scanner.setIncludes(csrfIncludes);
+        if (csrfExcludes != null && csrfExcludes.length > 0) {
+            scanner.setExcludes(csrfExcludes);
+        }
+        scanner.scan();
+        try {
+            for (String next : scanner.getIncludedFiles()) {
+                Path file = folder.toPath().resolve(next);
+                String content = new String(readAllBytes(file), encoding);
+                String modifiedContent = injectCsrfInput(content);
+                if ( modifiedContent != null && ! modifiedContent.trim().isEmpty() ) {
+                    getLog().info("Adding csrf input [" + file.toString() + "]");
+                    write(file, modifiedContent.getBytes(encoding));
+                    getLog().info("csrf input added [" + file.toString().toString() + "]");
+                }
+            }
+        } catch (IOException e) {
             throw new MojoExecutionException(e.getMessage());
         }
     }
@@ -140,4 +156,3 @@ public class CSRFMojo extends AbstractMojo {
         }
     }
 }
-

@@ -92,13 +92,13 @@ public class BabelV8Mojo extends AbstractMojo {
             for (Resource resource : project.getResources()) {
                 File folder = new File(resource.getDirectory());
                 if (isDirectory(folder.toPath())) {
-                    transform(folder, false);
+                    transform(folder);
                 }
             }
             for (Resource resource : project.getTestResources()) {
                 File folder = new File(resource.getDirectory());
                 if (isDirectory(folder.toPath())) {
-                    transform(folder, true);
+                    transform(folder);
                 }
             }
         } catch (Throwable t) {
@@ -109,7 +109,7 @@ public class BabelV8Mojo extends AbstractMojo {
         }
     }
 
-    protected void transform(File folder, boolean isTestFolder) throws MojoExecutionException, MojoFailureException {
+    protected void transform(File folder) throws MojoExecutionException, MojoFailureException {
         boolean incremental = buildContext.isIncremental();
         boolean ignoreDelta = incremental ? false : true;
         Scanner scanner = buildContext.newScanner(folder, ignoreDelta);
@@ -118,8 +118,8 @@ public class BabelV8Mojo extends AbstractMojo {
             scanner.setExcludes(excludes);
         }
         scanner.scan();
-        for (String includedFile : scanner.getIncludedFiles()) {
-            Path es6File = folder.toPath().resolve(includedFile);
+        for (String next : scanner.getIncludedFiles()) {
+            Path es6File = folder.toPath().resolve(next);
             String es6FileName = es6File.getFileName().toString();
             int begin = es6FileName.lastIndexOf('.');
             if (begin < 0) {

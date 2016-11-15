@@ -94,18 +94,18 @@ public class BabelMojo extends AbstractMojo {
         for (Resource resource : project.getResources()) {
             File folder = new File(resource.getDirectory());
             if (isDirectory(folder.toPath())) {
-                transform(folder, false);
+                transform(folder);
             }
         }
         for (Resource resource : project.getTestResources()) {
             File folder = new File(resource.getDirectory());
             if (isDirectory(folder.toPath())) {
-                transform(folder, true);
+                transform(folder);
             }
         }
     }
 
-    protected void transform(File folder, boolean isTestFolder) throws MojoExecutionException, MojoFailureException {
+    protected void transform(File folder) throws MojoExecutionException, MojoFailureException {
         boolean incremental = buildContext.isIncremental();
         boolean ignoreDelta = incremental ? false : true;
         Scanner scanner = buildContext.newScanner(folder, ignoreDelta);

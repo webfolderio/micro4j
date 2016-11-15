@@ -26,7 +26,7 @@ import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Files.write;
 import static java.util.Collections.EMPTY_SET;
 import static java.util.Collections.singleton;
-import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_RESOURCES;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.GENERATE_SOURCES;
 import static org.attoparser.config.ParseConfiguration.htmlConfiguration;
 import static org.attoparser.minimize.MinimizeHtmlMarkupHandler.MinimizeMode.COMPLETE;
 
@@ -53,7 +53,7 @@ import org.codehaus.plexus.compiler.util.scan.SourceInclusionScanner;
 import org.codehaus.plexus.compiler.util.scan.mapping.SuffixMapping;
 import static java.util.Arrays.asList;
 
-@Mojo(name = "minimize-html", defaultPhase = PROCESS_RESOURCES, threadSafe = true, requiresOnline = false, requiresReports = false)
+@Mojo(name = "minimize-html", defaultPhase = GENERATE_SOURCES, threadSafe = true, requiresOnline = false, requiresReports = false)
 public class HtmlMinimizeMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "src/main/resources")
