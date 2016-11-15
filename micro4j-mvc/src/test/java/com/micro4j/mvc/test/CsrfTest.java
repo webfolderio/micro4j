@@ -49,7 +49,6 @@ import org.junit.Test;
 import com.micro4j.mvc.Configuration.Builder;
 import com.micro4j.mvc.View;
 import com.micro4j.mvc.csrf.CsrfFeature;
-import com.micro4j.mvc.csrf.AbstractCsrfFilter;
 import com.micro4j.mvc.csrf.MustacheCsrfInterceptor;
 import com.micro4j.mvc.csrf.RestEasyCsrfFilter;
 import com.micro4j.mvc.jaxrs.MvcFeature;
