@@ -138,7 +138,8 @@ public class CSRFMojo extends AbstractMojo {
                 modified = true;
                 continue;
             }
-            String input = format("%s<input type=\"hidden\" name=\"%s\" value=\"{{%s}}\" />", source.getNewLine(), CSRF_TOKEN,
+            String newLine = source.getNewLine() != null ? source.getNewLine() : "";
+            String input = format("%s<input type=\"hidden\" name=\"%s\" value=\"{{%s}}\" />", newLine, CSRF_TOKEN,
                     CSRF_TOKEN, CSRF_TOKEN);
             StartTag tag = form.getFirstStartTag();
             document.replace(tag.getEnd(), tag.getEnd(), input);
