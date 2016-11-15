@@ -51,6 +51,7 @@ import com.micro4j.mvc.View;
 import com.micro4j.mvc.csrf.CsrfFeature;
 import com.micro4j.mvc.csrf.AbstractCsrfFilter;
 import com.micro4j.mvc.csrf.MustacheCsrfInterceptor;
+import com.micro4j.mvc.csrf.RestEasyCsrfFilter;
 import com.micro4j.mvc.jaxrs.MvcFeature;
 import com.squareup.okhttp.FormEncodingBuilder;
 import com.squareup.okhttp.OkHttpClient;
@@ -64,13 +65,13 @@ public class CsrfTest {
 
         @Override
         public Set<Object> getSingletons() {
-            Map<String, Boolean> tokens = new ConcurrentHashMap<>();
+            Map<String, Boolean> cache = new ConcurrentHashMap<>();
             Set<Object> singletons = new HashSet<>();
             singletons.add(new MvcFeature(
                         new Builder()
-                            .interceptors(new MustacheCsrfInterceptor(tokens))                            
+                            .interceptors(new MustacheCsrfInterceptor(cache))                            
                         .build()));
-            singletons.add(new CsrfFeature(new AbstractCsrfFilter(tokens)));
+            singletons.add(new CsrfFeature(new RestEasyCsrfFilter(cache)));
             singletons.add(new TestController());
             return singletons;
         }
