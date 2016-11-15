@@ -32,7 +32,6 @@ import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_RESOUR
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
@@ -48,7 +47,9 @@ import org.codehaus.plexus.compiler.util.scan.SimpleSourceInclusionScanner;
 import org.codehaus.plexus.compiler.util.scan.SourceInclusionScanner;
 import org.codehaus.plexus.compiler.util.scan.mapping.SuffixMapping;
 
+import net.htmlparser.jericho.Config;
 import net.htmlparser.jericho.Element;
+import net.htmlparser.jericho.LoggerProvider;
 import net.htmlparser.jericho.OutputDocument;
 import net.htmlparser.jericho.Source;
 import net.htmlparser.jericho.StartTag;
@@ -81,6 +82,7 @@ public class CSRFMojo extends AbstractMojo {
     @Override
     @SuppressWarnings("unchecked")
     public void execute() throws MojoExecutionException, MojoFailureException {
+        Config.LoggerProvider = LoggerProvider.DISABLED;
         Set<String> setIncludes = includes != null ? new HashSet<>(asList(includes)) : singleton("**/*." + extension);
         Set<String> setExcludes = excludes != null ? new HashSet<>(asList(excludes)) : EMPTY_SET;
         SourceInclusionScanner scanner = new SimpleSourceInclusionScanner(setIncludes, setExcludes);
@@ -90,11 +92,10 @@ public class CSRFMojo extends AbstractMojo {
             for (File file : files) {
                 Path relativePath = resources.toPath().relativize(file.toPath());
                 Path outputPath = outputDirectory.toPath().resolve(relativePath);
-                StringWriter writer = new StringWriter();
                 String content = new String(readAllBytes(file.toPath()), encoding);
                 String modifiedContent = injectCsrfInput(content);
                 if ( modifiedContent != null && ! modifiedContent.trim().isEmpty() ) {
-                    write(outputPath, writer.toString().getBytes(encoding));
+                    write(outputPath, modifiedContent.getBytes(encoding));
                 }
             }
         } catch (InclusionScanException | IOException e) {
@@ -122,9 +123,8 @@ public class CSRFMojo extends AbstractMojo {
                 modified = true;
                 continue;
             }
-            String input = format("%s<input type=\"hidden\" name=\"%s\" value=\"{{%s}}\" />", CSRF_TOKEN,
-                    CSRF_TOKEN, CSRF_TOKEN, source.getNewLine());
-            document.getEstimatedMaximumOutputLength();
+            String input = format("%s<input type=\"hidden\" name=\"%s\" value=\"{{%s}}\" />", source.getNewLine(), CSRF_TOKEN,
+                    CSRF_TOKEN, CSRF_TOKEN);
             StartTag tag = form.getFirstStartTag();
             document.replace(tag.getEnd(), tag.getEnd(), input);
             modified = true;
@@ -136,3 +136,4 @@ public class CSRFMojo extends AbstractMojo {
         }
     }
 }
+
