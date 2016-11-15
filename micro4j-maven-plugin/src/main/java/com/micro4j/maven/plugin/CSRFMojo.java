@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
-import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -80,17 +79,13 @@ public class CSRFMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         Config.LoggerProvider = LoggerProvider.DISABLED;
         try {
-            for (Resource resource : project.getResources()) {
-                File folder = new File(resource.getTargetPath());
-                if (isDirectory(folder.toPath())) {
-                    transform(folder);
-                }
+            File outputDir = new File(project.getBuild().getOutputDirectory());
+            if (isDirectory(outputDir.toPath())) {
+                transform(outputDir);
             }
-            for (Resource resource : project.getTestResources()) {
-                File folder = new File(resource.getTargetPath());
-                if (isDirectory(folder.toPath())) {
-                    transform(folder);
-                }
+            File testOutputDir = new File(project.getBuild().getTestOutputDirectory());
+            if (isDirectory(testOutputDir.toPath())) {
+                transform(testOutputDir);
             }
         } catch (Throwable t) {
             getLog().error(t);
