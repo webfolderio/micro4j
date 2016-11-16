@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.Path;
 
+import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
@@ -69,31 +70,35 @@ public class MinimizeHtmlMojo extends AbstractMojo {
     private BuildContext buildContext;
 
     public void execute() throws MojoExecutionException {
-        if (project.getBuild().getSourceDirectory() != null) {
-            File dir = new File(project.getBuild().getSourceDirectory());
-            if (isDirectory(dir.toPath())) {
-                transform(dir);
+        if (project.getResources() != null) {
+            for (Resource resource : project.getResources()) {
+                File dir = new File(resource.getDirectory());
+                if (isDirectory(dir.toPath())) {
+                    transform(dir, resource.getTargetPath());
+                }
             }
         }
-        if (project.getBuild().getTestSourceDirectory() != null) {
-            File dir = new File(project.getBuild().getTestSourceDirectory());
-            if (isDirectory(dir.toPath())) {
-                transform(dir);
+        if (project.getTestResources() != null) {
+            for (Resource resource : project.getTestResources()) {
+                File dir = new File(resource.getDirectory());
+                if (isDirectory(dir.toPath())) {
+                    transform(dir, resource.getTargetPath());
+                }
             }
         }
     }
 
-    protected void transform(File dir) throws MojoExecutionException {
+    protected void transform(File srcDir, String outDir) throws MojoExecutionException {
         boolean incremental = buildContext.isIncremental();
         boolean ignoreDelta = incremental ? false : true;
-        Scanner scanner = buildContext.newScanner(dir, ignoreDelta);
+        Scanner scanner = buildContext.newScanner(srcDir, ignoreDelta);
         scanner.setIncludes(minimizeHtmlIncludes);
         if (minimizeHtmlExcludes != null && minimizeHtmlExcludes.length > 0) {
             scanner.setExcludes(minimizeHtmlExcludes);
         }
         scanner.scan();
         for (String includedFile : scanner.getIncludedFiles()) {
-            Path file = dir.toPath().resolve(includedFile);
+            Path file = srcDir.toPath().resolve(includedFile);
             String fileName = file.getFileName().toString();
             int begin = fileName.lastIndexOf('.');
             if (begin < 0) {
@@ -102,8 +107,7 @@ public class MinimizeHtmlMojo extends AbstractMojo {
             String minFileName = fileName;
             Path minFile = file.getParent().resolve(minFileName);
             Path baseDir = scanner.getBasedir().toPath();
-            String outputDir = project.getBuild().getOutputDirectory();
-            minFile = new File(outputDir).toPath().resolve(baseDir.relativize(minFile));
+            minFile = new File(outDir).toPath().resolve(baseDir.relativize(minFile));
             boolean isUptodate = buildContext.isUptodate(minFile.toFile(), file.toFile());
             if ( ! isUptodate ) {
                 try {
