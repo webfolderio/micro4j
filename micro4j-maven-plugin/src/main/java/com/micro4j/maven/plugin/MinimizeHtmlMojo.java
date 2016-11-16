@@ -22,21 +22,12 @@
  */
 package com.micro4j.maven.plugin;
 
-import static java.nio.file.Files.isDirectory;
-import static java.nio.file.Files.readAllBytes;
-import static java.nio.file.Files.write;
-import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_RESOURCES;
 import static org.attoparser.config.ParseConfiguration.htmlConfiguration;
 import static org.attoparser.minimize.MinimizeHtmlMarkupHandler.MinimizeMode.COMPLETE;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.StringWriter;
-import java.nio.file.Path;
 
-import org.apache.maven.model.Resource;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -48,17 +39,19 @@ import org.attoparser.config.ParseConfiguration;
 import org.attoparser.minimize.MinimizeHtmlMarkupHandler;
 import org.attoparser.minimize.MinimizeHtmlMarkupHandler.MinimizeMode;
 import org.attoparser.output.OutputMarkupHandler;
-import org.codehaus.plexus.util.Scanner;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 @Mojo(name = "minimize-html", defaultPhase = PROCESS_RESOURCES, threadSafe = true, requiresOnline = false, requiresReports = false)
-public class MinimizeHtmlMojo extends AbstractMojo {
+public class MinimizeHtmlMojo extends BaseMojo {
 
     @Parameter(defaultValue = "**/*.html")
     private String[] minimizeHtmlIncludes = new String[] { "**/*.html" };
 
     @Parameter
     private String[] minimizeHtmlExcludes;
+
+    @Parameter(defaultValue = "html")
+    private String minimizeHtmlOutputExtension = "html";
 
     @Parameter(defaultValue = "${project.build.sourceEncoding}")
     private String minimizeHtmlEncoding;
@@ -69,59 +62,17 @@ public class MinimizeHtmlMojo extends AbstractMojo {
     @Component
     private BuildContext buildContext;
 
-    public void execute() throws MojoExecutionException {
-        if (project.getResources() != null) {
-            for (Resource resource : project.getResources()) {
-                File srcDir = new File(resource.getDirectory());
-                if (isDirectory(srcDir.toPath())) {
-                    transform(srcDir, project.getBuild().getOutputDirectory());
-                }
-            }
-        }
-        if (project.getTestResources() != null) {
-            for (Resource resource : project.getTestResources()) {
-                File srcDir = new File(resource.getDirectory());
-                if (isDirectory(srcDir.toPath())) {
-                    transform(srcDir, project.getBuild().getTestOutputDirectory());
-                }
-            }
-        }
-    }
-
-    protected void transform(File srcDir, String destDir) throws MojoExecutionException {
-        boolean incremental = buildContext.isIncremental();
-        boolean ignoreDelta = incremental ? false : true;
-        Scanner scanner = buildContext.newScanner(srcDir, ignoreDelta);
-        scanner.setIncludes(minimizeHtmlIncludes);
-        if (minimizeHtmlExcludes != null && minimizeHtmlExcludes.length > 0) {
-            scanner.setExcludes(minimizeHtmlExcludes);
-        }
-        scanner.scan();
-        for (String includedFile : scanner.getIncludedFiles()) {
-            Path srcFile = srcDir.toPath().resolve(includedFile);
-            Path baseDir = scanner.getBasedir().toPath();
-            Path minFile = new File(destDir).toPath().resolve(baseDir.relativize(srcFile));
-            boolean isUptodate = buildContext.isUptodate(minFile.toFile(), srcFile.toFile());
-            if ( ! isUptodate ) {
-                try {
-                    Path relativePath = new File(project.getBuild().getSourceDirectory()).toPath().relativize(srcFile);
-                    Path outputPath = new File(project.getBuild().getOutputDirectory()).toPath().resolve(relativePath);
-                    StringWriter writer = new StringWriter();
-                    OutputMarkupHandler outputHandler = new OutputMarkupHandler(writer);
-                    MinimizeHtmlMarkupHandler minimizeHandler = new MinimizeHtmlMarkupHandler(getMinimizeMode(),
-                            outputHandler);
-                    MarkupParser parser = new MarkupParser(getParseConfiguration());
-                    String content = new String(readAllBytes(srcFile), minimizeHtmlEncoding);
-                    getLog().info("Minimizing html content [" + relativePath.toString() + "]");
-                    parser.parse(content, minimizeHandler);
-                    getLog().info("html content minimized to [" + outputPath.toString().toString() + "]");
-                    write(outputPath, writer.toString().getBytes(minimizeHtmlEncoding), TRUNCATE_EXISTING);
-                } catch (IOException e) {
-                    throw new MojoExecutionException(e.getMessage(), e);
-                } catch (ParseException e) {
-                    throw new MojoExecutionException(e.getMessage(), e);
-                }
-            }
+    protected String transform(String content) throws MojoExecutionException {
+        try {
+            StringWriter writer = new StringWriter();
+            OutputMarkupHandler outputHandler = new OutputMarkupHandler(writer);
+            MinimizeHtmlMarkupHandler minimizeHandler = new MinimizeHtmlMarkupHandler(getMinimizeMode(),
+                    outputHandler);
+            MarkupParser parser = new MarkupParser(getParseConfiguration());
+            parser.parse(content, minimizeHandler);
+            return writer.toString();
+        } catch (ParseException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
         }
     }
 
@@ -131,5 +82,39 @@ public class MinimizeHtmlMojo extends AbstractMojo {
 
     protected MinimizeMode getMinimizeMode() {
         return COMPLETE;
+    }
+
+    @Override
+    protected void init() {
+    }
+
+    @Override
+    protected String getEncoding() {
+        return minimizeHtmlEncoding;
+    }
+
+    @Override
+    protected MavenProject getProject() {
+        return project;
+    }
+
+    @Override
+    protected String[] getIncludes() {
+        return minimizeHtmlIncludes;
+    }
+
+    @Override
+    protected String[] getExcludes() {
+        return minimizeHtmlExcludes;
+    }
+
+    @Override
+    protected BuildContext getBuildContext() {
+        return buildContext;
+    }
+
+    @Override
+    protected String getOutputExtension() {
+        return minimizeHtmlOutputExtension;
     }
 }
