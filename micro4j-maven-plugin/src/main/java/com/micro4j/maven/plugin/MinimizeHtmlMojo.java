@@ -72,23 +72,23 @@ public class MinimizeHtmlMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException {
         if (project.getResources() != null) {
             for (Resource resource : project.getResources()) {
-                File dir = new File(resource.getDirectory());
-                if (isDirectory(dir.toPath())) {
-                    transform(dir, resource.getTargetPath());
+                File srcDir = new File(resource.getDirectory());
+                if (isDirectory(srcDir.toPath())) {
+                    transform(srcDir, project.getBuild().getOutputDirectory());
                 }
             }
         }
         if (project.getTestResources() != null) {
             for (Resource resource : project.getTestResources()) {
-                File dir = new File(resource.getDirectory());
-                if (isDirectory(dir.toPath())) {
-                    transform(dir, resource.getTargetPath());
+                File srcDir = new File(resource.getDirectory());
+                if (isDirectory(srcDir.toPath())) {
+                    transform(srcDir, project.getBuild().getTestOutputDirectory());
                 }
             }
         }
     }
 
-    protected void transform(File srcDir, String outDir) throws MojoExecutionException {
+    protected void transform(File srcDir, String destDir) throws MojoExecutionException {
         boolean incremental = buildContext.isIncremental();
         boolean ignoreDelta = incremental ? false : true;
         Scanner scanner = buildContext.newScanner(srcDir, ignoreDelta);
@@ -98,27 +98,20 @@ public class MinimizeHtmlMojo extends AbstractMojo {
         }
         scanner.scan();
         for (String includedFile : scanner.getIncludedFiles()) {
-            Path file = srcDir.toPath().resolve(includedFile);
-            String fileName = file.getFileName().toString();
-            int begin = fileName.lastIndexOf('.');
-            if (begin < 0) {
-                continue;
-            }
-            String minFileName = fileName;
-            Path minFile = file.getParent().resolve(minFileName);
+            Path srcFile = srcDir.toPath().resolve(includedFile);
             Path baseDir = scanner.getBasedir().toPath();
-            minFile = new File(outDir).toPath().resolve(baseDir.relativize(minFile));
-            boolean isUptodate = buildContext.isUptodate(minFile.toFile(), file.toFile());
+            Path minFile = new File(destDir).toPath().resolve(baseDir.relativize(srcFile));
+            boolean isUptodate = buildContext.isUptodate(minFile.toFile(), srcFile.toFile());
             if ( ! isUptodate ) {
                 try {
-                    Path relativePath = new File(project.getBuild().getSourceDirectory()).toPath().relativize(file);
+                    Path relativePath = new File(project.getBuild().getSourceDirectory()).toPath().relativize(srcFile);
                     Path outputPath = new File(project.getBuild().getOutputDirectory()).toPath().resolve(relativePath);
                     StringWriter writer = new StringWriter();
                     OutputMarkupHandler outputHandler = new OutputMarkupHandler(writer);
                     MinimizeHtmlMarkupHandler minimizeHandler = new MinimizeHtmlMarkupHandler(getMinimizeMode(),
                             outputHandler);
                     MarkupParser parser = new MarkupParser(getParseConfiguration());
-                    String content = new String(readAllBytes(file), minimizeHtmlEncoding);
+                    String content = new String(readAllBytes(srcFile), minimizeHtmlEncoding);
                     getLog().info("Minimizing html content [" + relativePath.toString() + "]");
                     parser.parse(content, minimizeHandler);
                     getLog().info("html content minimized to [" + outputPath.toString().toString() + "]");
