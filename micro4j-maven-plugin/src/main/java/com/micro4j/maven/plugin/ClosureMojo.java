@@ -35,16 +35,16 @@ import com.google.javascript.jscomp.SourceFile;
 public class ClosureMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "**/*.js")
-    private String[] babelIncludes = new String[] { "**/*.js" };
+    private String[] closureIncludes = new String[] { "**/*.js" };
 
     @Parameter(defaultValue = "**/*.min.js")
-    private String[] babelExcludes = new String[] { "**/*.min.js" };
+    private String[] closureExcludes = new String[] { "**/*.min.js" };
 
     @Parameter(defaultValue = "${project.build.sourceEncoding}")
-    private String babelEncoding = "utf-8";
+    private String closureEncoding = "utf-8";
 
     @Parameter(defaultValue = "min.js")
-    private String babelOutputPrefix;
+    private String closureOutputPrefix;
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
@@ -55,43 +55,43 @@ public class ClosureMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (project.getBuild().getOutputDirectory() != null) {
-            File folder = new File(project.getBuild().getOutputDirectory());
-            if (isDirectory(folder.toPath())) {
-                minify(folder);
+            File dir = new File(project.getBuild().getOutputDirectory());
+            if (isDirectory(dir.toPath())) {
+                minify(dir);
             }
         }
         if (project.getBuild().getTestOutputDirectory() != null) {
-            File folder = new File(project.getBuild().getTestOutputDirectory());
-            if (isDirectory(folder.toPath())) {
-                minify(folder);
+            File dir = new File(project.getBuild().getTestOutputDirectory());
+            if (isDirectory(dir.toPath())) {
+                minify(dir);
             }
         }
     }
 
-    protected void minify(File folder) throws MojoExecutionException, MojoFailureException {
+    protected void minify(File dir) throws MojoExecutionException, MojoFailureException {
         boolean incremental = buildContext.isIncremental();
         boolean ignoreDelta = incremental ? false : true;
-        Scanner scanner = buildContext.newScanner(folder, ignoreDelta);
-        scanner.setIncludes(babelIncludes);
-        if (babelExcludes != null && babelExcludes.length > 0) {
-            scanner.setExcludes(babelExcludes);
+        Scanner scanner = buildContext.newScanner(dir, ignoreDelta);
+        scanner.setIncludes(closureIncludes);
+        if (closureExcludes != null && closureExcludes.length > 0) {
+            scanner.setExcludes(closureExcludes);
         }
         scanner.scan();
         for (String includedFile : scanner.getIncludedFiles()) {
-            Path jsFile = folder.toPath().resolve(includedFile);
-            String jsFileName = jsFile.getFileName().toString();
-            int begin = jsFileName.lastIndexOf('.');
+            Path file = dir.toPath().resolve(includedFile);
+            String fileName = file.getFileName().toString();
+            int begin = fileName.lastIndexOf('.');
             if (begin < 0) {
                 continue;
             }
-            String minFileName = jsFileName.substring(0, begin) + "." + babelOutputPrefix;
-            Path minFile = jsFile.getParent().resolve(minFileName);
+            String minFileName = fileName.substring(0, begin) + "." + closureOutputPrefix;
+            Path minFile = file.getParent().resolve(minFileName);
             Path baseDir = scanner.getBasedir().toPath();
             String outputDir = project.getBuild().getOutputDirectory();
             minFile = new File(outputDir).toPath().resolve(baseDir.relativize(minFile));
-            boolean isUptodate = buildContext.isUptodate(minFile.toFile(), jsFile.toFile());
+            boolean isUptodate = buildContext.isUptodate(minFile.toFile(), file.toFile());
             if ( ! isUptodate ) {
-                minify(jsFile, minFile);
+                minify(file, minFile);
             }
         }
     }
@@ -112,7 +112,7 @@ public class ClosureMojo extends AbstractMojo {
         getLog().info("Minifying  javascript file [" + jsFile.toString() + "] to [" + minFile.toString() + "]");
         String jsContent = null;
         try {
-            jsContent = new String(readAllBytes(jsFile), forName(babelEncoding));
+            jsContent = new String(readAllBytes(jsFile), forName(closureEncoding));
         } catch (IOException e) {
             getLog().error(e);
             throw new MojoExecutionException("Unable to read the file [" + jsFile.toString() + "]", e);
@@ -125,7 +125,7 @@ public class ClosureMojo extends AbstractMojo {
         Result result = compiler.compile(jQueryExternFile, sourceFile, options);
         if (result.success) {
             try {
-                write(minFile, compiler.toSource().getBytes(babelEncoding));
+                write(minFile, compiler.toSource().getBytes(closureEncoding));
             } catch (IOException e) {
                 throw new MojoFailureException(e.getMessage(), e);
             }
