@@ -7,11 +7,11 @@ import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Files.write;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import static java.util.Collections.emptyMap;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.maven.model.Resource;
@@ -40,13 +40,9 @@ public abstract class BaseMojo extends AbstractMojo {
 
     protected abstract String transform(Path srcFile, String content) throws MojoExecutionException;
 
-    @SuppressWarnings("serial")
-    private static final Map<String, String> EXTENSION_MAPPINGS = new HashMap<String, String>() {{
-        put("jsx", "js");
-        put("es6", "js");
-        put("es7", "js");
-        put("es" , "js");
-    }};
+    protected Map<String, String> getExtensionMappings() {
+        return emptyMap();
+    }
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -81,14 +77,17 @@ public abstract class BaseMojo extends AbstractMojo {
         scanner.scan();
         for (String includedFile : scanner.getIncludedFiles()) {
             Path srcFile = srcDir.toPath().resolve(includedFile);
-            String srcFileName = srcFile.getFileName().toString();
-            int srcFileNameEnd = srcFileName.lastIndexOf(".");
-            if (srcFileNameEnd > 0) {
-                String srcExtension = srcFileName.substring(srcFileNameEnd + 1, srcFileName.length());
-                String mappedExtension = EXTENSION_MAPPINGS.get(srcExtension);
-                if (mappedExtension != null) {
-                    srcFileName = srcFileName.substring(0, srcFileNameEnd) + "." + mappedExtension;
-                    srcFile = srcFile.getParent().resolve(srcFileName);
+            Map<String, String> mappings = getExtensionMappings();
+            if ( ! mappings.isEmpty() ) {
+                String srcFileName = srcFile.getFileName().toString();
+                int srcFileNameEnd = srcFileName.lastIndexOf(".");
+                if (srcFileNameEnd > 0) {
+                    String srcExtension = srcFileName.substring(srcFileNameEnd + 1, srcFileName.length());
+                    String mappedExtension = mappings.get(srcExtension);
+                    if (mappedExtension != null) {
+                        srcFileName = srcFileName.substring(0, srcFileNameEnd) + "." + mappedExtension;
+                        srcFile = srcFile.getParent().resolve(srcFileName);
+                    }
                 }
             }
             Path srcBaseDir = scanner.getBasedir().toPath();

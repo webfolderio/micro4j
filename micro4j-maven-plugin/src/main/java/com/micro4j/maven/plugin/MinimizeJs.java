@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
@@ -43,8 +45,20 @@ public class MinimizeJs extends BaseMojo {
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
 
+    @SuppressWarnings("serial")
+    private static final Map<String, String> MAPPINGS = new HashMap<String, String>() {{
+        put("jsx", "js");
+        put("es6", "js");
+        put("es7", "js");
+        put("es" , "js");
+    }};
+
     @Component
     private BuildContext buildContext;
+
+    protected Map<String, String> getExtensionMappings() {
+        return MAPPINGS;
+    }
 
     @Override
     protected void init() throws MojoExecutionException {
