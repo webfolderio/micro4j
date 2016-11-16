@@ -23,6 +23,7 @@
 package com.micro4j.mvc.csrf;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
@@ -32,16 +33,25 @@ import javax.ws.rs.container.DynamicFeature;
 import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.FeatureContext;
 
+import static java.util.Collections.emptyMap;
+
 public class CsrfFeature implements DynamicFeature {
 
     private ContainerRequestFilter csrFilter;
 
-    public CsrfFeature(ContainerRequestFilter csrfFilter) {
-        this.csrFilter = csrfFilter;
+    private Map<String, Boolean> cache = emptyMap();
+
+    public CsrfFeature(Map<String, Boolean> cache) {
+        this.cache = cache;
     }
 
     @Override
     public void configure(ResourceInfo resourceInfo, FeatureContext context) {
+        if (isResteasy(context)) {
+            csrFilter = new RestEasyCsrfFilter(cache);
+        } else if (isJersey(context)) {
+            csrFilter = new JerseyCsrfFilter(cache);
+        }
         if (ignore(resourceInfo.getResourceClass())) {
             return;
         }
@@ -51,6 +61,14 @@ public class CsrfFeature implements DynamicFeature {
         if (resourceInfo.getResourceClass().isAnnotationPresent(EnableCsrfFilter.class)) {
             context.register(csrFilter);
         }
+    }
+
+    protected boolean isResteasy(FeatureContext context) {
+        return "ResteasyProviderFactory".equals(context.getConfiguration().getClass().getSimpleName());
+    }
+
+    protected boolean isJersey(FeatureContext context) {
+        return context.getConfiguration().getClass().getName().startsWith("org.glassfish.jersey");
     }
 
     protected boolean ignore(Class<?> klass) {
