@@ -41,7 +41,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Path;
 
-import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -89,16 +88,16 @@ public class BabelV8Mojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         init();
         try {
-            for (Resource resource : project.getResources()) {
-                File folder = new File(resource.getDirectory());
-                if (isDirectory(folder.toPath())) {
-                    transform(folder);
+            if (project.getBuild().getOutputDirectory() != null) {
+                File dir = new File(project.getBuild().getOutputDirectory());
+                if (isDirectory(dir.toPath())) {
+                    transform(dir);
                 }
             }
-            for (Resource resource : project.getTestResources()) {
-                File folder = new File(resource.getDirectory());
-                if (isDirectory(folder.toPath())) {
-                    transform(folder);
+            if (project.getBuild().getTestOutputDirectory() != null) {
+                File dir = new File(project.getBuild().getTestOutputDirectory());
+                if (isDirectory(dir.toPath())) {
+                    transform(dir);
                 }
             }
         } catch (Throwable t) {
@@ -109,17 +108,17 @@ public class BabelV8Mojo extends AbstractMojo {
         }
     }
 
-    protected void transform(File folder) throws MojoExecutionException, MojoFailureException {
+    protected void transform(File dir) throws MojoExecutionException, MojoFailureException {
         boolean incremental = buildContext.isIncremental();
         boolean ignoreDelta = incremental ? false : true;
-        Scanner scanner = buildContext.newScanner(folder, ignoreDelta);
+        Scanner scanner = buildContext.newScanner(dir, ignoreDelta);
         scanner.setIncludes(babelIncludes);
         if (babelExcludes != null && babelExcludes.length > 0) {
             scanner.setExcludes(babelExcludes);
         }
         scanner.scan();
         for (String next : scanner.getIncludedFiles()) {
-            Path es6File = folder.toPath().resolve(next);
+            Path es6File = dir.toPath().resolve(next);
             String es6FileName = es6File.getFileName().toString();
             int begin = es6FileName.lastIndexOf('.');
             if (begin < 0) {

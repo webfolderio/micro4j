@@ -22,6 +22,7 @@
  */
 package com.micro4j.maven.plugin;
 
+import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
 import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.currentThread;
@@ -31,6 +32,7 @@ import static java.nio.file.Files.isDirectory;
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Files.write;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_RESOURCES;
+import static org.sonatype.plexus.build.incremental.BuildContext.SEVERITY_ERROR;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -39,14 +41,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Path;
-import static org.sonatype.plexus.build.incremental.BuildContext.SEVERITY_ERROR;
+
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-import static java.lang.Integer.parseInt;
 
-import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -91,31 +91,31 @@ public class BabelMojo extends AbstractMojo {
         if (engine == null) {
             init();
         }
-        for (Resource resource : project.getResources()) {
-            File folder = new File(resource.getDirectory());
-            if (isDirectory(folder.toPath())) {
-                transform(folder);
+        if (project.getBuild().getOutputDirectory() != null) {
+            File dir = new File(project.getBuild().getOutputDirectory());
+            if (isDirectory(dir.toPath())) {
+                transform(dir);
             }
         }
-        for (Resource resource : project.getTestResources()) {
-            File folder = new File(resource.getDirectory());
-            if (isDirectory(folder.toPath())) {
-                transform(folder);
+        if (project.getBuild().getTestOutputDirectory() != null) {
+            File dir = new File(project.getBuild().getTestOutputDirectory());
+            if (isDirectory(dir.toPath())) {
+                transform(dir);
             }
         }
     }
 
-    protected void transform(File folder) throws MojoExecutionException, MojoFailureException {
+    protected void transform(File dir) throws MojoExecutionException, MojoFailureException {
         boolean incremental = buildContext.isIncremental();
         boolean ignoreDelta = incremental ? false : true;
-        Scanner scanner = buildContext.newScanner(folder, ignoreDelta);
+        Scanner scanner = buildContext.newScanner(dir, ignoreDelta);
         scanner.setIncludes(babelIncludes);
         if (babelExcludes != null && babelExcludes.length > 0) {
             scanner.setExcludes(babelExcludes);
         }
         scanner.scan();
         for (String includedFile : scanner.getIncludedFiles()) {
-            Path es6File = folder.toPath().resolve(includedFile);
+            Path es6File = dir.toPath().resolve(includedFile);
             String es6FileName = es6File.getFileName().toString();
             int begin = es6FileName.lastIndexOf('.');
             if (begin < 0) {

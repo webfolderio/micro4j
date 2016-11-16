@@ -26,11 +26,9 @@ import static java.lang.String.valueOf;
 import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.currentThread;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.Files.isDirectory;
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Files.write;
-import static java.util.Arrays.asList;
-import static java.util.Collections.EMPTY_SET;
-import static java.util.Collections.singleton;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_RESOURCES;
 
 import java.io.BufferedInputStream;
@@ -40,8 +38,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -51,70 +47,99 @@ import javax.script.ScriptException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.compiler.util.scan.InclusionScanException;
-import org.codehaus.plexus.compiler.util.scan.SimpleSourceInclusionScanner;
-import org.codehaus.plexus.compiler.util.scan.SourceInclusionScanner;
-import org.codehaus.plexus.compiler.util.scan.mapping.SuffixMapping;
+import org.codehaus.plexus.util.Scanner;
+import org.sonatype.plexus.build.incremental.BuildContext;
 
-@Mojo(name = "uglifycss", defaultPhase = PROCESS_RESOURCES, threadSafe = true, requiresOnline = false, requiresReports = false)
-public class UglifyCssMojo extends AbstractMojo {
+@Mojo(name = "minimize-css", defaultPhase = PROCESS_RESOURCES, threadSafe = true, requiresOnline = false, requiresReports = false)
+public class MinimizeCssMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
 
-    @Parameter(defaultValue = "css")
-    private String uyglifyExtension;
+    @Parameter(defaultValue = "**/*.css")
+    private String[] minimizeCssIncludes = new String[] { "**/*.css" };
 
-    @Parameter
-    private String[] uglifyIncludes;
-
-    @Parameter
-    private String[] uglifyExcludes;
+    @Parameter(defaultValue = "**/*.min.css")
+    private String[] minimizeCssExcludes = new String[] { "**/*.min.css" };
 
     @Parameter(defaultValue = "${project.build.sourceEncoding}")
-    private String uglifyEncoding;
+    private String minimizeCssEncoding;
 
     @Parameter(defaultValue = "min.css")
-    private String uglifyOutputPrefix;
+    private String minimizeCssOutputPrefix;
 
     @Parameter(defaultValue = "uglifycss-0.0.25.js")
-    private String uglifycssLocation;
+    private String uglifyCssLocation;
+
+    @Component
+    private BuildContext buildContext;
 
     private static Invocable engine;
 
-    @SuppressWarnings("unchecked")
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (engine == null) {
             init();
         }
-        Set<String> setIncludes = uglifyIncludes != null ? new HashSet<>(asList(uglifyIncludes)) : singleton("**/*." + uyglifyExtension);
-        Set<String> setExcludes = uglifyExcludes != null ? new HashSet<>(asList(uglifyExcludes)) : EMPTY_SET;
-        SourceInclusionScanner scanner = new SimpleSourceInclusionScanner(setIncludes, setExcludes);
-        scanner.addSourceMapping(new SuffixMapping("." + uyglifyExtension, "." + uyglifyExtension));
-        try {
-            File sourceDirectory = new File(project.getBuild().getSourceDirectory());
-            File outputDirectory = new File(project.getBuild().getOutputDirectory());
-            Set<File> files = scanner.getIncludedSources(sourceDirectory, outputDirectory);
-            for (File file : files) {
-                Path relativePath = sourceDirectory.toPath().relativize(file.toPath());
-                Path outputPath = outputDirectory.toPath().resolve(relativePath);
-                String fileName = outputPath.getFileName().toString();
-                int begin = fileName.lastIndexOf('.');
-                String minFileName = fileName;
-                if (begin > 0) {
-                    minFileName = fileName.substring(0, begin) + "." + uglifyOutputPrefix;
-                }
-                String cssContent = new String(readAllBytes(file.toPath()), uglifyEncoding);
-                String minifiedContent = valueOf(getEngine().invokeFunction("micro4jUglifyCss", cssContent));
-                getLog().info("Minimizing css content [" + relativePath.toString() + "]");
-                write(outputPath.getParent().resolve(minFileName), minifiedContent.getBytes(uglifyEncoding));
-                getLog().info("css content minimized to [" + outputPath.getParent().resolve(minFileName).toString() + "]");
+        if (project.getBuild().getOutputDirectory() != null) {
+            File dir = new File(project.getBuild().getOutputDirectory());
+            if (isDirectory(dir.toPath())) {
+                minimize(dir);
             }
-        } catch (InclusionScanException | IOException | NoSuchMethodException | ScriptException e) {
-            throw new MojoExecutionException(e.getMessage());
+        }
+        if (project.getBuild().getTestOutputDirectory() != null) {
+            File dir = new File(project.getBuild().getTestOutputDirectory());
+            if (isDirectory(dir.toPath())) {
+                minimize(dir);
+            }
+        }
+    }
+
+    protected void minimize(File dir) throws MojoExecutionException {
+        boolean incremental = buildContext.isIncremental();
+        boolean ignoreDelta = incremental ? false : true;
+        Scanner scanner = buildContext.newScanner(dir, ignoreDelta);
+        scanner.setIncludes(minimizeCssIncludes);
+        if (minimizeCssExcludes != null && minimizeCssExcludes.length > 0) {
+            scanner.setExcludes(minimizeCssExcludes);
+        }
+        scanner.scan();
+        for (String includedFile : scanner.getIncludedFiles()) {
+            Path cssFile = dir.toPath().resolve(includedFile);
+            String es6FileName = cssFile.getFileName().toString();
+            int begin = es6FileName.lastIndexOf('.');
+            if (begin < 0) {
+                continue;
+            }
+            String es5FileName = es6FileName.substring(0, begin) + "." + minimizeCssOutputPrefix;
+            Path cssMinFile = cssFile.getParent().resolve(es5FileName);
+            Path baseDir = scanner.getBasedir().toPath();
+            String outputDir = project.getBuild().getOutputDirectory();
+            cssMinFile = new File(outputDir).toPath().resolve(baseDir.relativize(cssMinFile));
+            boolean isUptodate = buildContext.isUptodate(cssMinFile.toFile(), cssFile.toFile());
+            if (!isUptodate) {
+                minimize(cssFile, cssMinFile);
+            }
+        }
+    }
+
+    protected void minimize(Path cssFile, Path minCssFile) throws MojoExecutionException {
+        String cssContent;
+        try {
+            cssContent = new String(readAllBytes(cssFile), minimizeCssEncoding);
+            String minifiedContent = valueOf(getEngine().invokeFunction("micro4jUglifyCss", cssContent));
+            getLog().info("Minimizing css content [" + cssFile.toString() + "]");
+            write(minCssFile, minifiedContent.getBytes(minimizeCssEncoding));
+            getLog().info("css content minimized to [" + minCssFile.toString() + "]");
+        } catch (IOException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
+        } catch (NoSuchMethodException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
+        } catch (ScriptException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
         }
     }
 
@@ -124,10 +149,10 @@ public class UglifyCssMojo extends AbstractMojo {
 
     protected void init() throws MojoFailureException {
         try {
-            getLog().info("Initializing the uglifycss from [" + uglifycssLocation + "]");
-            URL url = currentThread().getContextClassLoader().getResource(uglifycssLocation);
+            getLog().info("Initializing the uglifycss from [" + uglifyCssLocation + "]");
+            URL url = currentThread().getContextClassLoader().getResource(uglifyCssLocation);
             if (url == null) {
-                getLog().error("Unable to load uglifycss from [" + uglifycssLocation + "]");
+                getLog().error("Unable to load uglifycss from [" + uglifyCssLocation + "]");
             }
             if (url != null) {
                 long start = currentTimeMillis();

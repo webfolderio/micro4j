@@ -53,11 +53,8 @@ import org.sonatype.plexus.build.incremental.BuildContext;
 @Mojo(name = "minimize-html", defaultPhase = PROCESS_RESOURCES, threadSafe = true, requiresOnline = false, requiresReports = false)
 public class MinimizeHtmlMojo extends AbstractMojo {
 
-    @Parameter(defaultValue = "html")
-    private String extension;
-
-    @Parameter
-    private String[] minimizeHtmlIncludes;
+    @Parameter(defaultValue = "**/*.html")
+    private String[] minimizeHtmlIncludes = new String[] { "**/*.html" };
 
     @Parameter
     private String[] minimizeHtmlExcludes;
@@ -73,15 +70,15 @@ public class MinimizeHtmlMojo extends AbstractMojo {
 
     public void execute() throws MojoExecutionException {
         if (project.getBuild().getOutputDirectory() != null) {
-            File folder = new File(project.getBuild().getOutputDirectory());
-            if (isDirectory(folder.toPath())) {
-                minimize(folder);
+            File dir = new File(project.getBuild().getOutputDirectory());
+            if (isDirectory(dir.toPath())) {
+                minimize(dir);
             }
         }
         if (project.getBuild().getTestOutputDirectory() != null) {
-            File folder = new File(project.getBuild().getTestOutputDirectory());
-            if (isDirectory(folder.toPath())) {
-                minimize(folder);
+            File dir = new File(project.getBuild().getTestOutputDirectory());
+            if (isDirectory(dir.toPath())) {
+                minimize(dir);
             }
         }
     }
