@@ -84,7 +84,7 @@ public abstract class BaseMojo extends AbstractMojo {
                                 targetFile = targetFile.getParent().resolve(fileName);
                             }
                         }
-                        write(targetFile, content.getBytes(getEncoding()), TRUNCATE_EXISTING);
+                        write(targetFile, modifiedContent.getBytes(getEncoding()), TRUNCATE_EXISTING);
                     }
                 } catch (IOException e) {
                     throw new MojoExecutionException(e.getMessage(), e);

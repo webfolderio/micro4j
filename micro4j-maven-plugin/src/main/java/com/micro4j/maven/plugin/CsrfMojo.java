@@ -23,28 +23,15 @@
 package com.micro4j.maven.plugin;
 
 import static java.lang.String.format;
-import static java.nio.file.Files.exists;
-import static java.nio.file.Files.isDirectory;
-import static java.nio.file.Files.isReadable;
-import static java.nio.file.Files.write;
-import static java.nio.file.Paths.get;
-import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_RESOURCES;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.util.Scanner;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 import net.htmlparser.jericho.Config;
@@ -55,7 +42,7 @@ import net.htmlparser.jericho.Source;
 import net.htmlparser.jericho.StartTag;
 
 @Mojo(name = "csrf", defaultPhase = PROCESS_RESOURCES, threadSafe = true, requiresOnline = false, requiresReports = false)
-public class CsrfMojo extends AbstractMojo {
+public class CsrfMojo extends BaseMojo {
 
     private static final String DATA_CSRF = "data-csrf";
 
@@ -67,6 +54,9 @@ public class CsrfMojo extends AbstractMojo {
     @Parameter
     private String[] csrfExcludes;
 
+    @Parameter(defaultValue = "html")
+    private String csrfOutputExtension = "html";
+
     @Parameter(defaultValue = "${project.build.sourceEncoding}")
     private String csrfEncoding;
 
@@ -76,50 +66,43 @@ public class CsrfMojo extends AbstractMojo {
     @Component
     private BuildContext buildContext;
 
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    @Override
+    protected void init() {
         Config.LoggerProvider = LoggerProvider.DISABLED;
-        if (project.getBuild().getOutputDirectory() != null) {
-            File folder = new File(project.getBuild().getOutputDirectory());
-            if (isDirectory(folder.toPath())) {
-                transform(folder);
-            }
-        }
-        if (project.getBuild().getTestOutputDirectory() != null) {
-            File folder = new File(project.getBuild().getTestOutputDirectory());
-            if (isDirectory(folder.toPath())) {
-                transform(folder);
-            }
-        }
     }
 
-    protected void transform(File folder) throws MojoExecutionException, MojoFailureException {
-        boolean incremental = buildContext.isIncremental();
-        boolean ignoreDelta = incremental ? false : true;
-        Scanner scanner = buildContext.newScanner(folder, ignoreDelta);
-        scanner.setIncludes(csrfIncludes);
-        if (csrfExcludes != null && csrfExcludes.length > 0) {
-            scanner.setExcludes(csrfExcludes);
-        }
-        scanner.scan();
-        for (String includedFile : scanner.getIncludedFiles()) {
-            Path htmlFile = get(includedFile);
-            if (exists(htmlFile) && isReadable(htmlFile)) {
-                try {
-                    String content = new String(Files.readAllBytes(htmlFile), csrfEncoding);
-                    String modified = injectCsrfInput(content);
-                    if ( modified != null && ! modified.trim().isEmpty() ) {
-                        getLog().info("Adding csrf hidden input [" + htmlFile.toString() + "]");
-                        write(htmlFile, content.getBytes(csrfEncoding), TRUNCATE_EXISTING);
-                        getLog().info("csrf input added [" + htmlFile.toString().toString() + "]");
-                    }
-                } catch (IOException e) {
-                    throw new MojoExecutionException(e.getMessage(), e);
-                }
-            }
-        }
+    @Override
+    protected String getEncoding() {
+        return csrfEncoding;
     }
 
-    protected String injectCsrfInput(String content) {
+    @Override
+    protected MavenProject getProject() {
+        return project;
+    }
+
+    @Override
+    protected String[] getIncludes() {
+        return csrfIncludes;
+    }
+
+    @Override
+    protected String[] getExcludes() {
+        return csrfExcludes;
+    }
+
+    @Override
+    protected BuildContext getBuildContext() {
+        return buildContext;
+    }
+
+    @Override
+    protected String getOutputExtension() {
+        return csrfOutputExtension;
+    }
+
+    @Override
+    protected String transform(String content) throws MojoExecutionException {
         Source source = new Source(content);
         source.fullSequentialParse();
         List<Element> forms = source.getAllElements("form");
