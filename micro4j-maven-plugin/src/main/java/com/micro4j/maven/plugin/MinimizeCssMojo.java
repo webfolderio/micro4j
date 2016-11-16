@@ -84,21 +84,21 @@ public class MinimizeCssMojo extends AbstractMojo {
         if (engine == null) {
             init();
         }
-        if (project.getBuild().getOutputDirectory() != null) {
-            File dir = new File(project.getBuild().getOutputDirectory());
+        if (project.getBuild().getSourceDirectory() != null) {
+            File dir = new File(project.getBuild().getSourceDirectory());
             if (isDirectory(dir.toPath())) {
-                minimize(dir);
+                transform(dir);
             }
         }
-        if (project.getBuild().getTestOutputDirectory() != null) {
-            File dir = new File(project.getBuild().getTestOutputDirectory());
+        if (project.getBuild().getTestSourceDirectory() != null) {
+            File dir = new File(project.getBuild().getTestSourceDirectory());
             if (isDirectory(dir.toPath())) {
-                minimize(dir);
+                transform(dir);
             }
         }
     }
 
-    protected void minimize(File dir) throws MojoExecutionException {
+    protected void transform(File dir) throws MojoExecutionException {
         boolean incremental = buildContext.isIncremental();
         boolean ignoreDelta = incremental ? false : true;
         Scanner scanner = buildContext.newScanner(dir, ignoreDelta);

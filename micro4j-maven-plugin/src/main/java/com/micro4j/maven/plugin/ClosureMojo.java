@@ -54,21 +54,21 @@ public class ClosureMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        if (project.getBuild().getOutputDirectory() != null) {
-            File dir = new File(project.getBuild().getOutputDirectory());
+        if (project.getBuild().getSourceDirectory() != null) {
+            File dir = new File(project.getBuild().getSourceDirectory());
             if (isDirectory(dir.toPath())) {
-                minify(dir);
+                transform(dir);
             }
         }
-        if (project.getBuild().getTestOutputDirectory() != null) {
-            File dir = new File(project.getBuild().getTestOutputDirectory());
+        if (project.getBuild().getTestSourceDirectory() != null) {
+            File dir = new File(project.getBuild().getTestSourceDirectory());
             if (isDirectory(dir.toPath())) {
-                minify(dir);
+                transform(dir);
             }
         }
     }
 
-    protected void minify(File dir) throws MojoExecutionException, MojoFailureException {
+    protected void transform(File dir) throws MojoExecutionException, MojoFailureException {
         boolean incremental = buildContext.isIncremental();
         boolean ignoreDelta = incremental ? false : true;
         Scanner scanner = buildContext.newScanner(dir, ignoreDelta);

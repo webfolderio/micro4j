@@ -91,14 +91,14 @@ public class BabelMojo extends AbstractMojo {
         if (engine == null) {
             init();
         }
-        if (project.getBuild().getOutputDirectory() != null) {
-            File dir = new File(project.getBuild().getOutputDirectory());
+        if (project.getBuild().getSourceDirectory() != null) {
+            File dir = new File(project.getBuild().getSourceDirectory());
             if (isDirectory(dir.toPath())) {
                 transform(dir);
             }
         }
-        if (project.getBuild().getTestOutputDirectory() != null) {
-            File dir = new File(project.getBuild().getTestOutputDirectory());
+        if (project.getBuild().getTestSourceDirectory() != null) {
+            File dir = new File(project.getBuild().getTestSourceDirectory());
             if (isDirectory(dir.toPath())) {
                 transform(dir);
             }
