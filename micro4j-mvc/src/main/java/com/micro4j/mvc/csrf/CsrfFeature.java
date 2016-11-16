@@ -48,7 +48,9 @@ public class CsrfFeature implements DynamicFeature {
         if (ignore(resourceInfo.getResourceMethod())) {
             return;
         }
-        context.register(csrFilter);
+        if (resourceInfo.getResourceClass().isAnnotationPresent(EnableCsrfFilter.class)) {
+            context.register(csrFilter);
+        }
     }
 
     protected boolean ignore(Class<?> klass) {

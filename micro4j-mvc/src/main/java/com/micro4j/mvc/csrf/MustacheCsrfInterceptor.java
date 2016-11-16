@@ -26,7 +26,11 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Long.toHexString;
 
 import java.security.SecureRandom;
+import java.util.List;
 import java.util.Map;
+
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.UriInfo;
 
 import com.micro4j.mvc.template.TemplateIntereceptor;
 import com.micro4j.mvc.template.TemplateWrapper;
@@ -37,6 +41,9 @@ public class MustacheCsrfInterceptor extends TemplateIntereceptor {
 
     private final Map<String, Boolean> cache;
 
+    @Context
+    private UriInfo uriInfo;
+
     public MustacheCsrfInterceptor(Map<String, Boolean> cache) {
         this.cache = cache;
     }
@@ -44,9 +51,23 @@ public class MustacheCsrfInterceptor extends TemplateIntereceptor {
     @Override
     public TemplateWrapper beforeExecute(String name, TemplateWrapper templateWrapper, Object context,
             Map<String, Object> parentContext) {
-        String token = toHexString(random.nextLong());
-        cache.put(token, FALSE);
-        parentContext.put("csrf-token", token);
+        List<Object> resources = uriInfo.getMatchedResources();
+        if (resources == null || resources.isEmpty()) {
+            return templateWrapper;
+        }
+        boolean enable = false;
+        for (int i = 0; i < resources.size(); i++) {
+            Object resource = resources.get(i);
+            if (resource.getClass().isAnnotationPresent(EnableCsrfFilter.class)) {
+                enable = true;
+                break;
+            }
+        }
+        if (enable) {
+            String token = toHexString(random.nextLong());
+            cache.put(token, FALSE);
+            parentContext.put("csrf-token", token);
+        }
         return templateWrapper;
     }
 }
