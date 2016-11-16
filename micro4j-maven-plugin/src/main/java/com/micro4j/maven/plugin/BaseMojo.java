@@ -4,6 +4,7 @@ import static java.nio.file.Files.isDirectory;
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Files.write;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import static java.nio.file.StandardOpenOption.CREATE;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,8 +71,8 @@ public abstract class BaseMojo extends AbstractMojo {
             Path srcFile = srcDir.toPath().resolve(includedFile);
             Path srcBaseDir = scanner.getBasedir().toPath();
             Path targetFile = new File(targetDir).toPath().resolve(srcBaseDir.relativize(srcFile));
-            boolean isUptodate = getBuildContext().isUptodate(targetFile.toFile(), srcFile.toFile());
-            if ( ! isUptodate ) {
+            boolean uptoDate = getBuildContext().isUptodate(targetFile.toFile(), srcFile.toFile());
+            if ( ! uptoDate || ! incremental ) {
                 try {
                     String content = new String(readAllBytes(srcFile), getEncoding());
                     String modifiedContent = transform(content);
@@ -84,7 +85,7 @@ public abstract class BaseMojo extends AbstractMojo {
                                 targetFile = targetFile.getParent().resolve(fileName);
                             }
                         }
-                        write(targetFile, modifiedContent.getBytes(getEncoding()), TRUNCATE_EXISTING);
+                        write(targetFile, modifiedContent.getBytes(getEncoding()), CREATE, TRUNCATE_EXISTING);
                     }
                 } catch (IOException e) {
                     throw new MojoExecutionException(e.getMessage(), e);
