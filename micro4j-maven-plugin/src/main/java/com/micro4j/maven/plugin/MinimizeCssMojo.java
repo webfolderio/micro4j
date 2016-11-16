@@ -26,13 +26,9 @@ import static java.lang.String.valueOf;
 import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.currentThread;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.nio.file.Files.isDirectory;
-import static java.nio.file.Files.readAllBytes;
-import static java.nio.file.Files.write;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_RESOURCES;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -44,18 +40,15 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.util.Scanner;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 @Mojo(name = "minimize-css", defaultPhase = PROCESS_RESOURCES, threadSafe = true, requiresOnline = false, requiresReports = false)
-public class MinimizeCssMojo extends AbstractMojo {
+public class MinimizeCssMojo extends BaseMojo {
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
@@ -70,7 +63,7 @@ public class MinimizeCssMojo extends AbstractMojo {
     private String minimizeCssEncoding;
 
     @Parameter(defaultValue = "min.css")
-    private String minimizeCssOutputPrefix;
+    private String minimizeCssOutputExtension;
 
     @Parameter(defaultValue = "uglifycss-0.0.25.js")
     private String uglifyCssLocation;
@@ -80,74 +73,12 @@ public class MinimizeCssMojo extends AbstractMojo {
 
     private static Invocable engine;
 
-    public void execute() throws MojoExecutionException, MojoFailureException {
-        if (engine == null) {
-            init();
-        }
-        if (project.getBuild().getSourceDirectory() != null) {
-            File dir = new File(project.getBuild().getSourceDirectory());
-            if (isDirectory(dir.toPath())) {
-                transform(dir);
-            }
-        }
-        if (project.getBuild().getTestSourceDirectory() != null) {
-            File dir = new File(project.getBuild().getTestSourceDirectory());
-            if (isDirectory(dir.toPath())) {
-                transform(dir);
-            }
-        }
-    }
-
-    protected void transform(File dir) throws MojoExecutionException {
-        boolean incremental = buildContext.isIncremental();
-        boolean ignoreDelta = incremental ? false : true;
-        Scanner scanner = buildContext.newScanner(dir, ignoreDelta);
-        scanner.setIncludes(minimizeCssIncludes);
-        if (minimizeCssExcludes != null && minimizeCssExcludes.length > 0) {
-            scanner.setExcludes(minimizeCssExcludes);
-        }
-        scanner.scan();
-        for (String includedFile : scanner.getIncludedFiles()) {
-            Path cssFile = dir.toPath().resolve(includedFile);
-            String es6FileName = cssFile.getFileName().toString();
-            int begin = es6FileName.lastIndexOf('.');
-            if (begin < 0) {
-                continue;
-            }
-            String es5FileName = es6FileName.substring(0, begin) + "." + minimizeCssOutputPrefix;
-            Path cssMinFile = cssFile.getParent().resolve(es5FileName);
-            Path baseDir = scanner.getBasedir().toPath();
-            String outputDir = project.getBuild().getOutputDirectory();
-            cssMinFile = new File(outputDir).toPath().resolve(baseDir.relativize(cssMinFile));
-            boolean isUptodate = buildContext.isUptodate(cssMinFile.toFile(), cssFile.toFile());
-            if (!isUptodate) {
-                minimize(cssFile, cssMinFile);
-            }
-        }
-    }
-
-    protected void minimize(Path cssFile, Path minCssFile) throws MojoExecutionException {
-        String cssContent;
-        try {
-            cssContent = new String(readAllBytes(cssFile), minimizeCssEncoding);
-            String minifiedContent = valueOf(getEngine().invokeFunction("micro4jUglifyCss", cssContent));
-            getLog().info("Minimizing css content [" + cssFile.toString() + "]");
-            write(minCssFile, minifiedContent.getBytes(minimizeCssEncoding));
-            getLog().info("css content minimized to [" + minCssFile.toString() + "]");
-        } catch (IOException e) {
-            throw new MojoExecutionException(e.getMessage(), e);
-        } catch (NoSuchMethodException e) {
-            throw new MojoExecutionException(e.getMessage(), e);
-        } catch (ScriptException e) {
-            throw new MojoExecutionException(e.getMessage(), e);
-        }
-    }
-
     protected static synchronized Invocable getEngine() {
         return engine;
     }
 
-    protected void init() throws MojoFailureException {
+    @Override
+    protected void init() throws MojoExecutionException {
         try {
             getLog().info("Initializing the uglifycss from [" + uglifyCssLocation + "]");
             URL url = currentThread().getContextClassLoader().getResource(uglifyCssLocation);
@@ -173,7 +104,47 @@ public class MinimizeCssMojo extends AbstractMojo {
             }
         } catch (IOException e) {
             getLog().error(e);
-            throw new MojoFailureException(e.getMessage(), e);
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    protected String getEncoding() {
+        return minimizeCssEncoding;
+    }
+
+    @Override
+    protected MavenProject getProject() {
+        return project;
+    }
+
+    @Override
+    protected String[] getIncludes() {
+        return minimizeCssIncludes;
+    }
+
+    @Override
+    protected String[] getExcludes() {
+        return minimizeCssExcludes;
+    }
+
+    @Override
+    protected BuildContext getBuildContext() {
+        return buildContext;
+    }
+
+    @Override
+    protected String getOutputExtension() {
+        return minimizeCssOutputExtension;
+    }
+
+    @Override
+    protected String transform(Path srcFile, String content) throws MojoExecutionException {
+        try {
+            return valueOf(getEngine().invokeFunction("micro4jUglifyCss", content));
+        } catch (NoSuchMethodException | ScriptException e) {
+            getLog().error(e);
+            throw new MojoExecutionException(e.getMessage(), e);
         }
     }
 }

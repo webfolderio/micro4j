@@ -25,6 +25,7 @@ package com.micro4j.maven.plugin;
 import static java.lang.String.format;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_RESOURCES;
 
+import java.nio.file.Path;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -102,7 +103,7 @@ public class CsrfMojo extends BaseMojo {
     }
 
     @Override
-    protected String transform(String content) throws MojoExecutionException {
+    protected String transform(Path srcFile, String content) throws MojoExecutionException {
         Source source = new Source(content);
         source.fullSequentialParse();
         List<Element> forms = source.getAllElements("form");
@@ -123,9 +124,9 @@ public class CsrfMojo extends BaseMojo {
                 continue;
             }
             String newLine = source.getNewLine() != null ? source.getNewLine() : "";
-            String input = format("{{#%s}}%s<input type=\"hidden\" name=\"%s\" value=\"{{this}}\" />{{/%s}}",
-                    CSRF_TOKEN,
+            String input = format("%s{{#%s}}<input type=\"hidden\" name=\"%s\" value=\"{{this}}\" />{{/%s}}",
                     newLine,
+                    CSRF_TOKEN,
                     CSRF_TOKEN,
                     CSRF_TOKEN);
             StartTag tag = form.getFirstStartTag();

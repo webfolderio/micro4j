@@ -27,6 +27,7 @@ import static org.attoparser.config.ParseConfiguration.htmlConfiguration;
 import static org.attoparser.minimize.MinimizeHtmlMarkupHandler.MinimizeMode.COMPLETE;
 
 import java.io.StringWriter;
+import java.nio.file.Path;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
@@ -62,7 +63,7 @@ public class MinimizeHtmlMojo extends BaseMojo {
     @Component
     private BuildContext buildContext;
 
-    protected String transform(String content) throws MojoExecutionException {
+    protected String transform(Path srcFile, String content) throws MojoExecutionException {
         try {
             StringWriter writer = new StringWriter();
             OutputMarkupHandler outputHandler = new OutputMarkupHandler(writer);

@@ -1,5 +1,7 @@
 package com.micro4j.maven.plugin;
 
+import static java.nio.file.Files.copy;
+import static java.nio.file.Files.exists;
 import static java.nio.file.Files.isDirectory;
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Files.write;
@@ -20,7 +22,7 @@ import org.sonatype.plexus.build.incremental.BuildContext;
 
 public abstract class BaseMojo extends AbstractMojo {
 
-    protected abstract void init();
+    protected abstract void init() throws MojoExecutionException;
 
     protected abstract String getEncoding();
 
@@ -34,7 +36,7 @@ public abstract class BaseMojo extends AbstractMojo {
 
     protected abstract String getOutputExtension();
 
-    protected abstract String transform(String content) throws MojoExecutionException;
+    protected abstract String transform(Path srcFile, String content) throws MojoExecutionException;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -71,25 +73,26 @@ public abstract class BaseMojo extends AbstractMojo {
             Path srcFile = srcDir.toPath().resolve(includedFile);
             Path srcBaseDir = scanner.getBasedir().toPath();
             Path targetFile = new File(targetDir).toPath().resolve(srcBaseDir.relativize(srcFile));
-            boolean uptoDate = getBuildContext().isUptodate(targetFile.toFile(), srcFile.toFile());
-            if ( ! uptoDate || ! incremental ) {
-                try {
-                    String content = new String(readAllBytes(srcFile), getEncoding());
-                    String modifiedContent = transform(content);
-                    if (modifiedContent != null) {
-                        if ( getOutputExtension() != null && ! getOutputExtension().trim().isEmpty() ) {
-                            String fileName = targetFile.getFileName().toString();
-                            int end = fileName.lastIndexOf(".");
-                            if (end > 0) {
-                                fileName = fileName.substring(0, end) + "." + getOutputExtension();
-                                targetFile = targetFile.getParent().resolve(fileName);
-                            }
-                        }
-                        write(targetFile, modifiedContent.getBytes(getEncoding()), CREATE, TRUNCATE_EXISTING);
-                    }
-                } catch (IOException e) {
-                    throw new MojoExecutionException(e.getMessage(), e);
+            try {
+                if ( ! exists(targetFile) ) {
+                    copy(srcFile, targetFile);
                 }
+                String content = new String(readAllBytes(targetFile), getEncoding());
+                String modifiedContent = transform(srcFile, content);
+                if (modifiedContent != null) {
+                    if ( getOutputExtension() != null && ! getOutputExtension().trim().isEmpty() ) {
+                        String fileName = targetFile.getFileName().toString();
+                        int end = fileName.lastIndexOf(".");
+                        if (end > 0) {
+                            fileName = fileName.substring(0, end) + "." + getOutputExtension();
+                            targetFile = targetFile.getParent().resolve(fileName);
+                        }
+                    }
+                    write(targetFile, modifiedContent.getBytes(getEncoding()), CREATE, TRUNCATE_EXISTING);
+                    getBuildContext().refresh(targetFile.toFile());
+                }
+            } catch (IOException e) {
+                getLog().error(e);
             }
         }
     }

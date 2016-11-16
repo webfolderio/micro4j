@@ -26,16 +26,11 @@ import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
 import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.currentThread;
-import static java.nio.charset.Charset.forName;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.nio.file.Files.isDirectory;
-import static java.nio.file.Files.readAllBytes;
-import static java.nio.file.Files.write;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_RESOURCES;
 import static org.sonatype.plexus.build.incremental.BuildContext.SEVERITY_ERROR;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -47,18 +42,15 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.util.Scanner;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 @Mojo(name = "babel-nashorn", defaultPhase = PROCESS_RESOURCES, threadSafe = false, requiresOnline = false, requiresReports = false)
-public class BabelMojo extends AbstractMojo {
+public class BabelNashornMojo extends BaseMojo {
 
     @Parameter(defaultValue = "**/*.jsx, **/*.es6, *.es7, **/*.es")
     private String[] babelIncludes = new String[] { "**/*.jsx", "**/*.es6", "*.es7", "**/*.es" };
@@ -85,90 +77,6 @@ public class BabelMojo extends AbstractMojo {
     private MavenProject project;
 
     private static Invocable engine;
-
-    @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
-        if (engine == null) {
-            init();
-        }
-        if (project.getBuild().getSourceDirectory() != null) {
-            File dir = new File(project.getBuild().getSourceDirectory());
-            if (isDirectory(dir.toPath())) {
-                transform(dir);
-            }
-        }
-        if (project.getBuild().getTestSourceDirectory() != null) {
-            File dir = new File(project.getBuild().getTestSourceDirectory());
-            if (isDirectory(dir.toPath())) {
-                transform(dir);
-            }
-        }
-    }
-
-    protected void transform(File dir) throws MojoExecutionException, MojoFailureException {
-        boolean incremental = buildContext.isIncremental();
-        boolean ignoreDelta = incremental ? false : true;
-        Scanner scanner = buildContext.newScanner(dir, ignoreDelta);
-        scanner.setIncludes(babelIncludes);
-        if (babelExcludes != null && babelExcludes.length > 0) {
-            scanner.setExcludes(babelExcludes);
-        }
-        scanner.scan();
-        for (String includedFile : scanner.getIncludedFiles()) {
-            Path es6File = dir.toPath().resolve(includedFile);
-            String es6FileName = es6File.getFileName().toString();
-            int begin = es6FileName.lastIndexOf('.');
-            if (begin < 0) {
-                continue;
-            }
-            String es5FileName = es6FileName.substring(0, begin) + "." + babelOutputExtension;
-            Path es5File = es6File.getParent().resolve(es5FileName);
-            Path baseDir = scanner.getBasedir().toPath();
-            String outputDir = project.getBuild().getOutputDirectory();
-            es5File = new File(outputDir).toPath().resolve(baseDir.relativize(es5File));
-            boolean isUptodate = buildContext.isUptodate(es5File.toFile(), es6File.toFile());
-            if (!isUptodate) {
-                transform(es6File, es5File);
-            }
-        }
-    }
-
-    protected void transform(Path es6File, Path es5File) throws MojoExecutionException, MojoFailureException {
-        long start = currentTimeMillis();
-        getLog().info("Compiling  javascript file [" + es6File.toString() + "]");
-        String es6content = null;
-        try {
-            es6content = new String(readAllBytes(es6File), forName(babelEncoding));
-        } catch (IOException e) {
-            getLog().error(e);
-            throw new MojoExecutionException("Unable to read the file [" + es6File.toString() + "]", e);
-        }
-        try {
-            String es5Content = valueOf(getEngine().invokeFunction("micro4jCompile", es6content));
-            if (es5Content.startsWith("SyntaxError")) {
-                int begin = es5Content.indexOf("(");
-                int end = es5Content.indexOf(")");
-                if (begin >= 0 && end > begin) {
-                    String[] position = es5Content.substring(begin + 1, end).split(":");
-                    int line = parseInt(position[0]);
-                    int col = parseInt(position[1]);
-                    buildContext.addMessage(es6File.toFile(), line, col, es5Content, SEVERITY_ERROR, null);
-                } else {
-                    getLog().error(es5Content);
-                }
-                if (!buildContext.isIncremental()) {
-                    throw new MojoFailureException("Javascript compilation error [" + es6File.toString() + "]");
-                }
-            } else {
-                write(es5File, es5Content.getBytes());
-                buildContext.removeMessages(es6File.toFile());
-                getLog().info("javascript file compiled to [" + es5File.toString() + "] " + "[" + (currentTimeMillis() - start) + " ms]");
-            }
-        } catch (NoSuchMethodException | ScriptException | IOException e) {
-            getLog().error(e);
-            throw new MojoExecutionException("Unable to conver esnext to es5", e);
-        }
-    }
 
     protected static synchronized Invocable getEngine() {
         return engine;
@@ -203,5 +111,61 @@ public class BabelMojo extends AbstractMojo {
         } catch (IOException e) {
             getLog().error(e);
         }
+    }
+
+    @Override
+    protected String getEncoding() {
+        return babelEncoding;
+    }
+
+    @Override
+    protected MavenProject getProject() {
+        return project;
+    }
+
+    @Override
+    protected String[] getIncludes() {
+        return babelIncludes;
+    }
+
+    @Override
+    protected String[] getExcludes() {
+        return babelExcludes;
+    }
+
+    @Override
+    protected BuildContext getBuildContext() {
+        return buildContext;
+    }
+
+    @Override
+    protected String getOutputExtension() {
+        return babelOutputExtension;
+    }
+
+    @Override
+    protected String transform(Path srcFile, String content) throws MojoExecutionException {
+        buildContext.removeMessages(srcFile.toFile());
+        String modifiedContent;
+        try {
+            modifiedContent = valueOf(getEngine().invokeFunction("micro4jCompile", content));
+        } catch (NoSuchMethodException | ScriptException e) {
+            buildContext.addMessage(srcFile.toFile(), 0, 0, e.getMessage(), SEVERITY_ERROR, null);
+            getLog().error(e.getMessage(), e);
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
+        if (modifiedContent.startsWith("SyntaxError")) {
+            int begin = modifiedContent.indexOf("(");
+            int end = modifiedContent.indexOf(")");
+            if (begin >= 0 && end > begin) {
+                String[] position = modifiedContent.substring(begin + 1, end).split(":");
+                int line = parseInt(position[0]);
+                int col = parseInt(position[1]);
+                buildContext.addMessage(srcFile.toFile(), line, col, modifiedContent, SEVERITY_ERROR, null);
+            } else {
+                getLog().error(modifiedContent);
+            }
+        }
+        return modifiedContent;
     }
 }
