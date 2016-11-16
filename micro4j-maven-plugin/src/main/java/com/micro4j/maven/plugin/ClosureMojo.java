@@ -35,19 +35,19 @@ import com.google.javascript.jscomp.SourceFile;
 public class ClosureMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "**/*.js")
-    private String[] includes = new String[] { "**/*.js" };
+    private String[] babelIncludes = new String[] { "**/*.js" };
 
     @Parameter(defaultValue = "**/*.min.js")
-    private String[] excludes = new String[] { "**/*.min.js" };
+    private String[] babelExcludes = new String[] { "**/*.min.js" };
 
     @Parameter(defaultValue = "${project.build.sourceEncoding}")
-    private String encoding = "utf-8";
+    private String babelEncoding = "utf-8";
+
+    @Parameter(defaultValue = "min.js")
+    private String babelOutputPrefix;
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
-
-    @Parameter(defaultValue = "min.js")
-    private String outputPrefix;
 
     @Component
     private BuildContext buildContext;
@@ -72,9 +72,9 @@ public class ClosureMojo extends AbstractMojo {
         boolean incremental = buildContext.isIncremental();
         boolean ignoreDelta = incremental ? false : true;
         Scanner scanner = buildContext.newScanner(folder, ignoreDelta);
-        scanner.setIncludes(includes);
-        if (excludes != null && excludes.length > 0) {
-            scanner.setExcludes(excludes);
+        scanner.setIncludes(babelIncludes);
+        if (babelExcludes != null && babelExcludes.length > 0) {
+            scanner.setExcludes(babelExcludes);
         }
         scanner.scan();
         for (String includedFile : scanner.getIncludedFiles()) {
@@ -84,7 +84,7 @@ public class ClosureMojo extends AbstractMojo {
             if (begin < 0) {
                 continue;
             }
-            String minFileName = jsFileName.substring(0, begin) + "." + outputPrefix;
+            String minFileName = jsFileName.substring(0, begin) + "." + babelOutputPrefix;
             Path minFile = jsFile.getParent().resolve(minFileName);
             Path baseDir = scanner.getBasedir().toPath();
             String outputDir = project.getBuild().getOutputDirectory();
@@ -112,7 +112,7 @@ public class ClosureMojo extends AbstractMojo {
         getLog().info("Minifying  javascript file [" + jsFile.toString() + "] to [" + minFile.toString() + "]");
         String jsContent = null;
         try {
-            jsContent = new String(readAllBytes(jsFile), forName(encoding));
+            jsContent = new String(readAllBytes(jsFile), forName(babelEncoding));
         } catch (IOException e) {
             getLog().error(e);
             throw new MojoExecutionException("Unable to read the file [" + jsFile.toString() + "]", e);
@@ -125,7 +125,7 @@ public class ClosureMojo extends AbstractMojo {
         Result result = compiler.compile(jQueryExternFile, sourceFile, options);
         if (result.success) {
             try {
-                write(minFile, compiler.toSource().getBytes(encoding));
+                write(minFile, compiler.toSource().getBytes(babelEncoding));
             } catch (IOException e) {
                 throw new MojoFailureException(e.getMessage(), e);
             }

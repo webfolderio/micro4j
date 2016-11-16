@@ -61,28 +61,28 @@ import org.sonatype.plexus.build.incremental.BuildContext;
 public class BabelMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "**/*.jsx, **/*.es6, *.es7, **/*.es")
-    private String[] includes = new String[] { "**/*.jsx", "**/*.es6", "*.es7", "**/*.es" };
+    private String[] babelIncludes = new String[] { "**/*.jsx", "**/*.es6", "*.es7", "**/*.es" };
 
     @Parameter
-    private String[] excludes;
+    private String[] babelExcludes;
 
     @Parameter(defaultValue = "${project.build.sourceEncoding}")
-    private String encoding = "utf-8";
-
-    @Parameter(defaultValue = "${project}", readonly = true, required = true)
-    private MavenProject project;
+    private String babelEncoding = "utf-8";
 
     @Parameter(defaultValue = "js")
-    private String outputExtension;
+    private String babelOutputExtension;
 
     @Parameter(defaultValue = "['es2015', 'stage-3']")
-    private String presets;
+    private String babelPresets;
 
     @Parameter(defaultValue = "babel-standalone-6.18.1.min.js")
     private String babelLocation;
 
     @Component
     private BuildContext buildContext;
+
+    @Parameter(defaultValue = "${project}", readonly = true, required = true)
+    private MavenProject project;
 
     private static Invocable engine;
 
@@ -109,9 +109,9 @@ public class BabelMojo extends AbstractMojo {
         boolean incremental = buildContext.isIncremental();
         boolean ignoreDelta = incremental ? false : true;
         Scanner scanner = buildContext.newScanner(folder, ignoreDelta);
-        scanner.setIncludes(includes);
-        if (excludes != null && excludes.length > 0) {
-            scanner.setExcludes(excludes);
+        scanner.setIncludes(babelIncludes);
+        if (babelExcludes != null && babelExcludes.length > 0) {
+            scanner.setExcludes(babelExcludes);
         }
         scanner.scan();
         for (String includedFile : scanner.getIncludedFiles()) {
@@ -121,7 +121,7 @@ public class BabelMojo extends AbstractMojo {
             if (begin < 0) {
                 continue;
             }
-            String es5FileName = es6FileName.substring(0, begin) + "." + outputExtension;
+            String es5FileName = es6FileName.substring(0, begin) + "." + babelOutputExtension;
             Path es5File = es6File.getParent().resolve(es5FileName);
             Path baseDir = scanner.getBasedir().toPath();
             String outputDir = project.getBuild().getOutputDirectory();
@@ -138,7 +138,7 @@ public class BabelMojo extends AbstractMojo {
         getLog().info("Compiling  javascript file [" + es6File.toString() + "]");
         String es6content = null;
         try {
-            es6content = new String(readAllBytes(es6File), forName(encoding));
+            es6content = new String(readAllBytes(es6File), forName(babelEncoding));
         } catch (IOException e) {
             getLog().error(e);
             throw new MojoExecutionException("Unable to read the file [" + es6File.toString() + "]", e);
@@ -193,7 +193,7 @@ public class BabelMojo extends AbstractMojo {
                     scriptEngine.eval(new InputStreamReader(is, UTF_8.name()));
                     scriptEngine
                             .eval("var micro4jCompile = function(input) { try { return Babel.transform(input, { presets: "
-                                    + presets + " }).code; } catch(e) { return e;} }");
+                                    + babelPresets + " }).code; } catch(e) { return e;} }");
                     engine = (Invocable) scriptEngine;
                     getLog().info("Babel initialized [" + (currentTimeMillis() - start) + " ms]");
                 } catch (ScriptException e) {

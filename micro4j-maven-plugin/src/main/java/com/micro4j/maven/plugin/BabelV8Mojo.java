@@ -60,25 +60,25 @@ import com.eclipsesource.v8.V8Array;
 public class BabelV8Mojo extends AbstractMojo {
 
     @Parameter(defaultValue = "**/*.jsx, **/*.es6, *.es7, **/*.es")
-    private String[] includes = new String[] { "**/*.jsx", "**/*.es6", "*.es7", "**/*.es" };
+    private String[] babelIncludes = new String[] { "**/*.jsx", "**/*.es6", "*.es7", "**/*.es" };
 
     @Parameter
-    private String[] excludes;
+    private String[] babelExcludes;
 
     @Parameter(defaultValue = "${project.build.sourceEncoding}")
-    private String encoding = "utf-8";
-
-    @Parameter(defaultValue = "${project}", readonly = true, required = true)
-    private MavenProject project;
+    private String babelEncoding = "utf-8";
 
     @Parameter(defaultValue = "js")
-    private String outputExtension;
+    private String babelOutputExtension;
 
     @Parameter(defaultValue = "['es2015', 'stage-3']")
-    private String presets;
+    private String babelPresets;
 
     @Parameter(defaultValue = "babel-standalone-6.18.1.min.js")
     private String babelLocation;
+
+    @Parameter(defaultValue = "${project}", readonly = true, required = true)
+    private MavenProject project;
 
     @Component
     private BuildContext buildContext;
@@ -113,9 +113,9 @@ public class BabelV8Mojo extends AbstractMojo {
         boolean incremental = buildContext.isIncremental();
         boolean ignoreDelta = incremental ? false : true;
         Scanner scanner = buildContext.newScanner(folder, ignoreDelta);
-        scanner.setIncludes(includes);
-        if (excludes != null && excludes.length > 0) {
-            scanner.setExcludes(excludes);
+        scanner.setIncludes(babelIncludes);
+        if (babelExcludes != null && babelExcludes.length > 0) {
+            scanner.setExcludes(babelExcludes);
         }
         scanner.scan();
         for (String next : scanner.getIncludedFiles()) {
@@ -125,7 +125,7 @@ public class BabelV8Mojo extends AbstractMojo {
             if (begin < 0) {
                 continue;
             }
-            String es5FileName = es6FileName.substring(0, begin) + "." + outputExtension;
+            String es5FileName = es6FileName.substring(0, begin) + "." + babelOutputExtension;
             Path es5File = es6File.getParent().resolve(es5FileName);
             Path baseDir = scanner.getBasedir().toPath();
             String outputDir = project.getBuild().getOutputDirectory();
@@ -142,7 +142,7 @@ public class BabelV8Mojo extends AbstractMojo {
         getLog().info("Compiling  javascript file [" + es6File.toString() + "] to [" + es5File.toString() + "]");
         String es6content = null;
         try {
-            es6content = new String(readAllBytes(es6File), forName(encoding));
+            es6content = new String(readAllBytes(es6File), forName(babelEncoding));
         } catch (IOException e) {
             getLog().error(e);
             throw new MojoExecutionException("Unable to read the file [" + es6File.toString() + "]", e);
@@ -191,7 +191,7 @@ public class BabelV8Mojo extends AbstractMojo {
                 runtime = V8.createV8Runtime();
                 runtime.executeScript(IOUtil.toString(is, UTF_8.name()));
                 runtime.executeScript("var micro4jCompile = function(input) { try { return Babel.transform(input, { presets: "
-                        + presets + " }).code; } catch(e) { return e;} }");
+                        + babelPresets + " }).code; } catch(e) { return e;} }");
                 getLog().info("Babel initialized [" + (currentTimeMillis() - start) + " ms]");
             } catch (Throwable e) {
                 getLog().error(e.getMessage(), e);

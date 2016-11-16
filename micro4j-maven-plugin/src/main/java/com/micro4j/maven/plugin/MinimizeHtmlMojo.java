@@ -67,11 +67,11 @@ public class MinimizeHtmlMojo extends AbstractMojo {
     @Parameter
     private String[] minimizeHtmlExcludes;
 
-    @Parameter(defaultValue = "${project}", readonly = true, required = true)
-    private MavenProject project;
-
     @Parameter(defaultValue = "${project.build.sourceEncoding}")
     private String minimizeHtmlEncoding;
+
+    @Parameter(defaultValue = "${project}", readonly = true, required = true)
+    private MavenProject project;
 
     @SuppressWarnings("unchecked")
     public void execute() throws MojoExecutionException {

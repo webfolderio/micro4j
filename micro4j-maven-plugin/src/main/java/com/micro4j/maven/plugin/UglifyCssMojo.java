@@ -53,6 +53,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.compiler.util.scan.InclusionScanException;
 import org.codehaus.plexus.compiler.util.scan.SimpleSourceInclusionScanner;
 import org.codehaus.plexus.compiler.util.scan.SourceInclusionScanner;
@@ -61,26 +62,23 @@ import org.codehaus.plexus.compiler.util.scan.mapping.SuffixMapping;
 @Mojo(name = "uglifycss", defaultPhase = PROCESS_RESOURCES, threadSafe = true, requiresOnline = false, requiresReports = false)
 public class UglifyCssMojo extends AbstractMojo {
 
-    @Parameter(defaultValue = "src/main/resources")
-    private File resources;
-
-    @Parameter(defaultValue = "target/classes")
-    private File outputDirectory;
+    @Parameter(defaultValue = "${project}", readonly = true, required = true)
+    private MavenProject project;
 
     @Parameter(defaultValue = "css")
-    private String extension;
+    private String uyglifyExtension;
 
     @Parameter
-    private String[] includes;
+    private String[] uglifyIncludes;
 
     @Parameter
-    private String[] excludes;
+    private String[] uglifyExcludes;
 
     @Parameter(defaultValue = "${project.build.sourceEncoding}")
-    private String encoding;
+    private String uglifyEncoding;
 
     @Parameter(defaultValue = "min.css")
-    private String outputPrefix;
+    private String uglifyOutputPrefix;
 
     @Parameter(defaultValue = "uglifycss-0.0.25.js")
     private String uglifycssLocation;
@@ -92,25 +90,27 @@ public class UglifyCssMojo extends AbstractMojo {
         if (engine == null) {
             init();
         }
-        Set<String> setIncludes = includes != null ? new HashSet<>(asList(includes)) : singleton("**/*." + extension);
-        Set<String> setExcludes = excludes != null ? new HashSet<>(asList(excludes)) : EMPTY_SET;
+        Set<String> setIncludes = uglifyIncludes != null ? new HashSet<>(asList(uglifyIncludes)) : singleton("**/*." + uyglifyExtension);
+        Set<String> setExcludes = uglifyExcludes != null ? new HashSet<>(asList(uglifyExcludes)) : EMPTY_SET;
         SourceInclusionScanner scanner = new SimpleSourceInclusionScanner(setIncludes, setExcludes);
-        scanner.addSourceMapping(new SuffixMapping("." + extension, "." + extension));
+        scanner.addSourceMapping(new SuffixMapping("." + uyglifyExtension, "." + uyglifyExtension));
         try {
-            Set<File> files = scanner.getIncludedSources(resources, outputDirectory);
+            File sourceDirectory = new File(project.getBuild().getSourceDirectory());
+            File outputDirectory = new File(project.getBuild().getOutputDirectory());
+            Set<File> files = scanner.getIncludedSources(sourceDirectory, outputDirectory);
             for (File file : files) {
-                Path relativePath = resources.toPath().relativize(file.toPath());
+                Path relativePath = sourceDirectory.toPath().relativize(file.toPath());
                 Path outputPath = outputDirectory.toPath().resolve(relativePath);
                 String fileName = outputPath.getFileName().toString();
                 int begin = fileName.lastIndexOf('.');
                 String minFileName = fileName;
                 if (begin > 0) {
-                    minFileName = fileName.substring(0, begin) + "." + outputPrefix;
+                    minFileName = fileName.substring(0, begin) + "." + uglifyOutputPrefix;
                 }
-                String cssContent = new String(readAllBytes(file.toPath()), encoding);
+                String cssContent = new String(readAllBytes(file.toPath()), uglifyEncoding);
                 String minifiedContent = valueOf(getEngine().invokeFunction("micro4jUglifyCss", cssContent));
                 getLog().info("Minimizing css content [" + relativePath.toString() + "]");
-                write(outputPath.getParent().resolve(minFileName), minifiedContent.getBytes(encoding));
+                write(outputPath.getParent().resolve(minFileName), minifiedContent.getBytes(uglifyEncoding));
                 getLog().info("css content minimized to [" + outputPath.getParent().resolve(minFileName).toString() + "]");
             }
         } catch (InclusionScanException | IOException | NoSuchMethodException | ScriptException e) {

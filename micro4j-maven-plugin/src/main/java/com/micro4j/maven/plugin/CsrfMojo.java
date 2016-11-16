@@ -76,9 +76,6 @@ public class CsrfMojo extends AbstractMojo {
     @Component
     private BuildContext buildContext;
 
-    @Parameter(defaultValue = "${project.build.sourceEncoding}")
-    private String csrEncoding;
-
     public void execute() throws MojoExecutionException, MojoFailureException {
         Config.LoggerProvider = LoggerProvider.DISABLED;
         if (project.getBuild().getOutputDirectory() != null) {
@@ -108,11 +105,11 @@ public class CsrfMojo extends AbstractMojo {
             Path htmlFile = get(includedFile);
             if (exists(htmlFile) && isReadable(htmlFile)) {
                 try {
-                    String content = new String(Files.readAllBytes(htmlFile), csrEncoding);
+                    String content = new String(Files.readAllBytes(htmlFile), csrfEncoding);
                     String modified = injectCsrfInput(content);
                     if ( modified != null && ! modified.trim().isEmpty() ) {
                         getLog().info("Adding csrf hidden input [" + htmlFile.toString() + "]");
-                        write(htmlFile, content.getBytes(csrEncoding), TRUNCATE_EXISTING);
+                        write(htmlFile, content.getBytes(csrfEncoding), TRUNCATE_EXISTING);
                         getLog().info("csrf input added [" + htmlFile.toString().toString() + "]");
                     }
                 } catch (IOException e) {
