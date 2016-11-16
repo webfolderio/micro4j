@@ -76,41 +76,7 @@ public class BabelNashornMojo extends BaseMojo {
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
 
-    private static Invocable engine;
-
-    protected static synchronized Invocable getEngine() {
-        return engine;
-    }
-
     protected void init() {
-        try {
-            getLog().info("Initializing the babel from [" + babelLocation + "]");
-            URL url = currentThread().getContextClassLoader().getResource(babelLocation);
-            if (url == null) {
-                getLog().error("Unable to load babel from [" + babelLocation + "]");
-            }
-            if (url != null) {
-                long start = currentTimeMillis();
-                try (InputStream is = new BufferedInputStream(url.openStream())) {
-                    ScriptEngineManager manager = new ScriptEngineManager(null);
-                    ScriptEngine scriptEngine = manager.getEngineByExtension("js");
-                    if (scriptEngine == null) {
-                        getLog().error("Unable to instantiate JavaScript engine");
-                        return;
-                    }
-                    scriptEngine.eval(new InputStreamReader(is, UTF_8.name()));
-                    scriptEngine
-                            .eval("var micro4jCompile = function(input) { try { return Babel.transform(input, { presets: "
-                                    + babelPresets + " }).code; } catch(e) { return e;} }");
-                    engine = (Invocable) scriptEngine;
-                    getLog().info("Babel initialized [" + (currentTimeMillis() - start) + " ms]");
-                } catch (ScriptException e) {
-                    getLog().error(e);
-                }
-            }
-        } catch (IOException e) {
-            getLog().error(e);
-        }
     }
 
     @Override
@@ -167,5 +133,33 @@ public class BabelNashornMojo extends BaseMojo {
             }
         }
         return modifiedContent;
+    }
+
+    protected Invocable getEngine() throws MojoExecutionException {
+        try {
+            getLog().info("Initializing the babel from [" + babelLocation + "]");
+            URL url = currentThread().getContextClassLoader().getResource(babelLocation);
+            if (url == null) {
+                throw new MojoExecutionException("Unable to load babel from [" + babelLocation + "]");
+            }
+            long start = currentTimeMillis();
+            try (InputStream is = new BufferedInputStream(url.openStream())) {
+                ScriptEngineManager manager = new ScriptEngineManager(null);
+                ScriptEngine scriptEngine = manager.getEngineByExtension("js");
+                if (scriptEngine == null) {
+                    throw new MojoExecutionException("Unable to instantiate JavaScript engine");
+                }
+                scriptEngine.eval(new InputStreamReader(is, UTF_8.name()));
+                scriptEngine.eval("var micro4jCompile = function(input) { try { return Babel.transform(input, { presets: "
+                                + babelPresets + " }).code; } catch(e) { return e;} }");
+                getLog().info("Babel initialized [" + (currentTimeMillis() - start) + " ms]");
+                return  (Invocable) scriptEngine;
+            } catch (ScriptException e) {
+                throw new MojoExecutionException(e.getMessage(), e);
+            }
+        } catch (IOException e) {
+            getLog().error(e);
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
     }
 }

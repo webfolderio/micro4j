@@ -36,7 +36,6 @@ import java.net.URL;
 import java.nio.file.Path;
 
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -74,30 +73,7 @@ public class BabelV8Mojo extends BaseMojo {
     @Component
     private BuildContext buildContext;
 
-    private V8 runtime;
-
     protected void init() throws MojoExecutionException {
-        getLog().info("Initializing the babel from [" + babelLocation + "]");
-        URL url = currentThread().getContextClassLoader().getResource(babelLocation);
-        if (url == null) {
-            getLog().error("Unable to load babel from [" + babelLocation + "]");
-        }
-        if (url != null) {
-            long start = currentTimeMillis();
-            try (InputStream is = new BufferedInputStream(url.openStream())) {
-                runtime = V8.createV8Runtime();
-                runtime.executeScript(IOUtil.toString(is, UTF_8.name()));
-                runtime.executeScript("var micro4jCompile = function(input) { try { return Babel.transform(input, { presets: "
-                        + babelPresets + " }).code; } catch(e) { return e;} }");
-                getLog().info("Babel initialized [" + (currentTimeMillis() - start) + " ms]");
-            } catch (Throwable e) {
-                getLog().error(e.getMessage(), e);
-                if (runtime != null) {
-                    runtime.release();
-                }
-                throw new MojoExecutionException(e.getMessage(), e);
-            }
-        }
     }
 
     @Override
@@ -129,39 +105,62 @@ public class BabelV8Mojo extends BaseMojo {
     protected String getOutputExtension() {
         return babelOutputExtension;
     }
-
+    
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    protected String transform(Path srcFile, String content) throws MojoExecutionException {
+        buildContext.removeMessages(srcFile.toFile());
+        V8 runtime = getRuntime();
         try {
-            super.execute();
+            V8Array arguments = new V8Array(runtime);
+            arguments.push(content);
+            String modifiedContent = valueOf(valueOf(runtime.executeFunction("micro4jCompile", arguments)));
+            if ( ! arguments.isReleased() ) {
+                arguments.release();
+            }
+            if (modifiedContent.trim().startsWith("SyntaxError")) {
+                int begin = modifiedContent.indexOf("(");
+                int end = modifiedContent.indexOf(")");
+                if (begin >= 0 && end > begin) {
+                    String[] position = modifiedContent.substring(begin + 1, end).split(":");
+                    int line = parseInt(position[0]);
+                    int col = parseInt(position[1]);
+                    buildContext.addMessage(srcFile.toFile(), line, col, modifiedContent, SEVERITY_ERROR, null);
+                    return modifiedContent;
+                } else {
+                    throw new MojoExecutionException(modifiedContent);
+                }
+            }
+            return modifiedContent;
+        } catch (Throwable t) {
+            throw new MojoExecutionException(t.getMessage(), t);
         } finally {
             if (runtime != null) {
                 runtime.release();
             }
         }
     }
-    
-    @Override
-    protected String transform(Path srcFile, String content) throws MojoExecutionException {
-        buildContext.removeMessages(srcFile.toFile());
-        V8Array arguments = new V8Array(runtime);
-        arguments.push(content);
-        String modifiedContent = valueOf(valueOf(runtime.executeFunction("micro4jCompile", arguments)));
-        if ( ! arguments.isReleased() ) {
-            arguments.release();
+
+    protected V8 getRuntime() throws MojoExecutionException {
+        V8 runtime = null;
+        getLog().info("Initializing the babel from [" + babelLocation + "]");
+        URL url = currentThread().getContextClassLoader().getResource(babelLocation);
+        if (url == null) {
+            throw new MojoExecutionException("Unable to load babel from [" + babelLocation + "]");
         }
-        if (modifiedContent.trim().startsWith("SyntaxError")) {
-            int begin = modifiedContent.indexOf("(");
-            int end = modifiedContent.indexOf(")");
-            if (begin >= 0 && end > begin) {
-                String[] position = modifiedContent.substring(begin + 1, end).split(":");
-                int line = parseInt(position[0]);
-                int col = parseInt(position[1]);
-                buildContext.addMessage(srcFile.toFile(), line, col, modifiedContent, SEVERITY_ERROR, null);
-            } else {
-                getLog().error(modifiedContent);
+        long start = currentTimeMillis();
+        try (InputStream is = new BufferedInputStream(url.openStream())) {
+            runtime = V8.createV8Runtime();
+            runtime.executeScript(IOUtil.toString(is, UTF_8.name()));
+            runtime.executeScript("var micro4jCompile = function(input) { try { return Babel.transform(input, { presets: "
+                    + babelPresets + " }).code; } catch(e) { return e;} }");
+            getLog().info("Babel initialized [" + (currentTimeMillis() - start) + " ms]");
+            return runtime;
+        } catch (Throwable e) {
+            if (runtime != null) {
+                runtime.release();
             }
+            getLog().error(e.getMessage(), e);
+            throw new MojoExecutionException(e.getMessage(), e);
         }
-        return modifiedContent;
     }
 }
