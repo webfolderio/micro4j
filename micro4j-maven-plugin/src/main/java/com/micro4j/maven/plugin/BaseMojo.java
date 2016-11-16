@@ -5,12 +5,14 @@ import static java.nio.file.Files.exists;
 import static java.nio.file.Files.isDirectory;
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Files.write;
-import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
@@ -37,6 +39,14 @@ public abstract class BaseMojo extends AbstractMojo {
     protected abstract String getOutputExtension();
 
     protected abstract String transform(Path srcFile, String content) throws MojoExecutionException;
+
+    @SuppressWarnings("serial")
+    private static final Map<String, String> EXTENSION_MAPPINGS = new HashMap<String, String>() {{
+        put("jsx", "js");
+        put("es6", "js");
+        put("es7", "js");
+        put("es" , "js");
+    }};
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -71,21 +81,31 @@ public abstract class BaseMojo extends AbstractMojo {
         scanner.scan();
         for (String includedFile : scanner.getIncludedFiles()) {
             Path srcFile = srcDir.toPath().resolve(includedFile);
+            String srcFileName = srcFile.getFileName().toString();
+            int srcFileNameEnd = srcFileName.lastIndexOf(".");
+            if (srcFileNameEnd > 0) {
+                String srcExtension = srcFileName.substring(srcFileNameEnd + 1, srcFileName.length());
+                String mappedExtension = EXTENSION_MAPPINGS.get(srcExtension);
+                if (mappedExtension != null) {
+                    srcFileName = srcFileName.substring(0, srcFileNameEnd) + "." + mappedExtension;
+                    srcFile = srcFile.getParent().resolve(srcFileName);
+                }
+            }
             Path srcBaseDir = scanner.getBasedir().toPath();
             Path targetFile = new File(targetDir).toPath().resolve(srcBaseDir.relativize(srcFile));
             try {
-                if ( ! exists(targetFile) ) {
+                if ( ! exists(targetFile) && exists(srcFile) ) {
                     copy(srcFile, targetFile);
                 }
                 String content = new String(readAllBytes(targetFile), getEncoding());
                 String modifiedContent = transform(srcFile, content);
                 if (modifiedContent != null) {
                     if ( getOutputExtension() != null && ! getOutputExtension().trim().isEmpty() ) {
-                        String fileName = targetFile.getFileName().toString();
-                        int end = fileName.lastIndexOf(".");
-                        if (end > 0) {
-                            fileName = fileName.substring(0, end) + "." + getOutputExtension();
-                            targetFile = targetFile.getParent().resolve(fileName);
+                        String targetFileName = targetFile.getFileName().toString();
+                        int targetFileNameEnd = targetFileName.lastIndexOf(".");
+                        if (targetFileNameEnd > 0) {
+                            targetFileName = targetFileName.substring(0, targetFileNameEnd) + "." + getOutputExtension();
+                            targetFile = targetFile.getParent().resolve(targetFileName);
                         }
                     }
                     write(targetFile, modifiedContent.getBytes(getEncoding()), CREATE, TRUNCATE_EXISTING);

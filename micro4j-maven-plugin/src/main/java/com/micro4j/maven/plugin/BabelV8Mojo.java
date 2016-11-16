@@ -49,8 +49,8 @@ import com.eclipsesource.v8.V8Array;
 @Mojo(name = "babel-v8", defaultPhase = PROCESS_RESOURCES, threadSafe = false, requiresOnline = false, requiresReports = false)
 public class BabelV8Mojo extends BaseMojo {
 
-    @Parameter(defaultValue = "**/*.jsx, **/*.es6, *.es7, **/*.es")
-    private String[] babelIncludes = new String[] { "**/*.jsx", "**/*.es6", "*.es7", "**/*.es" };
+    @Parameter(defaultValue = "**/*.jsx, **/*.es6, **/*.es7, **/*.es")
+    private String[] babelIncludes = new String[] { "**/*.jsx", "**/*.es6", "**/*.es7", "**/*.es" };
 
     @Parameter
     private String[] babelExcludes;

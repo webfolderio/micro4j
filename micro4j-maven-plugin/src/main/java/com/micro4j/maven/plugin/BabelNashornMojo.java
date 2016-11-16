@@ -52,8 +52,8 @@ import org.sonatype.plexus.build.incremental.BuildContext;
 @Mojo(name = "babel-nashorn", defaultPhase = PROCESS_RESOURCES, threadSafe = false, requiresOnline = false, requiresReports = false)
 public class BabelNashornMojo extends BaseMojo {
 
-    @Parameter(defaultValue = "**/*.jsx, **/*.es6, *.es7, **/*.es")
-    private String[] babelIncludes = new String[] { "**/*.jsx", "**/*.es6", "*.es7", "**/*.es" };
+    @Parameter(defaultValue = "**/*.jsx, **/*.es6, **/*.es7, **/*.es")
+    private String[] babelIncludes = new String[] { "**/*.jsx", "**/*.es6", "**/*.es7", "**/*.es" };
 
     @Parameter
     private String[] babelExcludes;

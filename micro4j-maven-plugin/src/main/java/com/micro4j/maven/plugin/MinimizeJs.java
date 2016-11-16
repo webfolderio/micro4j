@@ -28,17 +28,17 @@ import com.google.javascript.jscomp.SourceFile;
 @Mojo(name = "minimize-js", defaultPhase = PROCESS_RESOURCES, threadSafe = false, requiresOnline = false, requiresReports = false)
 public class MinimizeJs extends BaseMojo {
 
-    @Parameter(defaultValue = "**/*.js")
-    private String[] closureIncludes = new String[] { "**/*.js" };
+    @Parameter(defaultValue = "**/*.js, **/*.jsx, **/*.es6, **/*.es7, **/*.es")
+    private String[] minimizeJsIncludes = new String[] { "**/*.js", "**/*.jsx", "**/*.es6", "**/*.es7", "**/*.es" };
 
     @Parameter(defaultValue = "**/*.min.js")
-    private String[] closureExcludes = new String[] { "**/*.min.js" };
+    private String[] minimizeJsExcludes = new String[] { "**/*.min.js" };
 
     @Parameter(defaultValue = "${project.build.sourceEncoding}")
-    private String closureEncoding = "utf-8";
+    private String minimizeJsEncoding = "utf-8";
 
     @Parameter(defaultValue = "min.js")
-    private String closureOutputExtension;
+    private String minimizeJsOutputExtension;
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
@@ -52,7 +52,7 @@ public class MinimizeJs extends BaseMojo {
 
     @Override
     protected String getEncoding() {
-        return closureEncoding;
+        return minimizeJsEncoding;
     }
 
     @Override
@@ -62,12 +62,12 @@ public class MinimizeJs extends BaseMojo {
 
     @Override
     protected String[] getIncludes() {
-        return closureIncludes;
+        return minimizeJsIncludes;
     }
 
     @Override
     protected String[] getExcludes() {
-        return closureExcludes;
+        return minimizeJsExcludes;
     }
 
     @Override
@@ -77,7 +77,7 @@ public class MinimizeJs extends BaseMojo {
 
     @Override
     protected String getOutputExtension() {
-        return closureOutputExtension;
+        return minimizeJsOutputExtension;
     }
 
     @Override
