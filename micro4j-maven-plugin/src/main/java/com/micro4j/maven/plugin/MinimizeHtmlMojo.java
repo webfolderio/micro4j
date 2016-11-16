@@ -22,7 +22,6 @@
  */
 package com.micro4j.maven.plugin;
 
-import static java.lang.String.format;
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Files.write;
 import static java.util.Arrays.asList;
@@ -37,13 +36,13 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 import org.attoparser.MarkupParser;
 import org.attoparser.ParseException;
 import org.attoparser.config.ParseConfiguration;
@@ -54,111 +53,56 @@ import org.codehaus.plexus.compiler.util.scan.InclusionScanException;
 import org.codehaus.plexus.compiler.util.scan.SimpleSourceInclusionScanner;
 import org.codehaus.plexus.compiler.util.scan.SourceInclusionScanner;
 import org.codehaus.plexus.compiler.util.scan.mapping.SuffixMapping;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
-import net.htmlparser.jericho.Config;
-import net.htmlparser.jericho.Element;
-import net.htmlparser.jericho.LoggerProvider;
-import net.htmlparser.jericho.OutputDocument;
-import net.htmlparser.jericho.Source;
-import net.htmlparser.jericho.StartTag;
-
-@Mojo(name = "html", defaultPhase = PROCESS_RESOURCES, threadSafe = true, requiresOnline = false, requiresReports = false)
-public class HtmlMojo extends AbstractMojo {
-
-    private static final String DATA_CSRF = "data-csrf";
-
-    private static final String CSRF_TOKEN = "csrf-token";
-
-    @Parameter(defaultValue = "src/main/resources")
-    private File resources;
-
-    @Parameter(defaultValue = "target/classes")
-    private File outputDirectory;
+@Mojo(name = "minimize-html", defaultPhase = PROCESS_RESOURCES, threadSafe = true, requiresOnline = false, requiresReports = false)
+public class MinimizeHtmlMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "html")
     private String extension;
 
     @Parameter
-    private String[] includes;
+    private String[] minimizeHtmlIncludes;
 
     @Parameter
-    private String[] excludes;
+    private String[] minimizeHtmlExcludes;
+
+    @Parameter(defaultValue = "${project}", readonly = true, required = true)
+    private MavenProject project;
 
     @Parameter(defaultValue = "${project.build.sourceEncoding}")
-    private String encoding;
+    private String minimizeHtmlEncoding;
 
     @SuppressWarnings("unchecked")
     public void execute() throws MojoExecutionException {
-        Config.LoggerProvider = LoggerProvider.DISABLED;
-
-        Set<String> setIncludes = includes != null ? new HashSet<>(asList(includes)) : singleton("**/*." + extension);
-        Set<String> setExcludes = excludes != null ? new HashSet<>(asList(excludes)) : EMPTY_SET;
+        Set<String> setIncludes = minimizeHtmlIncludes != null ? new HashSet<>(asList(minimizeHtmlIncludes)) : singleton("**/*." + extension);
+        Set<String> setExcludes = minimizeHtmlExcludes != null ? new HashSet<>(asList(minimizeHtmlExcludes)) : EMPTY_SET;
         SourceInclusionScanner scanner = new SimpleSourceInclusionScanner(setIncludes, setExcludes);
         scanner.addSourceMapping(new SuffixMapping("." + extension, "." + extension));
         try {
-            Set<File> files = scanner.getIncludedSources(resources, outputDirectory);
+            File sourceDirectory = new File(project.getBuild().getSourceDirectory());
+            File outputDirectory = new File(project.getBuild().getOutputDirectory());
+            Set<File> files = scanner.getIncludedSources(sourceDirectory, outputDirectory);
             for (File file : files) {
-                Path relativePath = resources.toPath().relativize(file.toPath());
+                Path relativePath = sourceDirectory.toPath().relativize(file.toPath());
                 Path outputPath = outputDirectory.toPath().resolve(relativePath);
                 StringWriter writer = new StringWriter();
                 OutputMarkupHandler outputHandler = new OutputMarkupHandler(writer);
                 MinimizeHtmlMarkupHandler minimizeHandler = new MinimizeHtmlMarkupHandler(getMinimizeMode(),
                         outputHandler);
                 MarkupParser parser = new MarkupParser(getParseConfiguration());
-                String content = new String(readAllBytes(file.toPath()), encoding);
+                String content = new String(readAllBytes(file.toPath()), minimizeHtmlEncoding);
                 try {
-                    String csrfOutput = injectCsrfInput(content);
-                    if (csrfOutput != null) {                        
-                        content = csrfOutput;
-                        getLog().info("Added csrf form parameter content [" + relativePath.toString() + "]");
-                    }
                     getLog().info("Minimizing html content [" + relativePath.toString() + "]");
                     parser.parse(content, minimizeHandler);
                     getLog().info("html content minimized to [" + outputPath.toString().toString() + "]");
                 } catch (ParseException e) {
                     throw new MojoExecutionException(e.getMessage(), e);
                 }
-                write(outputPath, writer.toString().getBytes(encoding));
+                write(outputPath, writer.toString().getBytes(minimizeHtmlEncoding), TRUNCATE_EXISTING);
             }
         } catch (InclusionScanException | IOException e) {
             throw new MojoExecutionException(e.getMessage());
-        }
-    }
-
-    protected String injectCsrfInput(String content) {
-        Source source = new Source(content);
-        source.fullSequentialParse();
-        List<Element> forms = source.getAllElements("form");
-        if (forms.isEmpty()) {
-            return null;
-        }
-        OutputDocument document = new OutputDocument(source);
-        boolean modified = false;
-        for (Element form : forms) {
-            String method = form.getAttributeValue("method");
-            if ( ! "post".equalsIgnoreCase(method) ) {
-                continue;
-            }
-            String dataCsrf = form.getAttributeValue(DATA_CSRF);
-            if ("disabled".equalsIgnoreCase(dataCsrf)) {
-                document.remove(form.getAttributes().get(DATA_CSRF));
-                modified = true;
-                continue;
-            }
-            String newLine = source.getNewLine() != null ? source.getNewLine() : "";
-            String input = format("{{#%s}}%s<input type=\"hidden\" name=\"%s\" value=\"{{this}}\" />{{/%s}}",
-                    CSRF_TOKEN,
-                    newLine,
-                    CSRF_TOKEN,
-                    CSRF_TOKEN);
-            StartTag tag = form.getFirstStartTag();
-            document.replace(tag.getEnd(), tag.getEnd(), input);
-            modified = true;
-        }
-        if ( ! modified ) {
-            return null;
-        } else {
-            return document.toString();
         }
     }
 
