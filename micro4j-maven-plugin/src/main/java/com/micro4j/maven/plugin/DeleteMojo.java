@@ -40,7 +40,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.Scanner;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
-@Mojo(name = "delete", defaultPhase = PREPARE_PACKAGE, threadSafe = false, requiresOnline = false, requiresReports = false)
+@Mojo(name = "delete", defaultPhase = PREPARE_PACKAGE, threadSafe = true, requiresOnline = false, requiresReports = false)
 public class DeleteMojo extends AbstractMojo {
 
     @Parameter

@@ -49,7 +49,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
-@Mojo(name = "babel-nashorn", defaultPhase = PROCESS_RESOURCES, threadSafe = false, requiresOnline = false, requiresReports = false)
+@Mojo(name = "babel-nashorn", defaultPhase = PROCESS_RESOURCES, threadSafe = true, requiresOnline = false, requiresReports = false)
 public class BabelNashornMojo extends BaseMojo {
 
     @Parameter(defaultValue = "**/*.jsx, **/*.es6, **/*.es7, **/*.es")

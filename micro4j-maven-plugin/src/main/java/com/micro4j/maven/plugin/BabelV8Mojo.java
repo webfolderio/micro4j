@@ -46,7 +46,7 @@ import org.sonatype.plexus.build.incremental.BuildContext;
 import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Array;
 
-@Mojo(name = "babel-v8", defaultPhase = PROCESS_RESOURCES, threadSafe = false, requiresOnline = false, requiresReports = false)
+@Mojo(name = "babel-v8", defaultPhase = PROCESS_RESOURCES, threadSafe = true, requiresOnline = false, requiresReports = false)
 public class BabelV8Mojo extends BaseMojo {
 
     @Parameter(defaultValue = "**/*.jsx, **/*.es6, **/*.es7, **/*.es")

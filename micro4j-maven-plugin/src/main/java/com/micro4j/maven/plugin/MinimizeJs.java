@@ -27,7 +27,7 @@ import com.google.javascript.jscomp.JSError;
 import com.google.javascript.jscomp.Result;
 import com.google.javascript.jscomp.SourceFile;
 
-@Mojo(name = "minimize-js", defaultPhase = PROCESS_RESOURCES, threadSafe = false, requiresOnline = false, requiresReports = false)
+@Mojo(name = "minimize-js", defaultPhase = PROCESS_RESOURCES, threadSafe = true, requiresOnline = false, requiresReports = false)
 public class MinimizeJs extends BaseMojo {
 
     @Parameter(defaultValue = "**/*.js, **/*.jsx, **/*.es6, **/*.es7, **/*.es")
