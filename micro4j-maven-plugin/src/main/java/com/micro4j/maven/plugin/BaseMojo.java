@@ -1,17 +1,30 @@
 package com.micro4j.maven.plugin;
 
+import static com.google.common.hash.Hashing.sha1;
+import static java.lang.Math.abs;
+import static java.lang.String.valueOf;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.copy;
+import static java.nio.file.Files.createDirectory;
+import static java.nio.file.Files.delete;
 import static java.nio.file.Files.exists;
+import static java.nio.file.Files.getLastModifiedTime;
 import static java.nio.file.Files.isDirectory;
+import static java.nio.file.Files.isReadable;
 import static java.nio.file.Files.readAllBytes;
+import static java.nio.file.Files.setLastModifiedTime;
+import static java.nio.file.Files.size;
 import static java.nio.file.Files.write;
+import static java.nio.file.Paths.get;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
-import static java.util.Collections.emptyMap;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.maven.model.Resource;
@@ -40,8 +53,20 @@ public abstract class BaseMojo extends AbstractMojo {
 
     protected abstract String transform(Path srcFile, String content) throws MojoExecutionException;
 
+    @SuppressWarnings("serial")
+    private static final Map<String, String> MAPPINGS = new HashMap<String, String>() {{
+        put("jsx", "js");
+        put("es6", "js");
+        put("es7", "js");
+        put("es" , "js");
+    }};
+
     protected Map<String, String> getExtensionMappings() {
-        return emptyMap();
+        return MAPPINGS;
+    }
+
+    protected boolean supportsExtensionRenaming() {
+        return false;
     }
 
     @Override
@@ -77,6 +102,8 @@ public abstract class BaseMojo extends AbstractMojo {
         scanner.scan();
         for (String includedFile : scanner.getIncludedFiles()) {
             Path srcFile = srcDir.toPath().resolve(includedFile);
+            Path srcOrgFile = srcDir.toPath().resolve(includedFile);
+            Path targetOrgFile = Paths.get(targetDir).resolve(includedFile);
             Map<String, String> mappings = getExtensionMappings();
             if ( ! mappings.isEmpty() ) {
                 String srcFileName = srcFile.getFileName().toString();
@@ -92,27 +119,110 @@ public abstract class BaseMojo extends AbstractMojo {
             }
             Path srcBaseDir = scanner.getBasedir().toPath();
             Path targetFile = new File(targetDir).toPath().resolve(srcBaseDir.relativize(srcFile));
+            Path cacheDirectory = null;
+            Path cachedFile = null;
+            String hash = null;
             try {
+                if ( ! exists(targetOrgFile) ) {
+                    copy(srcOrgFile, targetOrgFile);
+                }
                 if ( ! exists(targetFile) && exists(srcFile) ) {
                     copy(srcFile, targetFile);
                 }
-                String content = new String(readAllBytes(targetFile), getEncoding());
-                String modifiedContent = transform(srcFile, content);
-                if (modifiedContent != null) {
-                    if ( getOutputExtension() != null && ! getOutputExtension().trim().isEmpty() ) {
-                        String targetFileName = targetFile.getFileName().toString();
-                        int targetFileNameEnd = targetFileName.lastIndexOf(".");
-                        if (targetFileNameEnd > 0) {
-                            targetFileName = targetFileName.substring(0, targetFileNameEnd) + "." + getOutputExtension();
-                            targetFile = targetFile.getParent().resolve(targetFileName);
+                if ( ! exists(targetFile) ) {
+                    copy(srcOrgFile, targetFile);
+                }
+                
+                String content = null;
+                if ( ! getLastModifiedTime(srcOrgFile).equals(getLastModifiedTime(targetFile)) ||
+                                supportsExtensionRenaming() && ! srcOrgFile.getFileName().equals(targetFile.getFileName()) ) {
+                    content = new String(readAllBytes(srcOrgFile));
+                } else {
+                    content = new String(readAllBytes(targetFile));
+                }
+                cacheDirectory = getCacheDirectory();
+                String modifiedContent = null;
+                if (cacheDirectory != null) {
+                    hash = getHash(content);
+                    if ( hash != null && ! hash.trim().isEmpty() ) {
+                        cachedFile = cacheDirectory.resolve(hash);
+                        cachedFile = exists(cachedFile) &&
+                                            isReadable(cachedFile) &&
+                                            size(cachedFile) > 0 ?
+                                            cachedFile : null;
+                    }
+                }
+                if (cachedFile != null) {
+                    FileTime cachedlm = getLastModifiedTime(cachedFile);
+                    FileTime srcLm = getLastModifiedTime(srcOrgFile);
+                    if ( ! cachedlm.equals(srcLm) ) {
+                        delete(cachedFile);
+                        cachedFile = null;
+                    }
+                }
+                if ( cachedFile == null ) {
+                    modifiedContent = transform(srcFile, content);
+                    if (modifiedContent != null) {
+                        if ( getOutputExtension() != null && ! getOutputExtension().trim().isEmpty() ) {
+                            String targetFileName = targetFile.getFileName().toString();
+                            int targetFileNameEnd = targetFileName.lastIndexOf(".");
+                            if (targetFileNameEnd > 0) {
+                                targetFileName = targetFileName.substring(0, targetFileNameEnd) + "." + getOutputExtension();
+                                targetFile = targetFile.getParent().resolve(targetFileName);
+                            }
+                        }
+                        byte[] modified = modifiedContent.getBytes(getEncoding());
+                        write(targetFile, modified, CREATE, TRUNCATE_EXISTING);
+                        setLastModifiedTime(targetFile, getLastModifiedTime(srcOrgFile));
+                        getBuildContext().refresh(targetFile.toFile());
+                        cachedFile = cacheDirectory.resolve(hash);
+                        if (size(targetFile) > 0) {
+                            if ( exists(cachedFile) ) {
+                                delete(cachedFile);
+                            }
+                            copy(targetFile, cachedFile);
+                            setLastModifiedTime(cachedFile, getLastModifiedTime(srcOrgFile));
                         }
                     }
-                    write(targetFile, modifiedContent.getBytes(getEncoding()), CREATE, TRUNCATE_EXISTING);
-                    getBuildContext().refresh(targetFile.toFile());
+                } else {
+                    if ( exists(targetFile) ) {
+                        delete(targetFile);
+                    }
+                    copy(cachedFile, targetFile);
                 }
-            } catch (IOException e) {
+            } catch (Throwable e) {
                 getLog().error(e);
+                throw new MojoExecutionException(e.getMessage());
             }
         }
+    }
+
+    protected Path getCacheDirectory() {
+        Path cache = null;
+        String target = getProject().getBuild().getDirectory();
+        if (target != null && ! target.trim().isEmpty() ) {
+            Path targetPath = get(target);
+            if ( exists(targetPath) ) {
+                cache = targetPath.getParent().resolve("micro4j-cache");
+                if ( ! exists(cache) ) {
+                    try {
+                        createDirectory(cache);
+                    } catch (IOException e) {
+                        getLog().warn(e);
+                        return null;
+                    }
+                }
+            }
+        }
+        return cache;
+    }
+
+    protected String getHash(String content) {
+        return valueOf(abs(sha1()
+                        .newHasher()
+                        .putString(content, UTF_8)
+                        .hash()
+                        .asLong())
+                ) + "-" + getClass().getSimpleName();
     }
 }

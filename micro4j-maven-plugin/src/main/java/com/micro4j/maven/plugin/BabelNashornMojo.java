@@ -109,6 +109,11 @@ public class BabelNashornMojo extends BaseMojo {
     }
 
     @Override
+    protected boolean supportsExtensionRenaming() {
+        return true;
+    }
+
+    @Override
     protected String transform(Path srcFile, String content) throws MojoExecutionException {
         buildContext.removeMessages(srcFile.toFile());
         String modifiedContent;
@@ -129,6 +134,7 @@ public class BabelNashornMojo extends BaseMojo {
                 buildContext.addMessage(srcFile.toFile(), line, col, modifiedContent, SEVERITY_ERROR, null);
             } else {
                 getLog().error(modifiedContent);
+                throw new MojoExecutionException("Please fix babel compilation errors");
             }
         }
         return modifiedContent;
@@ -155,7 +161,7 @@ public class BabelNashornMojo extends BaseMojo {
             }
         } catch (IOException e) {
             getLog().error(e);
-            throw new MojoExecutionException(e.getMessage(), e);
+            throw new MojoExecutionException("Please fix babel compilation errors");
         }
     }
 }

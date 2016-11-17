@@ -9,8 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
@@ -28,7 +26,7 @@ import com.google.javascript.jscomp.Result;
 import com.google.javascript.jscomp.SourceFile;
 
 @Mojo(name = "minimize-js", defaultPhase = PROCESS_RESOURCES, threadSafe = true, requiresOnline = false, requiresReports = false)
-public class MinimizeJs extends BaseMojo {
+public class MinimizeJsMojo extends BaseMojo {
 
     @Parameter(defaultValue = "**/*.js, **/*.jsx, **/*.es6, **/*.es7, **/*.es")
     private String[] minimizeJsIncludes = new String[] { "**/*.js", "**/*.jsx", "**/*.es6", "**/*.es7", "**/*.es" };
@@ -45,20 +43,8 @@ public class MinimizeJs extends BaseMojo {
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
 
-    @SuppressWarnings("serial")
-    private static final Map<String, String> MAPPINGS = new HashMap<String, String>() {{
-        put("jsx", "js");
-        put("es6", "js");
-        put("es7", "js");
-        put("es" , "js");
-    }};
-
     @Component
     private BuildContext buildContext;
-
-    protected Map<String, String> getExtensionMappings() {
-        return MAPPINGS;
-    }
 
     @Override
     protected void init() throws MojoExecutionException {
@@ -98,8 +84,7 @@ public class MinimizeJs extends BaseMojo {
     protected String transform(Path srcFile, String content) throws MojoExecutionException {
         URL jqueryExternURL = currentThread().getContextClassLoader().getResource("jquery-1.12_and_2.2.js");
         if (jqueryExternURL == null) {
-            getLog().error("Unable to load jquery extern from [classpath:jquery-1.12_and_2.2.js]");
-            return null;
+            throw new MojoExecutionException("Unable to load jquery extern from [classpath:jquery-1.12_and_2.2.js]");
         }
         String jqueryExtern = null;
         try (InputStream is = jqueryExternURL.openStream()) {
@@ -124,6 +109,9 @@ public class MinimizeJs extends BaseMojo {
             for (JSError error : result.errors) {
                 buildContext.addMessage(srcFile.toFile(), error.lineNumber, error.getCharno(), error.description, SEVERITY_ERROR, null);
                 getLog().error("Closure compilation error [" + srcFile.toString() + "] " + error.description);
+            }
+            if (result.errors != null && result.errors.length > 0) {
+                throw new MojoExecutionException("Please fix closure compiler error(s)");
             }
             return null;
         }

@@ -104,7 +104,12 @@ public class BabelV8Mojo extends BaseMojo {
     protected String getOutputExtension() {
         return babelOutputExtension;
     }
-    
+
+    @Override
+    protected boolean supportsExtensionRenaming() {
+        return true;
+    }
+
     @Override
     protected String transform(Path srcFile, String content) throws MojoExecutionException {
         buildContext.removeMessages(srcFile.toFile());
@@ -126,7 +131,8 @@ public class BabelV8Mojo extends BaseMojo {
                     buildContext.addMessage(srcFile.toFile(), line, col, modifiedContent, SEVERITY_ERROR, null);
                     return modifiedContent;
                 } else {
-                    throw new MojoExecutionException(modifiedContent);
+                    getLog().error(modifiedContent);
+                    throw new MojoExecutionException("Please fix babel compilation errors");
                 }
             }
             return modifiedContent;
@@ -156,7 +162,7 @@ public class BabelV8Mojo extends BaseMojo {
                 runtime.release();
             }
             getLog().error(e.getMessage(), e);
-            throw new MojoExecutionException(e.getMessage(), e);
+            throw new MojoExecutionException("Unable to initialize javascript engine");
         }
     }
 }
