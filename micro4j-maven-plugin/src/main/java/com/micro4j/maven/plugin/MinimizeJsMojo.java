@@ -90,7 +90,8 @@ public class MinimizeJsMojo extends BaseMojo {
         try (InputStream is = jqueryExternURL.openStream()) {
             jqueryExtern = IOUtil.toString(is);
         } catch (IOException e) {
-            throw new MojoExecutionException(e.getMessage(), e);
+            getLog().error(e.getMessage(), e);
+            throw new MojoExecutionException(e.getMessage());
         }
         SourceFile sourceFile = SourceFile.fromCode(srcFile.toString(), content);
         Compiler compiler = new Compiler(System.err);

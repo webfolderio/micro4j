@@ -23,7 +23,6 @@
 package com.micro4j.maven.plugin;
 
 import static java.lang.String.valueOf;
-import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.currentThread;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_RESOURCES;
@@ -80,13 +79,10 @@ public class MinimizeCssMojo extends BaseMojo {
     @Override
     protected void init() throws MojoExecutionException {
         try {
-            getLog().info("Initializing the uglifycss from [" + uglifyCssLocation + "]");
             URL url = currentThread().getContextClassLoader().getResource(uglifyCssLocation);
             if (url == null) {
-                getLog().error("Unable to load uglifycss from [" + uglifyCssLocation + "]");
             }
             if (url != null) {
-                long start = currentTimeMillis();
                 try (InputStream is = new BufferedInputStream(url.openStream())) {
                     ScriptEngineManager manager = new ScriptEngineManager(null);
                     ScriptEngine scriptEngine = manager.getEngineByExtension("js");
@@ -97,14 +93,13 @@ public class MinimizeCssMojo extends BaseMojo {
                     scriptEngine.eval(new InputStreamReader(is, UTF_8.name()));
                     scriptEngine.eval("var micro4jUglifyCss = function(input) { return module.processString(input); }");
                     engine = (Invocable) scriptEngine;
-                    getLog().info("uglifycss initialized [" + (currentTimeMillis() - start) + " ms]");
                 } catch (ScriptException e) {
                     getLog().error(e);
                 }
             }
         } catch (IOException e) {
             getLog().error(e);
-            throw new MojoExecutionException(e.getMessage(), e);
+            throw new MojoExecutionException(e.getMessage());
         }
     }
 
@@ -144,7 +139,7 @@ public class MinimizeCssMojo extends BaseMojo {
             return valueOf(getEngine().invokeFunction("micro4jUglifyCss", content));
         } catch (NoSuchMethodException | ScriptException e) {
             getLog().error(e);
-            throw new MojoExecutionException(e.getMessage(), e);
+            throw new MojoExecutionException(e.getMessage());
         }
     }
 }

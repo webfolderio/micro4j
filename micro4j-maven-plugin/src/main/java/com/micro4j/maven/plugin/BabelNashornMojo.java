@@ -122,7 +122,7 @@ public class BabelNashornMojo extends BaseMojo {
         } catch (NoSuchMethodException | ScriptException e) {
             buildContext.addMessage(srcFile.toFile(), 0, 0, e.getMessage(), SEVERITY_ERROR, null);
             getLog().error(e.getMessage(), e);
-            throw new MojoExecutionException(e.getMessage(), e);
+            throw new MojoExecutionException(e.getMessage());
         }
         if (modifiedContent.startsWith("SyntaxError")) {
             int begin = modifiedContent.indexOf("(");
@@ -157,7 +157,8 @@ public class BabelNashornMojo extends BaseMojo {
                                 + babelPresets + " }).code; } catch(e) { return e;} }");
                 return  (Invocable) scriptEngine;
             } catch (ScriptException e) {
-                throw new MojoExecutionException(e.getMessage(), e);
+                getLog().error(e.getMessage(), e);
+                throw new MojoExecutionException(e.getMessage());
             }
         } catch (IOException e) {
             getLog().error(e);

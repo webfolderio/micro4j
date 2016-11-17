@@ -137,7 +137,8 @@ public class BabelV8Mojo extends BaseMojo {
             }
             return modifiedContent;
         } catch (Throwable t) {
-            throw new MojoExecutionException(t.getMessage(), t);
+            getLog().error(t.getMessage(), t);
+            throw new MojoExecutionException(t.getMessage());
         } finally {
             if (runtime != null) {
                 runtime.release();

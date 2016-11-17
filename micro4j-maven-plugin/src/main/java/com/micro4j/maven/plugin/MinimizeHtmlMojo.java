@@ -73,7 +73,8 @@ public class MinimizeHtmlMojo extends BaseMojo {
             parser.parse(content, minimizeHandler);
             return writer.toString();
         } catch (ParseException e) {
-            throw new MojoExecutionException(e.getMessage(), e);
+            getLog().error(e.getMessage(), e);
+            throw new MojoExecutionException(e.getMessage());
         }
     }
 
