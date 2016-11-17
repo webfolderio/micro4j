@@ -24,7 +24,6 @@ package com.micro4j.maven.plugin;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
-import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.currentThread;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_RESOURCES;
@@ -142,18 +141,15 @@ public class BabelV8Mojo extends BaseMojo {
 
     protected V8 getRuntime() throws MojoExecutionException {
         V8 runtime = null;
-        getLog().info("Initializing the babel from [" + babelLocation + "]");
         URL url = currentThread().getContextClassLoader().getResource(babelLocation);
         if (url == null) {
             throw new MojoExecutionException("Unable to load babel from [" + babelLocation + "]");
         }
-        long start = currentTimeMillis();
         try (InputStream is = new BufferedInputStream(url.openStream())) {
             runtime = V8.createV8Runtime();
             runtime.executeScript(IOUtil.toString(is, UTF_8.name()));
             runtime.executeScript("var micro4jCompile = function(input) { try { return Babel.transform(input, { presets: "
                     + babelPresets + " }).code; } catch(e) { return e;} }");
-            getLog().info("Babel initialized [" + (currentTimeMillis() - start) + " ms]");
             return runtime;
         } catch (Throwable e) {
             if (runtime != null) {

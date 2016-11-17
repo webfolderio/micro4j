@@ -24,7 +24,6 @@ package com.micro4j.maven.plugin;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
-import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.currentThread;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_RESOURCES;
@@ -137,12 +136,10 @@ public class BabelNashornMojo extends BaseMojo {
 
     protected Invocable getEngine() throws MojoExecutionException {
         try {
-            getLog().info("Initializing the babel from [" + babelLocation + "]");
             URL url = currentThread().getContextClassLoader().getResource(babelLocation);
             if (url == null) {
                 throw new MojoExecutionException("Unable to load babel from [" + babelLocation + "]");
             }
-            long start = currentTimeMillis();
             try (InputStream is = new BufferedInputStream(url.openStream())) {
                 ScriptEngineManager manager = new ScriptEngineManager(null);
                 ScriptEngine scriptEngine = manager.getEngineByExtension("js");
@@ -152,7 +149,6 @@ public class BabelNashornMojo extends BaseMojo {
                 scriptEngine.eval(new InputStreamReader(is, UTF_8.name()));
                 scriptEngine.eval("var micro4jCompile = function(input) { try { return Babel.transform(input, { presets: "
                                 + babelPresets + " }).code; } catch(e) { return e;} }");
-                getLog().info("Babel initialized [" + (currentTimeMillis() - start) + " ms]");
                 return  (Invocable) scriptEngine;
             } catch (ScriptException e) {
                 throw new MojoExecutionException(e.getMessage(), e);
