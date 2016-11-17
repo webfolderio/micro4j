@@ -164,17 +164,17 @@ public abstract class BaseMojo extends AbstractMojo {
                         cacheFile = null;
                     }
                 }
+                if ( getOutputExtension() != null && ! getOutputExtension().trim().isEmpty() ) {
+                    String targetFileName = targetFile.getFileName().toString();
+                    int targetFileNameEnd = targetFileName.lastIndexOf(".");
+                    if (targetFileNameEnd > 0) {
+                        targetFileName = targetFileName.substring(0, targetFileNameEnd) + "." + getOutputExtension();
+                        targetFile = targetFile.getParent().resolve(targetFileName);
+                    }
+                }
                 if ( cacheFile == null ) {
                     modifiedContent = transform(srcFile, targetFile, content);
                     if (modifiedContent != null) {
-                        if ( getOutputExtension() != null && ! getOutputExtension().trim().isEmpty() ) {
-                            String targetFileName = targetFile.getFileName().toString();
-                            int targetFileNameEnd = targetFileName.lastIndexOf(".");
-                            if (targetFileNameEnd > 0) {
-                                targetFileName = targetFileName.substring(0, targetFileNameEnd) + "." + getOutputExtension();
-                                targetFile = targetFile.getParent().resolve(targetFileName);
-                            }
-                        }
                         byte[] modified = modifiedContent.getBytes(getEncoding());
                         write(targetFile, modified, CREATE, TRUNCATE_EXISTING);
                         setLastModifiedTime(targetFile, getLastModifiedTime(srcOrgFile));
