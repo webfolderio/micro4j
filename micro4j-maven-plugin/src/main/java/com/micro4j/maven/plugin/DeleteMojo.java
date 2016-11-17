@@ -78,7 +78,7 @@ public class DeleteMojo extends AbstractMojo {
                 try {
                     delete(file);
                 } catch (IOException e) {
-                    getLog().error("Unable to delete file", e);
+                    getLog().error("Unable to delete the file", e);
                 }
             }
         }
