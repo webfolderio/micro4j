@@ -114,7 +114,7 @@ public class BabelNashornMojo extends BaseMojo {
     }
 
     @Override
-    protected String transform(Path srcFile, String content) throws MojoExecutionException {
+    protected String transform(Path srcFile, Path targetFile, String content) throws MojoExecutionException {
         buildContext.removeMessages(srcFile.toFile());
         String modifiedContent;
         try {

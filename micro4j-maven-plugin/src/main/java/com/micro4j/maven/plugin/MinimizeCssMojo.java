@@ -134,7 +134,7 @@ public class MinimizeCssMojo extends BaseMojo {
     }
 
     @Override
-    protected String transform(Path srcFile, String content) throws MojoExecutionException {
+    protected String transform(Path srcFile, Path targetFile, String content) throws MojoExecutionException {
         try {
             return valueOf(getEngine().invokeFunction("micro4jUglifyCss", content));
         } catch (NoSuchMethodException | ScriptException e) {

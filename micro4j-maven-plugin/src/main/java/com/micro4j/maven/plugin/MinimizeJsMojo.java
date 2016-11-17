@@ -81,7 +81,7 @@ public class MinimizeJsMojo extends BaseMojo {
     }
 
     @Override
-    protected String transform(Path srcFile, String content) throws MojoExecutionException {
+    protected String transform(Path srcFile, Path targetFile, String content) throws MojoExecutionException {
         URL jqueryExternURL = currentThread().getContextClassLoader().getResource("jquery-1.12_and_2.2.js");
         if (jqueryExternURL == null) {
             throw new MojoExecutionException("Unable to load jquery extern from [classpath:jquery-1.12_and_2.2.js]");

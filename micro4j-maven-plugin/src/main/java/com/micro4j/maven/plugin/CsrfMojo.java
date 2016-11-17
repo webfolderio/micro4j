@@ -103,7 +103,7 @@ public class CsrfMojo extends BaseMojo {
     }
 
     @Override
-    protected String transform(Path srcFile, String content) throws MojoExecutionException {
+    protected String transform(Path srcFile, Path targetFile, String content) throws MojoExecutionException {
         Source source = new Source(content);
         source.fullSequentialParse();
         List<Element> forms = source.getAllElements("form");

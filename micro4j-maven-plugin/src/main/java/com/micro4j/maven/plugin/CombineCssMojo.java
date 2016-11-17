@@ -35,20 +35,20 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
-@Mojo(name = "combine-js", defaultPhase = PREPARE_PACKAGE, threadSafe = true, requiresOnline = false, requiresReports = false)
-public class CombineJsMojo extends AbstractCombineMojo {
+@Mojo(name = "combine-css", defaultPhase = PREPARE_PACKAGE, threadSafe = true, requiresOnline = false, requiresReports = false)
+public class CombineCssMojo extends AbstractCombineMojo {
 
-    @Parameter(defaultValue = "**/*-combined.js, **/*-combined.min.js")
-    private String[] combineJsIncludes = new String[] { "**/*-combined.js", "**/*-combined.min.js" };
+    @Parameter(defaultValue = "**/*-combined.css, **/*-combined.min.css")
+    private String[] combineCssIncludes = new String[] { "**/*-combined.css", "**/*-combined.min.css" };
 
     @Parameter
-    private String[] combineJsExcludes;
+    private String[] combineCssExcludes;
 
-    @Parameter(defaultValue = "js")
-    private String combineJsOutputExtension = "js";
+    @Parameter(defaultValue = "css")
+    private String combineCssOutputExtension = "css";
 
     @Parameter(defaultValue = "${project.build.sourceEncoding}")
-    private String combineJsEncoding;
+    private String combineCssEncoding;
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
@@ -56,7 +56,7 @@ public class CombineJsMojo extends AbstractCombineMojo {
     @Component
     private BuildContext buildContext;
 
-    private static final Pattern REQUIRE_PATTERN = compile("\\s*var\\s+.*\\s*=\\s*require\\(['|\"](.*?)['|\"]\\)", DOTALL);
+    private static final Pattern REQUIRE_PATTERN = compile("\\s*@import\\s+.*\\s*url\\(['|\"](.*?)['|\"]\\)", DOTALL);
 
     @Override
     protected void init() {
@@ -64,7 +64,7 @@ public class CombineJsMojo extends AbstractCombineMojo {
 
     @Override
     protected String getEncoding() {
-        return combineJsEncoding;
+        return combineCssEncoding;
     }
 
     @Override
@@ -74,12 +74,12 @@ public class CombineJsMojo extends AbstractCombineMojo {
 
     @Override
     protected String[] getIncludes() {
-        return combineJsIncludes;
+        return combineCssIncludes;
     }
 
     @Override
     protected String[] getExcludes() {
-        return combineJsExcludes;
+        return combineCssExcludes;
     }
 
     @Override
@@ -89,7 +89,7 @@ public class CombineJsMojo extends AbstractCombineMojo {
 
     @Override
     protected String getOutputExtension() {
-        return combineJsOutputExtension;
+        return combineCssOutputExtension;
     }
 
     protected Path getCacheDirectory() {

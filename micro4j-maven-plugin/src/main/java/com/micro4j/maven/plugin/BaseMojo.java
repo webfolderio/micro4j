@@ -51,7 +51,7 @@ public abstract class BaseMojo extends AbstractMojo {
 
     protected abstract String getOutputExtension();
 
-    protected abstract String transform(Path srcFile, String content) throws MojoExecutionException;
+    protected abstract String transform(Path srcFile, Path targetFile, String content) throws MojoExecutionException;
 
     @SuppressWarnings("serial")
     private static final Map<String, String> MAPPINGS = new HashMap<String, String>() {{
@@ -67,6 +67,9 @@ public abstract class BaseMojo extends AbstractMojo {
 
     protected boolean supportsExtensionRenaming() {
         return false;
+    }
+
+    protected void beforeProcess(Path srcOrgFile, Path targetOrgFile) throws MojoExecutionException {
     }
 
     @Override
@@ -120,8 +123,9 @@ public abstract class BaseMojo extends AbstractMojo {
             Path srcBaseDir = scanner.getBasedir().toPath();
             Path targetFile = new File(targetDir).toPath().resolve(srcBaseDir.relativize(srcFile));
             Path cacheDirectory = null;
-            Path cachedFile = null;
+            Path cacheFile = null;
             String hash = null;
+            beforeProcess(srcOrgFile, targetOrgFile);
             try {
                 if ( ! exists(targetOrgFile) ) {
                     copy(srcOrgFile, targetOrgFile);
@@ -145,23 +149,23 @@ public abstract class BaseMojo extends AbstractMojo {
                 if (cacheDirectory != null) {
                     hash = getHash(content);
                     if ( hash != null && ! hash.trim().isEmpty() ) {
-                        cachedFile = cacheDirectory.resolve(hash);
-                        cachedFile = exists(cachedFile) &&
-                                            isReadable(cachedFile) &&
-                                            size(cachedFile) > 0 ?
-                                            cachedFile : null;
+                        cacheFile = cacheDirectory.resolve(hash);
+                        cacheFile = exists(cacheFile) &&
+                                            isReadable(cacheFile) &&
+                                            size(cacheFile) > 0 ?
+                                            cacheFile : null;
                     }
                 }
-                if (cachedFile != null) {
-                    FileTime cachedlm = getLastModifiedTime(cachedFile);
+                if (cacheFile != null) {
+                    FileTime cachedlm = getLastModifiedTime(cacheFile);
                     FileTime srcLm = getLastModifiedTime(srcOrgFile);
                     if ( ! cachedlm.equals(srcLm) ) {
-                        delete(cachedFile);
-                        cachedFile = null;
+                        delete(cacheFile);
+                        cacheFile = null;
                     }
                 }
-                if ( cachedFile == null ) {
-                    modifiedContent = transform(srcFile, content);
+                if ( cacheFile == null ) {
+                    modifiedContent = transform(srcFile, targetFile, content);
                     if (modifiedContent != null) {
                         if ( getOutputExtension() != null && ! getOutputExtension().trim().isEmpty() ) {
                             String targetFileName = targetFile.getFileName().toString();
@@ -175,20 +179,24 @@ public abstract class BaseMojo extends AbstractMojo {
                         write(targetFile, modified, CREATE, TRUNCATE_EXISTING);
                         setLastModifiedTime(targetFile, getLastModifiedTime(srcOrgFile));
                         getBuildContext().refresh(targetFile.toFile());
-                        cachedFile = cacheDirectory.resolve(hash);
-                        if (size(targetFile) > 0) {
-                            if ( exists(cachedFile) ) {
-                                delete(cachedFile);
+                        if (cacheDirectory != null) {
+                            cacheFile = cacheDirectory.resolve(hash);
+                            if (size(targetFile) > 0) {
+                                if ( exists(cacheFile) ) {
+                                    delete(cacheFile);
+                                }
+                                copy(targetFile, cacheFile);
+                                setLastModifiedTime(cacheFile, getLastModifiedTime(srcOrgFile));
                             }
-                            copy(targetFile, cachedFile);
-                            setLastModifiedTime(cachedFile, getLastModifiedTime(srcOrgFile));
                         }
                     }
                 } else {
                     if ( exists(targetFile) ) {
                         delete(targetFile);
                     }
-                    copy(cachedFile, targetFile);
+                    if (cacheFile != null) {
+                        copy(cacheFile, targetFile);
+                    }
                 }
             } catch (Throwable e) {
                 getLog().error(e);

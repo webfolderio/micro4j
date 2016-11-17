@@ -63,7 +63,7 @@ public class MinimizeHtmlMojo extends BaseMojo {
     @Component
     private BuildContext buildContext;
 
-    protected String transform(Path srcFile, String content) throws MojoExecutionException {
+    protected String transform(Path srcFile, Path targetFile, String content) throws MojoExecutionException {
         try {
             StringWriter writer = new StringWriter();
             OutputMarkupHandler outputHandler = new OutputMarkupHandler(writer);
