@@ -119,4 +119,8 @@ public class MinimizeHtmlMojo extends BaseMojo {
     protected String getOutputExtension() {
         return minimizeHtmlOutputExtension;
     }
+
+    protected Path getCacheDirectory() {
+        return null;
+    }
 }

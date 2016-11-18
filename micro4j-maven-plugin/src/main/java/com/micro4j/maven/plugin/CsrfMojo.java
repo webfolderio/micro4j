@@ -139,4 +139,8 @@ public class CsrfMojo extends BaseMojo {
             return document.toString();
         }
     }
+
+    protected Path getCacheDirectory() {
+        return null;
+    }
 }
