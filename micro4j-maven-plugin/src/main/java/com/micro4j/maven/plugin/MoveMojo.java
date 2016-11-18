@@ -45,18 +45,18 @@ import org.apache.maven.plugins.annotations.Parameter;
 public class MoveMojo extends AbstractMojo {
 
     @Parameter(required = true)
-    private File sourceFile;
+    private File moveSourceFile;
 
     @Parameter(required = true)
-    private File destinationFile;
+    private File moveDestinationFile;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        if (sourceFile == null || destinationFile == null) {
+        if (moveSourceFile == null || moveDestinationFile == null) {
             return;
         }
-        Path src = sourceFile.toPath();
-        Path dest = destinationFile.toPath();
+        Path src = moveSourceFile.toPath();
+        Path dest = moveDestinationFile.toPath();
         try {
             if (exists(src)) {
                 FileTime srcLm = getLastModifiedTime(src);
