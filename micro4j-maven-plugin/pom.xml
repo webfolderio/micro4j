@@ -5,7 +5,7 @@
     <parent>
         <artifactId>micro4j</artifactId>
         <groupId>com.micro4j.micro4j</groupId>
-        <version>1.4.34</version>
+        <version>1.4.35</version>
     </parent>
     <artifactId>micro4j-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
@@ -117,5 +117,7 @@
     </build>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
     </properties>
 </project>
