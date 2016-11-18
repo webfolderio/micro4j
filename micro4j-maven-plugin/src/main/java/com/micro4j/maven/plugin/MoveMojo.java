@@ -24,12 +24,16 @@ package com.micro4j.maven.plugin;
 
 import static java.nio.file.Files.delete;
 import static java.nio.file.Files.exists;
+import static java.nio.file.Files.getLastModifiedTime;
 import static java.nio.file.Files.move;
+import static java.nio.file.Files.setLastModifiedTime;
+import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PREPARE_PACKAGE;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -53,21 +57,24 @@ public class MoveMojo extends AbstractMojo {
         }
         Path src = sourceFile.toPath();
         Path dest = destinationFile.toPath();
-        if (exists(src)) {
-            if (exists(dest)) {
-                try {
-                    delete(dest);
-                } catch (IOException e) {
-                    getLog().error(e.getMessage(), e);
-                    throw new MojoExecutionException(e.getMessage());
+        try {
+            if (exists(src)) {
+                FileTime srcLm = getLastModifiedTime(src);
+                if (exists(dest)) {
+                    FileTime destLm = getLastModifiedTime(dest);
+                    if ( ! srcLm.equals(destLm) ) {
+                        delete(dest);
+                        move(src, dest, ATOMIC_MOVE);
+                        setLastModifiedTime(dest, srcLm);
+                    }
+                } else {
+                    move(src, dest, ATOMIC_MOVE);
+                    setLastModifiedTime(dest, srcLm);
                 }
             }
-            try {
-                move(src, dest);
-            } catch (IOException e) {
-                getLog().error(e.getMessage(), e);
-                throw new MojoExecutionException(e.getMessage());
-            }
+        } catch (IOException e) {
+            getLog().error(e.getMessage(), e);
+            throw new MojoExecutionException(e.getMessage());
         }
     }
 }
