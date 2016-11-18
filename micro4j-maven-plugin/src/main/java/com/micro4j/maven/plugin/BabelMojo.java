@@ -22,16 +22,8 @@
  */
 package com.micro4j.maven.plugin;
 
-import static java.lang.Integer.parseInt;
-import static java.lang.String.valueOf;
-import static java.lang.Thread.currentThread;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_RESOURCES;
-import static org.sonatype.plexus.build.incremental.BuildContext.SEVERITY_ERROR;
 
-import java.io.BufferedInputStream;
-import java.io.InputStream;
-import java.net.URL;
 import java.nio.file.Path;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -39,14 +31,10 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.util.IOUtil;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
-import com.eclipsesource.v8.V8;
-import com.eclipsesource.v8.V8Array;
-
-@Mojo(name = "babel-v8", defaultPhase = PROCESS_RESOURCES, threadSafe = true, requiresOnline = false, requiresReports = false)
-public class BabelV8Mojo extends BaseMojo {
+@Mojo(name = "babel", defaultPhase = PROCESS_RESOURCES, threadSafe = true, requiresOnline = false, requiresReports = false)
+public class BabelMojo extends BaseMojo {
 
     @Parameter(defaultValue = "**/*.jsx, **/*.es6, **/*.es7, **/*.es")
     private String[] babelIncludes = new String[] { "**/*.jsx", "**/*.es6", "**/*.es7", "**/*.es" };
@@ -72,6 +60,7 @@ public class BabelV8Mojo extends BaseMojo {
     @Component
     private BuildContext buildContext;
 
+    @Override
     protected void init() throws MojoExecutionException {
     }
 
@@ -113,57 +102,20 @@ public class BabelV8Mojo extends BaseMojo {
     @Override
     protected String transform(Path srcFile, Path targetFile, String content) throws MojoExecutionException {
         buildContext.removeMessages(srcFile.toFile());
-        V8 runtime = getRuntime();
+        JsEngine engine = new V8Engine(babelLocation, babelPresets);
         try {
-            V8Array arguments = new V8Array(runtime);
-            arguments.push(content);
-            String modifiedContent = valueOf(valueOf(runtime.executeFunction("micro4jCompile", arguments)));
-            if ( ! arguments.isReleased() ) {
-                arguments.release();
+            if (engine != null) {
+                engine.init();
             }
-            if (modifiedContent.trim().startsWith("SyntaxError")) {
-                int begin = modifiedContent.indexOf("(");
-                int end = modifiedContent.indexOf(")");
-                if (begin >= 0 && end > begin) {
-                    String[] position = modifiedContent.substring(begin + 1, end).split(":");
-                    int line = parseInt(position[0]);
-                    int col = parseInt(position[1]);
-                    buildContext.addMessage(srcFile.toFile(), line, col, modifiedContent, SEVERITY_ERROR, null);
-                    return modifiedContent;
-                } else {
-                    getLog().error(modifiedContent);
-                    throw new MojoExecutionException("Please fix babel compilation errors");
-                }
+            if ( engine == null || ! engine.isInitialized() ) {
+                engine = new NashornEngine(babelLocation, babelPresets);
+                engine.init();
             }
-            return modifiedContent;
-        } catch (Throwable t) {
-            getLog().error(t.getMessage(), t);
-            throw new MojoExecutionException(t.getMessage());
+            return engine.execute(srcFile, content, buildContext);
         } finally {
-            if (runtime != null) {
-                runtime.release();
+            if (engine != null && engine.isInitialized()) {
+                engine.dispose();
             }
-        }
-    }
-
-    protected V8 getRuntime() throws MojoExecutionException {
-        V8 runtime = null;
-        URL url = currentThread().getContextClassLoader().getResource(babelLocation);
-        if (url == null) {
-            throw new MojoExecutionException("Unable to load babel from [" + babelLocation + "]");
-        }
-        try (InputStream is = new BufferedInputStream(url.openStream())) {
-            runtime = V8.createV8Runtime();
-            runtime.executeScript(IOUtil.toString(is, UTF_8.name()));
-            runtime.executeScript("var micro4jCompile = function(input) { try { return Babel.transform(input, { presets: "
-                    + babelPresets + " }).code; } catch(e) { return e;} }");
-            return runtime;
-        } catch (Throwable e) {
-            if (runtime != null) {
-                runtime.release();
-            }
-            getLog().error(e.getMessage(), e);
-            throw new MojoExecutionException("Unable to initialize javascript engine");
         }
     }
 }
