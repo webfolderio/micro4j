@@ -57,7 +57,7 @@ public class CombineJsMojo extends AbstractCombineMojo {
     private BuildContext buildContext;
 
     private static final Pattern[] REQUIRE_PATTERNS = new Pattern[] {
-            compile("\\s*var\\s+.*\\s*=\\s*require\\(['|\"](.*?)['|\"]\\)", DOTALL)
+            compile("\\s*var\\s+.*\\s*=\\s*require\\(['|\"](?<path>.*?)['|\"]\\)", DOTALL)
     };
 
     @Override
