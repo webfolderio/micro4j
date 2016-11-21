@@ -22,7 +22,7 @@
  */
 package com.micro4j.mvc.mustache;
 
-import static com.micro4j.mvc.message.MvcMessages.getString;
+import static com.micro4j.mvc.MvcMessages.getString;
 import static com.samskivert.mustache.Mustache.compiler;
 import static org.slf4j.LoggerFactory.getLogger;
 

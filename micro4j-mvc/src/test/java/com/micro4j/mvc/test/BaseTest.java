@@ -24,7 +24,6 @@ package com.micro4j.mvc.test;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -47,11 +46,10 @@ import org.junit.Test;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.micro4j.mvc.Configuration;
+import com.micro4j.mvc.MvcMessages;
 import com.micro4j.mvc.View;
 import com.micro4j.mvc.ViewModel;
 import com.micro4j.mvc.jaxrs.MvcFeature;
-import com.micro4j.mvc.jaxrs.WebJarController;
-import com.micro4j.mvc.message.MvcMessages;
 import com.micro4j.mvc.mustache.MustacheFormatter;
 import com.micro4j.mvc.mustache.MustacheI18nInterceptor;
 import com.squareup.okhttp.OkHttpClient;
@@ -176,11 +174,7 @@ public abstract class BaseTest {
             
             MvcFeature feature = new MvcFeature(configuration);
 
-            WebJarController webJarController = new WebJarController(feature.getConfiguration(), readGz);
-            webJarController.setEnableGzip(true);
-
             singletons = new HashSet<>();
-            singletons.add(webJarController);
             singletons.add(new SampleController());
             singletons.add(feature);
         }
@@ -260,35 +254,10 @@ public abstract class BaseTest {
     }
 
     @Test
-    public void testRequestJs() throws IOException {
-        Request request = new Request.Builder().url("http://localhost:4040/webjars/lib.js").build();
-        Response response = client.newCall(request).execute();
-        assertEquals("console.info(\"foo\");", response.body().string());
-    }
-
-    @Test
-    public void testRequestCss() throws IOException {
-        Request request = new Request.Builder().url("http://localhost:4040/webjars/bootstrap/3.3.6/css/bootstrap.css").build();
-        Response response = client.newCall(request).execute();
-        assertTrue(response.body().string().startsWith("/*!"));
-    }
-
-    @Test
     public void testMissingAsset() throws IOException {
         Request request = new Request.Builder().url("http://localhost:4040/webjars/mylib.css").build();
         Response response = client.newCall(request).execute();
         assertEquals(404, response.code());
-    }
-
-    @Test
-    public void testLastModified() throws IOException {
-        Request request = new Request.Builder().url("http://localhost:4040/webjars/bootstrap/3.3.6/css/bootstrap.css").build();
-        Response response = client.newCall(request).execute();
-        assertEquals(200, response.code());
-        String lastModified = response.header(HttpHeaders.LAST_MODIFIED);
-        request = new Request.Builder().url("http://localhost:4040/webjars/bootstrap/3.3.6/css/bootstrap.css").header(HttpHeaders.IF_MODIFIED_SINCE, lastModified).build();
-        response = client.newCall(request).execute();
-        assertEquals(304, response.code());
     }
 
     @Test

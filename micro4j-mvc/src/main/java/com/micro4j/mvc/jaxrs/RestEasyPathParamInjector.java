@@ -22,6 +22,8 @@
  */
 package com.micro4j.mvc.jaxrs;
 
+import static com.micro4j.mvc.jaxrs.Escapers.escape;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Type;
@@ -43,7 +45,7 @@ class RestEasyPathParamInjector extends PathParamInjector {
     public Object inject(HttpRequest request, HttpResponse response) {
         Object value = super.inject(request, response);
         if (value != null && value instanceof String) {
-            return Escaper.escapeHtml((String) value);
+            return escape((String) value);
         }
         return value;
     }   

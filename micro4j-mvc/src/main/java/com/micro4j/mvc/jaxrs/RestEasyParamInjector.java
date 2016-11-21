@@ -22,6 +22,8 @@
  */
 package com.micro4j.mvc.jaxrs;
 
+import static com.micro4j.mvc.jaxrs.Escapers.escape;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Type;
@@ -39,7 +41,7 @@ class RestEasyParamInjector extends CookieParamInjector {
 
     @Override
     public Object extractValue(String strVal) {
-        String str = Escaper.escapeHtml(strVal);
+        String str = escape(strVal);
         return super.extractValue(str);
     }
 }

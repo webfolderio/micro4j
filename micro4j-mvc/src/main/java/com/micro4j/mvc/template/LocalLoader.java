@@ -22,7 +22,7 @@
  */
 package com.micro4j.mvc.template;
 
-import static com.micro4j.mvc.message.MvcMessages.getString;
+import static com.micro4j.mvc.MvcMessages.getString;
 import static java.nio.file.Files.isDirectory;
 import static java.nio.file.Files.isReadable;
 import static java.nio.file.Files.newInputStream;

@@ -22,7 +22,7 @@
  */
 package com.micro4j.mvc.jaxrs;
 
-import static com.micro4j.mvc.message.MvcMessages.getString;
+import static com.micro4j.mvc.MvcMessages.getString;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import javax.ws.rs.core.Feature;

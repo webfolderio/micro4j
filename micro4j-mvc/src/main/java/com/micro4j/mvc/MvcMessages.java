@@ -20,30 +20,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.micro4j.mvc.jaxrs;
+package com.micro4j.mvc;
 
-class Escaper {
+import static org.slf4j.LoggerFactory.getLogger;
 
-    public static String escapeHtml(String content) {
-        if (content == null) {
-            return null;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+
+import org.slf4j.Logger;
+
+public class MvcMessages {
+
+    private static final String BUNDLE_NAME = "com.micro4j.mvc.mvc-messages"; //$NON-NLS-1$
+
+    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
+
+    private static final Logger LOG = getLogger(MvcMessages.class);
+
+    public static String getString(String key) {
+        try {
+            return RESOURCE_BUNDLE.getString(key);
+        } catch (MissingResourceException e) {
+            LOG.error(e.getMessage(), e);
+            return '!' + key + '!';
         }
-        int len = content.length();
-        StringBuilder builder = new StringBuilder(len);
-        for (int i = 0; i < len; i++) {
-            char ascii = content.charAt(i);
-            if (ascii == 60) {
-                builder.append("&lt;");
-            } else if (ascii == 62) {
-                builder.append("&gt;");
-            } else if (ascii == 38) {
-                builder.append("&amp;");
-            } else if (ascii == 39) {
-                builder.append("&#39;");
-            } else {
-                builder.append(ascii);
-            }
-        }
-        return builder.toString();
     }
 }

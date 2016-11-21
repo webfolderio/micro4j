@@ -30,7 +30,6 @@ import javax.ws.rs.core.Application;
 import com.micro4j.mvc.Configuration;
 import com.micro4j.mvc.Configuration.Builder;
 import com.micro4j.mvc.jaxrs.MvcFeature;
-import com.micro4j.mvc.jaxrs.WebJarController;
 
 public class PjaxApplication extends Application {
 
@@ -40,8 +39,6 @@ public class PjaxApplication extends Application {
         Configuration configuration = new Builder()
                                         .build();
         singletons.add(new MvcFeature(configuration));
-        boolean enableAssetGzip = true;
-        singletons.add(new WebJarController(configuration, enableAssetGzip));
         singletons.add(new PjaxController());
     }
 
