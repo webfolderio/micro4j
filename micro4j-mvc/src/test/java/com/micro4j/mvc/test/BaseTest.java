@@ -32,7 +32,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.Set;
 
 import javax.ws.rs.GET;
@@ -50,9 +49,6 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import com.micro4j.mvc.Configuration;
 import com.micro4j.mvc.View;
 import com.micro4j.mvc.ViewModel;
-import com.micro4j.mvc.asset.AssetInterceptor;
-import com.micro4j.mvc.asset.AssetScanner;
-import com.micro4j.mvc.asset.WebJarScanner;
 import com.micro4j.mvc.jaxrs.MvcFeature;
 import com.micro4j.mvc.jaxrs.WebJarController;
 import com.micro4j.mvc.message.MvcMessages;
@@ -157,26 +153,6 @@ public abstract class BaseTest {
         public TestApplication(boolean readGz) {
             classes = new HashSet<>();
 
-            AssetScanner scanner = new WebJarScanner() {
-
-                @Override
-                protected int getPriority(String path) {
-                    if ("webjars/lib.js".equals(path)) {
-                        return MAX_PRIORITY + 1;
-                    }
-                    return super.getPriority(path);
-                }
-
-                @Override
-                protected boolean isAsset(String path) {
-                    if (path.contains("bootstrap") && !path.endsWith("bootstrap.css")) {
-                        return false;
-                    }
-                    boolean asset = (isJs(path) && !isRequireJs(path)) || isCss(path);
-                    return asset;
-                }
-            };
-
             Configuration defaultConfiguraton = Configuration.defaultConfiguration();
 
             Configuration configuration = new Configuration
@@ -193,8 +169,7 @@ public abstract class BaseTest {
                                                 .enableTemplateCaching(true)
                                                 .locale(Locale.ENGLISH)
                                                 .interceptors(
-                                                        new MustacheI18nInterceptor("template.myapp"),
-                                                        new AssetInterceptor(scanner))
+                                                        new MustacheI18nInterceptor("template.myapp"))
                                                 .build();
 
             System.out.println(configuration.toString());
@@ -314,22 +289,6 @@ public abstract class BaseTest {
         request = new Request.Builder().url("http://localhost:4040/webjars/bootstrap/3.3.6/css/bootstrap.css").header(HttpHeaders.IF_MODIFIED_SINCE, lastModified).build();
         response = client.newCall(request).execute();
         assertEquals(304, response.code());
-    }
-
-    @Test
-    public void testAssetInterceptor() throws IOException {
-        Request request = new Request.Builder().url("http://localhost:4040/assets").build();
-        Response response = client.newCall(request).execute();
-        Scanner scanner = new Scanner(response.body().string());
-        String line1 = scanner.nextLine();
-        String line2 = scanner.nextLine();
-        String line3 = scanner.nextLine();
-        String line4 = scanner.nextLine();
-        assertEquals("<link type=\"text/css\" rel=\"stylesheet\" href=\"webjars/bootstrap/3.3.6/css/bootstrap.css\"></link>", line1);
-        assertEquals("<script type=\"text/javascript\" src=\"webjars/lib.js\"></script>", line2);
-        assertEquals("<script type=\"text/javascript\" src=\"webjars/jquery/1.11.1/jquery.js\"></script>", line3);
-        assertEquals("<script type=\"text/javascript\" src=\"webjars/jquery-pjax/1.9.6/jquery.pjax.js\"></script>", line4);
-        scanner.close();
     }
 
     @Test

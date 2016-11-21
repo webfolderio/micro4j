@@ -31,7 +31,6 @@ import org.junit.runners.Suite.SuiteClasses;
     TemplateEngineTest.class,
     ResteasyTest.class,
     JerseyTest.class,
-    AssetScannerTest.class,
     HtmlEscapeTest.class
 })
 public class AllTest {

@@ -2,7 +2,8 @@
 <html>
     <head>
         <title>{{title}}</title>
-		{{#assets}}{{/assets}}
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.pjax/1.9.6/jquery.pjax.min.js"></script>
         <script type="text/javascript">
             $(document).pjax('#menu a', '#container');
         </script>
