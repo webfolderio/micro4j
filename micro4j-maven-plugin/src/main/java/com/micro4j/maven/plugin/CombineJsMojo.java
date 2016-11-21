@@ -56,7 +56,9 @@ public class CombineJsMojo extends AbstractCombineMojo {
     @Component
     private BuildContext buildContext;
 
-    private static final Pattern REQUIRE_PATTERN = compile("\\s*var\\s+.*\\s*=\\s*require\\(['|\"](.*?)['|\"]\\)", DOTALL);
+    private static final Pattern[] REQUIRE_PATTERNS = new Pattern[] {
+            compile("\\s*var\\s+.*\\s*=\\s*require\\(['|\"](.*?)['|\"]\\)", DOTALL)
+    };
 
     @Override
     protected void init() {
@@ -97,7 +99,7 @@ public class CombineJsMojo extends AbstractCombineMojo {
     }
 
     @Override
-    protected Pattern getPattern() {
-        return REQUIRE_PATTERN;
+    protected Pattern[] getPatterns() {
+        return REQUIRE_PATTERNS;
     }
 }

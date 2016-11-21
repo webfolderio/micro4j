@@ -42,7 +42,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 
 public abstract class AbstractCombineMojo extends BaseMojo {
 
-    abstract protected Pattern getPattern();
+    abstract protected Pattern[] getPatterns();
 
     protected void beforeProcess(Path srcOrgFile, Path targetOrgFile) throws MojoExecutionException {
         if (exists(targetOrgFile)) {
@@ -72,13 +72,17 @@ public abstract class AbstractCombineMojo extends BaseMojo {
                     if (line.isEmpty() || line.startsWith("//") || line.startsWith("/*")) {
                         continue;
                     }
-                    Matcher matcher = getPattern().matcher(line);
-                    while (matcher.find()) {
-                        if (matcher.matches()) {
-                            if (matcher.groupCount() > 0) {
-                                String group = matcher.group(1);
-                                group = group.trim();
-                                imports.add(group);
+                    for (Pattern pattern : getPatterns()) {
+                        Matcher matcher = pattern.matcher(line);
+                        while (matcher.find()) {
+                            if (matcher.matches()) {
+                                if (matcher.groupCount() > 0) {
+                                    String group = matcher.group("path");
+                                    if ( group != null && ! group.trim().isEmpty() ) {
+                                        group = group.trim();
+                                        imports.add(group);
+                                    }
+                                }
                             }
                         }
                     }

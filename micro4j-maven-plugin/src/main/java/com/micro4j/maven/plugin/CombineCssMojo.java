@@ -56,7 +56,10 @@ public class CombineCssMojo extends AbstractCombineMojo {
     @Component
     private BuildContext buildContext;
 
-    private static final Pattern REQUIRE_PATTERN = compile("\\s*@import\\s+.*\\s*url\\(['|\"](.*?)['|\"]\\)", DOTALL);
+    private static final Pattern[] IMPORT_PATTERNS = new Pattern[] {
+            compile("\\s*@import\\s+.*\\s*url\\(['|\"](?<path>.*?)['|\"]\\)", DOTALL),
+            compile("\\s*@import\\s+.*['|\"](?<path>.*?)['|\"]", DOTALL)
+    };
 
     @Override
     protected void init() {
@@ -97,7 +100,7 @@ public class CombineCssMojo extends AbstractCombineMojo {
     }
 
     @Override
-    protected Pattern getPattern() {
-        return REQUIRE_PATTERN;
+    protected Pattern[] getPatterns() {
+        return IMPORT_PATTERNS;
     }
 }
