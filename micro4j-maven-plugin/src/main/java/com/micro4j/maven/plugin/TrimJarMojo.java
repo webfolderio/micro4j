@@ -22,15 +22,16 @@
  */
 package com.micro4j.maven.plugin;
 
+import static java.nio.file.Files.delete;
+import static java.nio.file.Files.exists;
+import static java.nio.file.Files.readAllLines;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PACKAGE;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -64,27 +65,26 @@ public class TrimJarMojo extends AbstractMojo {
         String finalName = project.getBuild().getFinalName();
         Path outPath = Paths.get(project.getBuild().getDirectory());
         Path jarFile = outPath.resolve(finalName + ".jar");
-        if (Files.exists(jarFile)) {
-            Scanner scanner = buildContext.newScanner(new File(project.getBuild().getSourceDirectory()), true);
+        if (exists(jarFile)) {
+            Scanner scanner = buildContext.newScanner(project.getBasedir(), true);
             scanner.setIncludes(trimJarIncludes);
             scanner.scan();
             Map<String, String> properties = new HashMap<>(); 
             properties.put("create", Boolean.FALSE.toString());
-            properties.put("encoding", StandardCharsets.UTF_8.name()); 
-
+            properties.put("encoding", StandardCharsets.UTF_8.name());
             try (FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + jarFile.toUri().toString()), properties)) {
                 Path root = fs.getPath("/");
                 for (String includedFile : scanner.getIncludedFiles()) {
                     try {
-                        List<String> lines = Files.readAllLines(Paths.get(includedFile));
+                        List<String> lines = readAllLines(project.getBasedir().toPath().resolve(includedFile));
                         for (String line : lines) {
                             line = line.trim();
                             if ( ! line.endsWith(".class") ) {
                                 continue;
                             }
                             Path classFile = root.resolve(line);
-                            if (Files.exists(classFile)) {
-                                Files.delete(classFile);
+                            if (exists(classFile)) {
+                                delete(classFile);
                             }
                         }
                     } catch (IOException e) {
