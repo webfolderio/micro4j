@@ -79,7 +79,7 @@ public class TrimJarMojo extends AbstractMojo {
                         List<String> lines = readAllLines(project.getBasedir().toPath().resolve(includedFile));
                         for (String line : lines) {
                             line = line.trim();
-                            if ( ! line.endsWith(".class") ) {
+                            if (line.isEmpty() || line.startsWith("#")) {
                                 continue;
                             }
                             Path classFile = root.resolve(line);
