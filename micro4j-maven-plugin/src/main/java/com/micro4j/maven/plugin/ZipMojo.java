@@ -22,11 +22,8 @@
  */
 package com.micro4j.maven.plugin;
 
-import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.nio.file.Files.delete;
-import static java.nio.file.Files.exists;
-import static java.nio.file.Files.readAllLines;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PACKAGE;
 
 import java.io.IOException;
@@ -36,7 +33,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -46,14 +42,11 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.util.Scanner;
 import org.sonatype.plexus.build.incremental.BuildContext;
+import static java.nio.file.Files.*;
 
-@Mojo(name = "trim-jar", defaultPhase = PACKAGE, threadSafe = true, requiresOnline = false, requiresReports = false)
-public class TrimJarMojo extends AbstractMojo {
-
-    @Parameter
-    private String[] trimJarIncludes = new String[] { };
+@Mojo(name = "zip", defaultPhase = PACKAGE, threadSafe = true, requiresOnline = false, requiresReports = false)
+public class ZipMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
@@ -61,40 +54,43 @@ public class TrimJarMojo extends AbstractMojo {
     @Component
     private BuildContext buildContext;
 
+    @Parameter(defaultValue = "${finalName}", required = false)
+    private String zipFileName;
+
+    private String[] zipEntries;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        String finalName = project.getBuild().getFinalName();
+        Map<String, String> properties = new HashMap<>(); 
+        properties.put("create", TRUE.toString());
+        properties.put("encoding", UTF_8.name());
+        String finalName = zipFileName == null || zipFileName.trim().isEmpty() ? project.getBuild().getFinalName() : zipFileName;
         Path outPath = Paths.get(project.getBuild().getDirectory());
-        Path jarFile = outPath.resolve(finalName + ".jar");
+        Path jarFile = outPath.resolve(finalName + ".zip");
         if (exists(jarFile)) {
-            Scanner scanner = buildContext.newScanner(project.getBasedir(), true);
-            scanner.setIncludes(trimJarIncludes);
-            scanner.scan();
-            Map<String, String> properties = new HashMap<>(); 
-            properties.put("create", FALSE.toString());
-            properties.put("encoding", UTF_8.name());
-            try (FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + jarFile.toUri().toString()), properties)) {
-                Path root = fs.getPath("/");
-                for (String includedFile : scanner.getIncludedFiles()) {
-                    try {
-                        List<String> lines = readAllLines(project.getBasedir().toPath().resolve(includedFile));
-                        for (String line : lines) {
-                            line = line.trim();
-                            if (line.isEmpty() || line.startsWith("#")) {
-                                continue;
-                            }
-                            Path classFile = root.resolve(line);
-                            if (exists(classFile)) {
-                                delete(classFile);
-                            }
-                        }
-                    } catch (IOException e) {
-                        getLog().error(e.getMessage(), e);
-                    }
-                }
+            try {
+                delete(jarFile);
             } catch (IOException e) {
-                getLog().error(e.getMessage(), e);
+                throw new MojoExecutionException(e.getMessage(), e);
             }
+        }
+        Path base = project.getBasedir().toPath().normalize().toAbsolutePath();
+        try (FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + jarFile.toUri().toString()), properties)) {
+            Path root = fs.getPath("/");
+            for (String entry : zipEntries) {
+                Path p = base.resolve(entry);
+                if ( ! exists(p) ) {
+                    createDirectories(root.resolve(p));
+                }
+            }
+            for (String entry : zipEntries) {
+                Path p = base.resolve(entry);
+                if (exists(p) && isRegularFile(p)) {
+                    copy(p, root.resolve(p));
+                }
+            }
+        } catch (IOException e) {
+            getLog().error(e.getMessage(), e);
         }
     }
 }
