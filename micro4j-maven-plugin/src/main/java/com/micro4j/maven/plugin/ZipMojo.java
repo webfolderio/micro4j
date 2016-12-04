@@ -85,11 +85,14 @@ public class ZipMojo extends AbstractMojo {
             for (String entry : zipEntries) {
                 String[] arr = entry.split(":");
                 Path src     = arr.length == 2 ? base.resolve(arr[0]) : base.resolve(entry);
-                Path dest    = arr.length == 2 ? base.resolve(arr[1]) : root.resolve(entry);
+                Path dest    = arr.length == 2 ? root.resolve(arr[1]) : root.resolve(entry);
                 if ( ! exists(src) ) {
                     createDirectories(root.resolve(dest));
                 }
                 if (exists(src) && isRegularFile(src)) {
+                    if ( ! exists(dest.getParent()) ) {
+                        createDirectories(dest.getParent());
+                    }
                     copy(src, dest);
                 }
             }
