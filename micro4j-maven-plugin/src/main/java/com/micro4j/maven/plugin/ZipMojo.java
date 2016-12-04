@@ -24,6 +24,11 @@ package com.micro4j.maven.plugin;
 
 import static java.lang.Boolean.TRUE;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.Files.copy;
+import static java.nio.file.Files.createDirectories;
+import static java.nio.file.Files.delete;
+import static java.nio.file.Files.exists;
+import static java.nio.file.Files.isRegularFile;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PACKAGE;
 
 import java.io.IOException;
@@ -43,7 +48,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.sonatype.plexus.build.incremental.BuildContext;
-import static java.nio.file.Files.*;
 
 @Mojo(name = "zip", defaultPhase = PACKAGE, threadSafe = true, requiresOnline = false, requiresReports = false)
 public class ZipMojo extends AbstractMojo {
@@ -57,6 +61,7 @@ public class ZipMojo extends AbstractMojo {
     @Parameter(defaultValue = "${finalName}", required = false)
     private String zipFileName;
 
+    @Parameter
     private String[] zipEntries;
 
     @Override
@@ -78,15 +83,14 @@ public class ZipMojo extends AbstractMojo {
         try (FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + jarFile.toUri().toString()), properties)) {
             Path root = fs.getPath("/");
             for (String entry : zipEntries) {
-                Path p = base.resolve(entry);
-                if ( ! exists(p) ) {
-                    createDirectories(root.resolve(p));
+                String[] arr = entry.split(":");
+                Path src     = arr.length == 2 ? base.resolve(arr[0]) : base.resolve(entry);
+                Path dest    = arr.length == 2 ? base.resolve(arr[1]) : root.resolve(entry);
+                if ( ! exists(src) ) {
+                    createDirectories(root.resolve(dest));
                 }
-            }
-            for (String entry : zipEntries) {
-                Path p = base.resolve(entry);
-                if (exists(p) && isRegularFile(p)) {
-                    copy(p, root.resolve(p));
+                if (exists(src) && isRegularFile(src)) {
+                    copy(src, dest);
                 }
             }
         } catch (IOException e) {
