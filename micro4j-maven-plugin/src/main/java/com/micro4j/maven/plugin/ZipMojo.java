@@ -81,7 +81,7 @@ public class ZipMojo extends AbstractMojo {
         }
         Path base = project.getBasedir().toPath().normalize().toAbsolutePath();
         try (FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + jarFile.toUri().toString()), properties)) {
-            Path root = fs.getPath("/");
+            Path root = createDirectories(fs.getPath("/").resolve(finalName));
             for (String entry : zipEntries) {
                 String[] arr = entry.split(":");
                 Path src     = arr.length == 2 ? base.resolve(arr[0]) : base.resolve(entry);
