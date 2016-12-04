@@ -72,7 +72,7 @@ public class ZipMojo extends AbstractMojo {
         String finalName = zipFileName == null || zipFileName.trim().isEmpty() ? project.getBuild().getFinalName() : zipFileName;
         Path outPath = Paths.get(project.getBuild().getDirectory());
         Path jarFile = outPath.resolve(finalName + ".zip");
-        if (exists(jarFile)) {
+        if (exists(jarFile) && isRegularFile(jarFile)) {
             try {
                 delete(jarFile);
             } catch (IOException e) {
