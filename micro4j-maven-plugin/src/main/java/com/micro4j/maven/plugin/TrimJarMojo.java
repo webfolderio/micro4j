@@ -75,9 +75,9 @@ public class TrimJarMojo extends AbstractMojo {
             properties.put("encoding", UTF_8.name());
             try (FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + jarFile.toUri().toString()), properties)) {
                 Path root = fs.getPath("/");
-                for (String includedFile : scanner.getIncludedFiles()) {
+                for (String include : scanner.getIncludedFiles()) {
                     try {
-                        List<String> lines = readAllLines(project.getBasedir().toPath().resolve(includedFile));
+                        List<String> lines = readAllLines(project.getBasedir().toPath().resolve(include));
                         for (String line : lines) {
                             line = line.trim();
                             if (line.isEmpty() || line.startsWith("#")) {
