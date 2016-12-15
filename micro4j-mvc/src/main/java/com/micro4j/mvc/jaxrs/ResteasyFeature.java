@@ -56,7 +56,8 @@ class ResteasyFeature implements Feature {
 
     protected void inject() {
         if (configuration.isEsacepHtml()) {
-            providerFactory.setInjectorFactory(new RestEasyInjectorFactory());
+            providerFactory.setInjectorFactory(
+                        new RestEasyInjectorFactory(configuration.escapeHtmlExcludes()));
         }
         for (TemplateIntereceptor interceptor : configuration.getInterceptors()) {
             inject(interceptor.getClass(), interceptor);

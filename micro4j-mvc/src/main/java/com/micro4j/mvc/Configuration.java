@@ -24,6 +24,7 @@ package com.micro4j.mvc;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptySet;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableSet;
 import static java.util.Locale.getDefault;
@@ -67,6 +68,8 @@ public class Configuration {
 
     private boolean esacepHtml;
 
+    private Set<String> escapeHtmlExcludes = emptySet();
+
     public static class Builder {
 
         private String container = "";
@@ -90,6 +93,8 @@ public class Configuration {
         private Set<String> fileTypeExtensions = new HashSet<>(asList("html"));
 
         private List<TemplateIntereceptor> interceptors = new ArrayList<>();
+
+        private Set<String> escapeHtmlExcludes = emptySet();
 
         private DefaultFormatter formatter = new MustacheFormatter();
 
@@ -115,6 +120,14 @@ public class Configuration {
                 throw new IllegalArgumentException("container");
             }
             this.container = container;
+            return this;
+        }
+
+        public Builder escapeHtmlExcludes(Set<String> escapeHtmlExcludes) {
+            if (escapeHtmlExcludes == null || escapeHtmlExcludes.size() <= 0) {
+                throw new IllegalArgumentException("escapeHtmlExcludes");
+            }
+            this.escapeHtmlExcludes = escapeHtmlExcludes;
             return this;
         }
 
@@ -202,6 +215,7 @@ public class Configuration {
             configuration.locale = locale;
             configuration.delims = delims;
             configuration.esacepHtml = escapeHtml;
+            configuration.escapeHtmlExcludes = escapeHtmlExcludes;
             for (TemplateIntereceptor interceptor : interceptors) {
                 interceptor.setConfiguration(configuration);
             }
@@ -251,6 +265,10 @@ public class Configuration {
 
     public Charset getCharset() {
         return charset;
+    }
+
+    public Set<String> escapeHtmlExcludes() {
+        return escapeHtmlExcludes;
     }
 
     public boolean isEnableTemplateCaching() {
