@@ -64,10 +64,6 @@ public class MvcFeature implements Feature {
             ResteasyFeature resteasyFeature = new ResteasyFeature(configuration);
             resteasyFeature.setViewWriter(createViewWriter(templateEngine));
             initialized = resteasyFeature.configure(context);
-        } else if (isJersey(context)) {
-            JerseyFeature jerseyFeature = new JerseyFeature(configuration);
-            jerseyFeature.setViewWriter(createViewWriter(templateEngine));
-            initialized = jerseyFeature.configure(context);
         } else {
             LOG.warn(getString("MvcFeature.initialization.failed"), // $NON-NLS-1$
                     new Object[] { MvcFeature.class.getSimpleName() });

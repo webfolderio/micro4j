@@ -49,10 +49,7 @@ public class CsrfFeature implements DynamicFeature {
     public void configure(ResourceInfo resourceInfo, FeatureContext context) {
         if (isResteasy(context)) {
             csrFilter = new RestEasyCsrfFilter(cache);
-        } else if (isJersey(context)) {
-            csrFilter = new JerseyCsrfFilter(cache);
-        }
-        if (ignore(resourceInfo.getResourceClass())) {
+        } if (ignore(resourceInfo.getResourceClass())) {
             return;
         }
         if (ignore(resourceInfo.getResourceMethod())) {

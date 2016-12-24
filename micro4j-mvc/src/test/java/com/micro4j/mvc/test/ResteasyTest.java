@@ -25,7 +25,6 @@ package com.micro4j.mvc.test;
 import static org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY;
 import static org.slf4j.impl.SimpleLogger.LOG_FILE_KEY;
 
-import org.glassfish.jersey.message.internal.InputStreamProvider;
 import org.jboss.resteasy.plugins.providers.DefaultTextPlain;
 import org.jboss.resteasy.plugins.providers.StringTextStar;
 import org.jboss.resteasy.plugins.server.sun.http.SunHttpJaxrsServer;
@@ -54,7 +53,6 @@ public class ResteasyTest extends BaseTest {
         deployment.setRegisterBuiltin(false);
         deployment.getActualProviderClasses().add(DefaultTextPlain.class);
         deployment.getActualProviderClasses().add(StringTextStar.class);
-        deployment.getActualProviderClasses().add(InputStreamProvider.class);
 
         server = new SunHttpJaxrsServer();
         server.setPort(4040);
