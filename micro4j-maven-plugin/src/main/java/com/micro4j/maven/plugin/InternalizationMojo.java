@@ -67,7 +67,9 @@ public class InternalizationMojo extends AbstractMojo {
     }
 
     protected void generate(File folder) throws MojoExecutionException {
-        Scanner scanner = buildContext.newScanner(folder);
+        boolean incremental = buildContext.isIncremental();
+        boolean ignoreDelta = incremental ? false : true;
+        Scanner scanner = buildContext.newScanner(folder, ignoreDelta);
         scanner.setIncludes(i18nIncludes);
         scanner.scan();
         for (String includedFile : scanner.getIncludedFiles()) {
