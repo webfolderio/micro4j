@@ -76,7 +76,7 @@ class EnumGenerator {
         return writer.toString();
     }
 
-    protected String toCamelCase(final String name) {
+    protected static String toCamelCase(final String name) {
         final StringBuilder builder = new StringBuilder();
         boolean capitalizeNextChar = false;
         boolean first = true;

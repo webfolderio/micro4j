@@ -71,7 +71,7 @@ public class InternalizationMojo extends AbstractMojo {
             className = includedFile.substring(start + 1, includedFile.length());
             int end = className.indexOf('.');
             if (start > 0) {
-                className = className.substring(0, end);
+                className = EnumGenerator.toCamelCase(className.substring(0, end));
             }
             EnumGenerator generator = new EnumGenerator(packageName, className, enumField);
             String source = generator.generate(content);
