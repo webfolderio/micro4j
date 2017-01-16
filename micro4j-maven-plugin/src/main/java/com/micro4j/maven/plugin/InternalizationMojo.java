@@ -110,7 +110,7 @@ public class InternalizationMojo extends AbstractMojo {
                     existingContent = existingContent.replaceAll("\\s+", "");
                     String newContent = source.replaceAll("\\s+", "");
                     if (existingContent.equals(newContent)) {
-                        return;
+                        continue;
                     }
                 }
             } catch (IOException e) {
