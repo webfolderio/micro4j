@@ -24,6 +24,7 @@ package com.micro4j.mvc.csrf;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Long.toHexString;
+import static org.jboss.resteasy.spi.ResteasyProviderFactory.getContextDataLevelCount;
 
 import java.security.SecureRandom;
 import java.util.List;
@@ -51,16 +52,19 @@ public class MustacheCsrfInterceptor extends TemplateIntereceptor {
     @Override
     public TemplateWrapper beforeExecute(String name, TemplateWrapper templateWrapper, Object context,
             Map<String, Object> parentContext) {
-        List<Object> resources = uriInfo.getMatchedResources();
-        if (resources == null || resources.isEmpty()) {
-            return templateWrapper;
-        }
-        boolean enable = false;
-        for (int i = 0; i < resources.size(); i++) {
-            Object resource = resources.get(i);
-            if (resource.getClass().isAnnotationPresent(EnableCsrfFilter.class)) {
-                enable = true;
-                break;
+        boolean enable = true;
+        if (getContextDataLevelCount() > 0) {
+            List<Object> resources = uriInfo.getMatchedResources();
+            if (resources == null || resources.isEmpty()) {
+                return templateWrapper;
+            }
+            enable = false;
+            for (int i = 0; i < resources.size(); i++) {
+                Object resource = resources.get(i);
+                if (resource.getClass().isAnnotationPresent(EnableCsrfFilter.class)) {
+                    enable = true;
+                    break;
+                }
             }
         }
         if (enable) {

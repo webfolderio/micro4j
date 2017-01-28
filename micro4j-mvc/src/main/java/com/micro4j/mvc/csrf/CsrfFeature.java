@@ -64,10 +64,6 @@ public class CsrfFeature implements DynamicFeature {
         return "ResteasyProviderFactory".equals(context.getConfiguration().getClass().getSimpleName());
     }
 
-    protected boolean isJersey(FeatureContext context) {
-        return context.getConfiguration().getClass().getName().startsWith("org.glassfish.jersey");
-    }
-
     protected boolean ignore(Class<?> klass) {
         return klass.isAnnotationPresent(GET.class) || klass.isAnnotationPresent(OPTIONS.class)
                 || klass.isAnnotationPresent(HEAD.class);

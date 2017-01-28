@@ -78,10 +78,6 @@ public class MvcFeature implements Feature {
         return "ResteasyProviderFactory".equals(context.getConfiguration().getClass().getSimpleName());
     }
 
-    protected boolean isJersey(FeatureContext context) {
-        return context.getConfiguration().getClass().getName().startsWith("org.glassfish.jersey");
-    }
-
     public Configuration getConfiguration() {
         return configuration;
     }
