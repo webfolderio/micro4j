@@ -24,7 +24,7 @@ package com.micro4j.maven.plugin;
 
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_RESOURCES;
 import static org.attoparser.config.ParseConfiguration.htmlConfiguration;
-import static com.micro4j.maven.plugin.MinimizeHtmlMarkupHandler.MinimizeMode.COMPLETE;
+import static org.attoparser.minimize.MinimizeHtmlMarkupHandler.MinimizeMode.ONLY_WHITE_SPACE;
 
 import java.io.StringWriter;
 import java.nio.file.Path;
@@ -37,10 +37,10 @@ import org.apache.maven.project.MavenProject;
 import org.attoparser.MarkupParser;
 import org.attoparser.ParseException;
 import org.attoparser.config.ParseConfiguration;
+import org.attoparser.minimize.MinimizeHtmlMarkupHandler;
+import org.attoparser.minimize.MinimizeHtmlMarkupHandler.MinimizeMode;
 import org.attoparser.output.OutputMarkupHandler;
 import org.sonatype.plexus.build.incremental.BuildContext;
-
-import com.micro4j.maven.plugin.MinimizeHtmlMarkupHandler.MinimizeMode;
 
 @Mojo(name = "minimize-html", defaultPhase = PROCESS_RESOURCES, threadSafe = true, requiresOnline = false, requiresReports = false)
 public class MinimizeHtmlMojo extends BaseMojo {
@@ -83,7 +83,7 @@ public class MinimizeHtmlMojo extends BaseMojo {
     }
 
     protected MinimizeMode getMinimizeMode() {
-        return COMPLETE;
+        return ONLY_WHITE_SPACE;
     }
 
     @Override
