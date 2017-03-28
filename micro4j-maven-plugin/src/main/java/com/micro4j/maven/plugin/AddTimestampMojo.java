@@ -81,6 +81,9 @@ public class AddTimestampMojo extends AbstractMojo {
         for (String includedFile : scanner.getIncludedFiles()) {
             Path file = outputDir.resolve(includedFile);
             Path fileName = file.getFileName();
+            if (fileName.toString().startsWith(timestamp)) {
+                continue;
+            }
             Path renamedFile = file.getParent().resolve(timestamp + "-" + fileName.toString());
             try {
                 if (exists(renamedFile)) {
