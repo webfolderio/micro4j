@@ -43,6 +43,7 @@ import org.sonatype.plexus.build.incremental.BuildContext;
 import com.google.javascript.jscomp.CompilationLevel;
 import com.google.javascript.jscomp.Compiler;
 import com.google.javascript.jscomp.CompilerOptions;
+import com.google.javascript.jscomp.CompilerOptions.LanguageMode;
 import com.google.javascript.jscomp.JSError;
 import com.google.javascript.jscomp.Result;
 import com.google.javascript.jscomp.SourceFile;
@@ -118,6 +119,7 @@ public class MinimizeJsMojo extends BaseMojo {
         SourceFile sourceFile = SourceFile.fromCode(srcFile.toString(), content);
         Compiler compiler = new Compiler(System.err);
         CompilerOptions options = new CompilerOptions();
+        options.setLanguageIn(LanguageMode.ECMASCRIPT_NEXT);
         CompilationLevel.SIMPLE_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
         SourceFile jQueryExternFile = SourceFile.fromCode("jquery-1.12_and_2.2.js", jqueryExtern);
         Result result = compiler.compile(jQueryExternFile, sourceFile, options);
