@@ -120,6 +120,7 @@ public class MinimizeJsMojo extends BaseMojo {
         Compiler compiler = new Compiler(System.err);
         CompilerOptions options = new CompilerOptions();
         options.setLanguageIn(LanguageMode.ECMASCRIPT_NEXT);
+        options.setLanguageOut(LanguageMode.ECMASCRIPT5);
         CompilationLevel.SIMPLE_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
         SourceFile jQueryExternFile = SourceFile.fromCode("jquery-1.12_and_2.2.js", jqueryExtern);
         Result result = compiler.compile(jQueryExternFile, sourceFile, options);
