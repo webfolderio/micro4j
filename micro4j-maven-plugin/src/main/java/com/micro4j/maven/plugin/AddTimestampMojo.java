@@ -58,6 +58,9 @@ public class AddTimestampMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
 
+    @Parameter
+    private boolean deleteExistingTimestampFiles = true;
+
     @Component
     private BuildContext buildContext;
 
@@ -92,6 +95,9 @@ public class AddTimestampMojo extends AbstractMojo {
                 UserDefinedFileAttributeView attributes = Files.getFileAttributeView(file, UserDefinedFileAttributeView.class);
                 try {
                     if (attributes.list().contains("added-timestamp")) {
+                        if (deleteExistingTimestampFiles) {
+                            delete(file);
+                        }
                         continue;
                     }
                 } catch (IOException e) {
