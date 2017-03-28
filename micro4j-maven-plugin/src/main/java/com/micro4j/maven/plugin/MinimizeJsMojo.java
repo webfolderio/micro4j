@@ -23,6 +23,7 @@
 package com.micro4j.maven.plugin;
 
 import static java.lang.Thread.currentThread;
+import static java.util.Arrays.asList;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_RESOURCES;
 import static org.sonatype.plexus.build.incremental.BuildContext.SEVERITY_ERROR;
 import static org.sonatype.plexus.build.incremental.BuildContext.SEVERITY_WARNING;
@@ -31,6 +32,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
@@ -40,6 +43,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.IOUtil;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
+import com.google.javascript.jscomp.AbstractCommandLineRunner;
 import com.google.javascript.jscomp.CompilationLevel;
 import com.google.javascript.jscomp.Compiler;
 import com.google.javascript.jscomp.CompilerOptions;
@@ -121,9 +125,16 @@ public class MinimizeJsMojo extends BaseMojo {
         CompilerOptions options = new CompilerOptions();
         options.setLanguageIn(LanguageMode.ECMASCRIPT_NEXT);
         options.setLanguageOut(LanguageMode.ECMASCRIPT5);
+        List<SourceFile> externs = new ArrayList<>();
+        try {
+            externs.addAll(AbstractCommandLineRunner.getBuiltinExterns(options.getEnvironment()));
+        } catch (IOException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
         CompilationLevel.SIMPLE_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
         SourceFile jQueryExternFile = SourceFile.fromCode("jquery-1.12_and_2.2.js", jqueryExtern);
-        Result result = compiler.compile(jQueryExternFile, sourceFile, options);
+        externs.add(jQueryExternFile);
+        Result result = compiler.compile(externs, asList(sourceFile), options);
         buildContext.removeMessages(srcFile.toFile());
         for (JSError error : result.warnings) {
             buildContext.addMessage(srcFile.toFile(), error.lineNumber, error.getCharno(), error.description, SEVERITY_WARNING, null);
