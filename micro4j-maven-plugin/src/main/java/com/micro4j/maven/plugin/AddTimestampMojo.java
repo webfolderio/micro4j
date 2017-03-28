@@ -22,6 +22,7 @@
  */
 package com.micro4j.maven.plugin;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.delete;
 import static java.nio.file.Files.exists;
 import static java.nio.file.Files.move;
@@ -30,7 +31,10 @@ import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PREPARE_PACKAGE;
 
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.UserDefinedFileAttributeView;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -57,6 +61,8 @@ public class AddTimestampMojo extends AbstractMojo {
     @Component
     private BuildContext buildContext;
 
+    private final boolean supportsUserFileAttribute = FileSystems.getDefault().supportedFileAttributeViews().contains("user");
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         String timestamp = project.getProperties().getProperty("timestamp");
@@ -81,15 +87,27 @@ public class AddTimestampMojo extends AbstractMojo {
         for (String includedFile : scanner.getIncludedFiles()) {
             Path file = outputDir.resolve(includedFile);
             Path fileName = file.getFileName();
-            if (fileName.toString().startsWith(timestamp)) {
-                continue;
-            }
             Path renamedFile = file.getParent().resolve(timestamp + "-" + fileName.toString());
+            if (supportsUserFileAttribute) {
+                UserDefinedFileAttributeView attributes = Files.getFileAttributeView(file, UserDefinedFileAttributeView.class);
+                try {
+                    if (attributes.list().contains("added-timestamp")) {
+                        continue;
+                    }
+                } catch (IOException e) {
+                    getLog().warn(e.getMessage(), e);
+                }
+            }
             try {
                 if (exists(renamedFile)) {
                     delete(renamedFile);
                 }
                 move(file, renamedFile, ATOMIC_MOVE);
+
+                if (supportsUserFileAttribute) {
+                    UserDefinedFileAttributeView attributes = Files.getFileAttributeView(renamedFile, UserDefinedFileAttributeView.class);
+                    attributes.write("added-timestamp", UTF_8.encode("true"));
+                }
             } catch (IOException e) {
                 getLog().error(e.getMessage(), e);
                 throw new MojoExecutionException(e.getMessage());
