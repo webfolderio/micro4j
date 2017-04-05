@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,9 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.sonatype.plexus.build.incremental.BuildContext;
+
+import com.samskivert.mustache.Mustache;
+import com.samskivert.mustache.Template;
 
 import net.htmlparser.jericho.Config;
 import net.htmlparser.jericho.Element;
@@ -114,6 +118,14 @@ public class JsIntegrityMojo extends BaseMojo {
                 if (src == null || src.trim().isEmpty()) {
                     continue;
                 }
+                
+                String timestamp = project.getProperties().getProperty("timestamp");
+                Template template = Mustache.compiler().compile(src);
+                Map<String, String> context = new HashMap<String, String>();
+                context.put("contextPath", "");
+                context.put("buildTime", timestamp);
+                src = template.execute(context);
+
                 String outputDirectory = project.getBuild().getOutputDirectory();
                 Path resource = get(outputDirectory)
                                         .resolve("resource");

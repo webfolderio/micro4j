@@ -5,7 +5,7 @@
     <parent>
         <artifactId>micro4j</artifactId>
         <groupId>com.micro4j.micro4j</groupId>
-        <version>1.6.17</version>
+        <version>1.6.18</version>
     </parent>
     <artifactId>micro4j-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
@@ -65,6 +65,11 @@
             <artifactId>javapoet</artifactId>
             <version>1.8.0</version>
         </dependency>
+		<dependency>
+		    <groupId>com.samskivert</groupId>
+		    <artifactId>jmustache</artifactId>
+		    <version>1.13</version>
+		</dependency>
         <dependency>
             <groupId>net.htmlparser.jericho</groupId>
             <artifactId>jericho-html</artifactId>
