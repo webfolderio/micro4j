@@ -22,12 +22,13 @@
  */
 package com.micro4j.maven.plugin;
 
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.exists;
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Paths.get;
 import static java.util.Base64.getEncoder;
-import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_RESOURCES;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.PREPARE_PACKAGE;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -54,7 +55,7 @@ import net.htmlparser.jericho.LoggerProvider;
 import net.htmlparser.jericho.OutputDocument;
 import net.htmlparser.jericho.Source;
 
-@Mojo(name = "js-integrity", defaultPhase = PROCESS_RESOURCES, threadSafe = true, requiresOnline = false, requiresReports = false)
+@Mojo(name = "js-integrity", defaultPhase = PREPARE_PACKAGE, threadSafe = true, requiresOnline = false, requiresReports = false)
 public class JsIntegrityMojo extends BaseMojo {
 
     @Parameter(defaultValue = "**/*.html")
