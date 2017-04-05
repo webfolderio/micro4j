@@ -116,7 +116,6 @@ public class JsIntegrityMojo extends BaseMojo {
                 }
                 String outputDirectory = project.getBuild().getOutputDirectory();
                 Path resource = get(outputDirectory)
-                                        .resolve("classes")
                                         .resolve("resource");
                 Path jsFile = resource.resolve(src);
                 if ( ! exists(jsFile) ) {
