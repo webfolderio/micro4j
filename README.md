@@ -5,7 +5,7 @@ micro4j is MVC framework for JAX-RS.
 
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/micro4j/micro4j/blob/master/LICENSE.md)
 [![circleci](https://img.shields.io/circleci/project/github/webfolderio/micro4j.svg?label=Build)](https://circleci.com/gh/webfolderio/micro4j)
-
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/11300700026043b79cbef2a4f1b8f26d)](https://www.codacy.com/app/WebFolder/micro4j?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=webfolderio/micro4j&amp;utm_campaign=Badge_Grade)
 
 Features
 --------
