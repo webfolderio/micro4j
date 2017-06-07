@@ -7,7 +7,7 @@
 	<version>1.6.19</version>
 	<packaging>pom</packaging>
 	<name>micro4j</name>
-    <inceptionYear>2016 - 2017</inceptionYear>
+	<inceptionYear>2016 - 2017</inceptionYear>
 	<modules>
 		<module>micro4j-mvc</module>
 		<module>micro4j-samples</module>
