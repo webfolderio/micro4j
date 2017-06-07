@@ -32,7 +32,7 @@ Getting Help
 
 ![WebFolder](https://raw.githubusercontent.com/webfolderio/micro4j/master/images/logo.png)
 
-micro4j is an MIT licensed open source project and completely free to use. However, the amount of effort needed to maintain and develop new features for the project is not sustainable without proper financial backing. You can support cdp4j development by 
+micro4j is an MIT licensed open source project and completely free to use. However, the amount of effort needed to maintain and develop new features for the project is not sustainable without proper financial backing. You can support micro4j development by 
 **buying** support package. Please [contact us](https://webfolder.io/support) for support packages & pricing.
 
  

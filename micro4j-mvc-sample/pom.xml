@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>io.webfolder</groupId>
 		<artifactId>micro4j</artifactId>
-		<version>1.7.0</version>
+		<version>1.7.1</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>micro4j-mvc-sample</artifactId>
@@ -26,7 +26,7 @@
 		<dependency>
 			<groupId>io.webfolder</groupId>
 			<artifactId>micro4j-mvc</artifactId>
-			<version>1.7.0</version>
+			<version>1.7.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.resteasy</groupId>
