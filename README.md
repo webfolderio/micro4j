@@ -19,6 +19,22 @@ Stability
 ---------
 This library is suitable for use in production systems.
  
+
+Integration with Maven
+----------------------
+
+To use the official release of micro4j, please use the following snippet in your `pom.xml` file.
+
+Add the following to your POM's `<dependencies>` tag:
+
+```xml
+<dependency>
+    <groupId>io.webfolder</groupId>
+    <artifactId>micro4j-mvc</artifactId>
+    <version>1.7.1</version>
+</dependency>
+```
+ 
 Building micro4j
 ----------------
 `mvn install`
