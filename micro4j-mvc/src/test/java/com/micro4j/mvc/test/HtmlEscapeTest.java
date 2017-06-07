@@ -42,13 +42,14 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.micro4j.mvc.Configuration.Builder;
-import com.micro4j.mvc.jaxrs.MvcFeature;
 import com.squareup.okhttp.FormEncodingBuilder;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
+
+import io.webfolder.micro4j.mvc.Configuration.Builder;
+import io.webfolder.micro4j.mvc.jaxrs.MvcFeature;
 
 public class HtmlEscapeTest {
 

@@ -41,11 +41,11 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.micro4j.mvc.Configuration;
-import com.micro4j.mvc.mustache.MustacheClasspathLoader;
-import com.micro4j.mvc.mustache.MustacheLocalLoader;
-import com.micro4j.mvc.mustache.MustacheTemplateEngine;
-import com.micro4j.mvc.template.TemplateEngine;
+import io.webfolder.micro4j.mvc.Configuration;
+import io.webfolder.micro4j.mvc.mustache.MustacheClasspathLoader;
+import io.webfolder.micro4j.mvc.mustache.MustacheLocalLoader;
+import io.webfolder.micro4j.mvc.mustache.MustacheTemplateEngine;
+import io.webfolder.micro4j.mvc.template.TemplateEngine;
 
 public class TemplateEngineTest {
 

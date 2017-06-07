@@ -45,16 +45,17 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import com.micro4j.mvc.Configuration;
-import com.micro4j.mvc.MvcMessages;
-import com.micro4j.mvc.View;
-import com.micro4j.mvc.ViewModel;
-import com.micro4j.mvc.jaxrs.MvcFeature;
-import com.micro4j.mvc.mustache.MustacheFormatter;
-import com.micro4j.mvc.mustache.MustacheI18nInterceptor;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
+
+import io.webfolder.micro4j.mvc.Configuration;
+import io.webfolder.micro4j.mvc.MvcMessages;
+import io.webfolder.micro4j.mvc.View;
+import io.webfolder.micro4j.mvc.ViewModel;
+import io.webfolder.micro4j.mvc.jaxrs.MvcFeature;
+import io.webfolder.micro4j.mvc.mustache.MustacheFormatter;
+import io.webfolder.micro4j.mvc.mustache.MustacheI18nInterceptor;
 
 public abstract class BaseTest {
 
