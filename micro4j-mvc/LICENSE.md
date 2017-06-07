@@ -4,7 +4,7 @@ This project is licensed under the terms of the **MIT license**.
 
 https://opensource.org/licenses/MIT
  
-> Copyright (c) 2016 http://micro4j.com
+> Copyright (c) 2016-2017 https://webfolder.io
 >
 > Permission is hereby granted, free of charge, to any person obtaining a copy
 > of this software and associated documentation files (the "Software"), to deal
