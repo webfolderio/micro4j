@@ -10,7 +10,7 @@
 	<inceptionYear>2016 - 2017</inceptionYear>
 	<modules>
 		<module>micro4j-mvc</module>
-		<module>micro4j-samples</module>
+		<module>micro4j-mvc-sample</module>
 		<module>micro4j-maven-plugin</module>
 	</modules>
 	<properties>

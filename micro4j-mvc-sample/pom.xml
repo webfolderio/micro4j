@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.micro4j.micro4j</groupId>
-		<artifactId>micro4j-samples</artifactId>
+		<artifactId>micro4j</artifactId>
 		<version>1.7.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>

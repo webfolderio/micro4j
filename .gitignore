@@ -17,3 +17,7 @@
 /micro4j-persistence/target
 /micro4j-persistence/.classpath
 /micro4j-maven-plugin/micro4j-cache
+/micro4j-mvc-sample/.project
+/micro4j-mvc-sample/.settings
+/micro4j-mvc-sample/target
+/micro4j-mvc-sample/.classpath
