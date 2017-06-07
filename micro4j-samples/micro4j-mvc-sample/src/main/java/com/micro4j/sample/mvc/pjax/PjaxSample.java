@@ -22,16 +22,18 @@
  */
 package com.micro4j.sample.mvc.pjax;
 
-import static java.net.URI.create;
-import static org.glassfish.jersey.server.ResourceConfig.forApplication;
-import static org.glassfish.jersey.simple.SimpleContainerFactory.create;
-
-import org.glassfish.jersey.server.ResourceConfig;
+import org.jboss.resteasy.plugins.server.sun.http.SunHttpJaxrsServer;
+import org.jboss.resteasy.spi.ResteasyDeployment;
 
 public class PjaxSample {
 
     public static void main(String[] args) {
-        ResourceConfig resourceConfig = forApplication(new PjaxApplication());
-        create(create("http://localhost:8080"), resourceConfig);
+        ResteasyDeployment deployment = new ResteasyDeployment();
+        deployment.setApplication(new PjaxApplication());
+        SunHttpJaxrsServer server = new SunHttpJaxrsServer();
+        server.setPort(8080);
+        server.setRootResourcePath("/");
+        server.setDeployment(deployment);
+        server.start();
     }
 }
