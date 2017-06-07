@@ -8,6 +8,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>micro4j-mvc-sample</artifactId>
+    <inceptionYear>2016 - 2017</inceptionYear>
     <build>
         <plugins>
             <plugin>

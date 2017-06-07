@@ -9,8 +9,10 @@
     </parent>
     <artifactId>micro4j-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
-    <name>micro4j-maven-plugin Maven Plugin</name>
+    <name>micro4-maven-plugin</name>
+    <inceptionYear>2016 - 2017</inceptionYear>
     <url>http://micro4j.com</url>
+    <description>Micro4j Maven Plugin</description>
     <dependencies>
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
