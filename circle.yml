@@ -19,7 +19,7 @@ jobs:
 
       - run:
           name: Execute Maven
-          command: mvn -Dmaven.javadoc.skip=true -DskipTests -B -V -q install
+          command: mvn -Dmaven.javadoc.skip=true -DskipTests -B -V -q package
 
       - run:
           name: Execute Test
