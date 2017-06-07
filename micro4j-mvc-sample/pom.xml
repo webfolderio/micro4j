@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>com.micro4j.micro4j</groupId>
+		<groupId>io.webfolder</groupId>
 		<artifactId>micro4j</artifactId>
 		<version>1.7.0</version>
 		<relativePath>../pom.xml</relativePath>
@@ -24,7 +24,7 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>com.micro4j.micro4j</groupId>
+			<groupId>io.webfolder</groupId>
 			<artifactId>micro4j-mvc</artifactId>
 			<version>1.7.0</version>
 		</dependency>

@@ -1,41 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.micro4j.micro4j</groupId>
-	<artifactId>micro4j</artifactId>
-	<version>1.7.0</version>
-	<packaging>pom</packaging>
-	<name>micro4j</name>
-	<inceptionYear>2016 - 2017</inceptionYear>
-	<modules>
-		<module>micro4j-mvc</module>
-		<module>micro4j-mvc-sample</module>
-		<module>micro4j-maven-plugin</module>
-	</modules>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>com.mycila</groupId>
-				<artifactId>license-maven-plugin</artifactId>
-				<version>3.0</version>
-				<configuration>
-					<header>com/mycila/maven/plugin/license/templates/MIT.txt</header>
-					<properties>
-						<owner>WebFolder OÜ</owner>
-						<email>support@webfolder.io</email>
-					</properties>
-					<excludes>
-						<exclude>pom.xml</exclude>
-						<exclude>src/test/resources/**</exclude>
-						<exclude>src/main/resources/**</exclude>
-					</excludes>
-				</configuration>
-			</plugin>
-
-		</plugins>
-	</build>
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.webfolder</groupId>
+    <artifactId>micro4j</artifactId>
+    <version>1.7.0</version>
+    <packaging>pom</packaging>
+    <name>micro4j</name>
+    <inceptionYear>2016 - 2017</inceptionYear>
+    <modules>
+        <module>micro4j-mvc</module>
+        <module>micro4j-mvc-sample</module>
+        <module>micro4j-maven-plugin</module>
+    </modules>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <scm>
+        <url>https://github.com/webfolderio/micro4j.git</url>
+    </scm>
+    <licenses>
+        <license>
+            <name>The MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <url>https://webfolder.io</url>
+    <organization>
+        <name>WebFolder OÜ</name>
+        <url>https://webfolder.io</url>
+    </organization>
+    <developers>
+        <developer>
+            <name>WebFolder</name>
+            <email>support@webfolder.io</email>
+            <timezone>GMT+2</timezone>
+            <organization>WebFolder OÜ</organization>
+            <url>https://webfolder.io</url>
+            <organizationUrl>https://webfolder.io</organizationUrl>
+        </developer>
+    </developers>
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+        </repository>
+    </distributionManagement>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>3.0</version>
+                <configuration>
+                    <header>com/mycila/maven/plugin/license/templates/MIT.txt</header>
+                    <properties>
+                        <owner>WebFolder OÜ</owner>
+                        <email>support@webfolder.io</email>
+                    </properties>
+                    <excludes>
+                        <exclude>pom.xml</exclude>
+                        <exclude>src/test/resources/**</exclude>
+                        <exclude>src/main/resources/**</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
