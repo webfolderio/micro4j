@@ -12,8 +12,6 @@ jobs:
       - restore_cache:
           key: micro4j-{{ checksum "pom.xml" }}
 
-      - run: mvn dependency:go-offline
-
       - save_cache:
           paths:
             - ~/.m2
