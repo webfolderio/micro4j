@@ -29,6 +29,6 @@ public class InvalidCsrfTokenException extends MvcException {
     private static final long serialVersionUID = 1L;
 
     public InvalidCsrfTokenException() {
-        super("Invalid csrf token");
+        super("Invalid CSRF token");
     }
 }

@@ -22,6 +22,8 @@
  */
 package com.micro4j.mvc.csrf;
 
+import static java.util.Collections.emptyMap;
+
 import java.lang.reflect.Method;
 import java.util.Map;
 
@@ -32,8 +34,6 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.DynamicFeature;
 import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.FeatureContext;
-
-import static java.util.Collections.emptyMap;
 
 public class CsrfFeature implements DynamicFeature {
 
@@ -47,21 +47,13 @@ public class CsrfFeature implements DynamicFeature {
 
     @Override
     public void configure(ResourceInfo resourceInfo, FeatureContext context) {
-        if (isResteasy(context)) {
-            csrFilter = new RestEasyCsrfFilter(cache);
-        } if (ignore(resourceInfo.getResourceClass())) {
-            return;
-        }
+        csrFilter = new RestEasyCsrfFilter(cache);
         if (ignore(resourceInfo.getResourceMethod())) {
             return;
         }
         if (resourceInfo.getResourceClass().isAnnotationPresent(EnableCsrfFilter.class)) {
             context.register(csrFilter);
         }
-    }
-
-    protected boolean isResteasy(FeatureContext context) {
-        return "ResteasyProviderFactory".equals(context.getConfiguration().getClass().getSimpleName());
     }
 
     protected boolean ignore(Class<?> klass) {
