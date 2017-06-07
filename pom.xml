@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.micro4j.micro4j</groupId>
 	<artifactId>micro4j</artifactId>
-	<version>1.6.19</version>
+	<version>1.7.0</version>
 	<packaging>pom</packaging>
 	<name>micro4j</name>
 	<inceptionYear>2016 - 2017</inceptionYear>
