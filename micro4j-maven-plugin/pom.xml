@@ -5,7 +5,7 @@
     <parent>
         <artifactId>micro4j</artifactId>
         <groupId>io.webfolder</groupId>
-        <version>1.7.1</version>
+        <version>1.7.2</version>
     </parent>
     <artifactId>micro4j-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
