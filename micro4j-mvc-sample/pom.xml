@@ -57,7 +57,7 @@
         <dependency>
             <groupId>io.webfolder</groupId>
             <artifactId>micro4j-mvc</artifactId>
-            <version>1.7.1</version>
+            <version>1.7.2</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
