@@ -4,11 +4,11 @@
     <parent>
         <groupId>io.webfolder</groupId>
         <artifactId>micro4j</artifactId>
-        <version>1.7.2</version>
+        <version>1.7.3</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>micro4j-mvc</artifactId>
-    <inceptionYear>2016 - 2017</inceptionYear>
+    <inceptionYear>2016 - 2018</inceptionYear>
     <description>micro4j mvc</description>
     <build>
         <plugins>

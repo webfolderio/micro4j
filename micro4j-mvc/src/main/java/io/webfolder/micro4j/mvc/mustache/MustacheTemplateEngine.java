@@ -1,6 +1,6 @@
 /**
  * The MIT License
- * Copyright © 2016 - 2017 WebFolder OÜ
+ * Copyright © 2016 - 2018 WebFolder OÜ
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,13 +27,12 @@ import static com.samskivert.mustache.Mustache.compiler;
 import com.samskivert.mustache.Mustache.Compiler;
 import com.samskivert.mustache.Mustache.Formatter;
 import com.samskivert.mustache.Mustache.TemplateLoader;
+import com.samskivert.mustache.Template;
 
 import io.webfolder.micro4j.mvc.Configuration;
 import io.webfolder.micro4j.mvc.template.AbstractTemplateEngine;
 import io.webfolder.micro4j.mvc.template.ContentLoader;
 import io.webfolder.micro4j.mvc.template.TemplateWrapper;
-
-import com.samskivert.mustache.Template;
 
 public class MustacheTemplateEngine extends AbstractTemplateEngine {
 
@@ -60,6 +59,7 @@ public class MustacheTemplateEngine extends AbstractTemplateEngine {
                 .withLoader((TemplateLoader) contentLoader)
                 .nullValue(configuration.getNullValue())
                 .withDelims(configuration.getDelims())
+                .escapeHTML(configuration.isEsacepHtml())
                 .withFormatter((Formatter) configuration.getFormatter());
     }
 }

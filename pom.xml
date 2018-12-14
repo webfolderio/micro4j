@@ -4,15 +4,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.webfolder</groupId>
     <artifactId>micro4j</artifactId>
-    <version>1.7.2</version>
+    <version>1.7.3</version>
     <packaging>pom</packaging>
     <name>micro4j</name>
-    <inceptionYear>2016 - 2017</inceptionYear>
+    <inceptionYear>2016 - 2018</inceptionYear>
     <description>JAX-RS MVC Framework</description>
     <modules>
         <module>micro4j-mvc</module>
         <module>micro4j-mvc-sample</module>
-        <module>micro4j-maven-plugin</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
