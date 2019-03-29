@@ -8,14 +8,14 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>micro4j-mvc</artifactId>
-    <inceptionYear>2016 - 2018</inceptionYear>
+    <inceptionYear>2016 - 2019</inceptionYear>
     <description>micro4j mvc</description>
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.6.0</version>
+                <version>3.8.0</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -89,6 +89,7 @@
                                     implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
                                         <Dependencies>org.slf4j</Dependencies>
+                                        <Automatic-Module-Name>io.webfolder.micro4j</Automatic-Module-Name>
                                         <Package-Version>${project.version}</Package-Version>
                                         <Bundle-Version>${project.version}</Bundle-Version>
                                         <Specification-Version>${project.version}</Specification-Version>
@@ -120,7 +121,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.8</version>
+                <version>0.8.3</version>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
@@ -167,7 +168,7 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version>
+            <version>4.0.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -209,7 +210,7 @@
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-jdk-http</artifactId>
-            <version>3.1.3.Final</version>
+            <version>3.6.3.Final</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
