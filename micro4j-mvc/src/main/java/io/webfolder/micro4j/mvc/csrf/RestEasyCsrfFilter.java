@@ -27,7 +27,8 @@ import java.util.Map;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.MultivaluedMap;
 
-import org.jboss.resteasy.core.interception.jaxrs.PostMatchContainerRequestContext;
+import org.jboss.resteasy.core.interception.PostMatchContainerRequestContext;
+
 
 public class RestEasyCsrfFilter extends AbstractCsrfFilter {
 
@@ -37,7 +38,7 @@ public class RestEasyCsrfFilter extends AbstractCsrfFilter {
 
     @Override
     protected MultivaluedMap<String, String> getFormParameters(ContainerRequestContext requestContext) {
-        PostMatchContainerRequestContext ctx = (PostMatchContainerRequestContext) requestContext;
-        return ctx.getHttpRequest().getFormParameters();
+		PostMatchContainerRequestContext ctx = (PostMatchContainerRequestContext) requestContext;
+		return ctx.getHttpRequest().getFormParameters();
     }
 }
