@@ -22,13 +22,14 @@
  */
 package io.webfolder.micro4j.sample.helloworld;
 
+import org.jboss.resteasy.core.ResteasyDeploymentImpl;
 import org.jboss.resteasy.plugins.server.sun.http.SunHttpJaxrsServer;
 import org.jboss.resteasy.spi.ResteasyDeployment;
 
-public class ResteasySample {
+public class HelloWorldSample {
 
     public static void main(String[] args) {
-        ResteasyDeployment deployment = new ResteasyDeployment();
+        ResteasyDeployment deployment = new ResteasyDeploymentImpl();
         deployment.setApplication(new HelloWorldApplication());
         SunHttpJaxrsServer server = new SunHttpJaxrsServer();
         server.setPort(8080);

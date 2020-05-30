@@ -24,7 +24,7 @@ package io.webfolder.micro4j.mvc.csrf;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Long.toHexString;
-import static org.jboss.resteasy.spi.ResteasyProviderFactory.getContextDataLevelCount;
+import static org.jboss.resteasy.core.ResteasyContext.getContextDataLevelCount;
 
 import java.security.SecureRandom;
 import java.util.List;

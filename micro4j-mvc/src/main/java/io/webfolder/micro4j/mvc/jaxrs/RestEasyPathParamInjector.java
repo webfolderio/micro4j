@@ -42,8 +42,8 @@ class RestEasyPathParamInjector extends PathParamInjector {
     }
 
     @Override
-    public Object inject(HttpRequest request, HttpResponse response) {
-        Object value = super.inject(request, response);
+    public Object inject(HttpRequest request, HttpResponse response, boolean unwrapAsync) {
+        Object value = super.inject(request, response, unwrapAsync);
         if (value != null && value instanceof String) {
             return escape((String) value);
         }

@@ -20,24 +20,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.webfolder.micro4j.mvc.csrf;
+package io.webfolder.micro4j.sample.htmx;
 
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Application;
 
-import org.jboss.resteasy.core.interception.jaxrs.PostMatchContainerRequestContext;
+import io.webfolder.micro4j.mvc.jaxrs.MvcFeature;
 
-public class RestEasyCsrfFilter extends AbstractCsrfFilter {
+public class HelloWorldApplication extends Application {
 
-    public RestEasyCsrfFilter(Map<String, Boolean> cache) {
-        super(cache);
+    private final Set<Object> singletons = new HashSet<>();
+
+    public HelloWorldApplication() {
+        singletons.add(new MvcFeature());
+        singletons.add(new HtmxController());
     }
 
     @Override
-    protected MultivaluedMap<String, String> getFormParameters(ContainerRequestContext requestContext) {
-        PostMatchContainerRequestContext ctx = (PostMatchContainerRequestContext) requestContext;
-        return ctx.getHttpRequest().getFormParameters();
+    public Set<Object> getSingletons() {
+        return singletons;
     }
 }

@@ -20,24 +20,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.webfolder.micro4j.mvc.csrf;
+package io.webfolder.micro4j.sample.htmx;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
 
-import org.jboss.resteasy.core.interception.jaxrs.PostMatchContainerRequestContext;
+import io.webfolder.micro4j.mvc.View;
 
-public class RestEasyCsrfFilter extends AbstractCsrfFilter {
+@Path("/")
+public class HtmxController {
 
-    public RestEasyCsrfFilter(Map<String, Boolean> cache) {
-        super(cache);
+    @GET
+    @Path("/")
+    @View("view/htmx/page.html")
+    public Map<String, Object> index() {
+        return Collections.emptyMap();
     }
 
-    @Override
-    protected MultivaluedMap<String, String> getFormParameters(ContainerRequestContext requestContext) {
-        PostMatchContainerRequestContext ctx = (PostMatchContainerRequestContext) requestContext;
-        return ctx.getHttpRequest().getFormParameters();
+    @GET
+    @Path("/show")
+    @View("view/htmx/clicked.html")
+    public Map<String, Object> clicked() {
+        Map<String, Object> model = new HashMap<>();
+        model.put("name", "micro4j");
+        return model;
+    }
+
+    @POST
+    @Path("/clicked")
+    @View("view/htmx/clicked.html")
+    public Map<String, Object> clicked(@FormParam("name") String name) {
+        Map<String, Object> model = new HashMap<>();
+        model.put("name", name != null &&  ! name.trim().isEmpty() ? name : "micro4j");
+        return model;
     }
 }

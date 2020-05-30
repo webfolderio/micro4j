@@ -31,11 +31,15 @@ import io.webfolder.micro4j.mvc.jaxrs.MvcFeature;
 
 public class HelloWorldApplication extends Application {
 
-    @Override
-    public Set<Object> getSingletons() {
-        Set<Object> singletons = new HashSet<>();
+    private final Set<Object> singletons = new HashSet<>();
+
+    public HelloWorldApplication() {
         singletons.add(new MvcFeature());
         singletons.add(new HelloWorldController());
+    }
+
+    @Override
+    public Set<Object> getSingletons() {
         return singletons;
     }
 }

@@ -33,7 +33,7 @@ import io.webfolder.micro4j.mvc.jaxrs.MvcFeature;
 
 public class PjaxApplication extends Application {
 
-    private Set<Object> singletons = new HashSet<>();
+    private final Set<Object> singletons = new HashSet<>();
 
     public PjaxApplication() {
         Configuration configuration = new Builder()

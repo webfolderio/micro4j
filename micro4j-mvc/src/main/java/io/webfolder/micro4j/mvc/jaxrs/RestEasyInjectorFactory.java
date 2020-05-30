@@ -25,8 +25,8 @@ package io.webfolder.micro4j.mvc.jaxrs;
 import java.util.Set;
 
 import org.jboss.resteasy.core.InjectorFactoryImpl;
-import org.jboss.resteasy.core.ValueInjector;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
+import org.jboss.resteasy.spi.ValueInjector;
 import org.jboss.resteasy.spi.metadata.Parameter;
 
 class RestEasyInjectorFactory extends InjectorFactoryImpl {

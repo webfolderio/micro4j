@@ -34,6 +34,7 @@ import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.ws.rs.GET;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
@@ -55,17 +56,24 @@ public class ViewWriter implements MessageBodyWriter<Object> {
 
     private static final String PJAX = "X-PJAX";
 
+    private static final String HTMX = "X-HX-Request";
+
     public ViewWriter(TemplateEngine engine) {
         this.engine = engine;
     }
 
     @Override
     public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-        return isCompatibleMediaType(mediaType) && isView(type, annotations);
+        return isCompatibleMediaType(mediaType, annotations) && isView(type, annotations);
     }
 
-    protected boolean isCompatibleMediaType(MediaType mediaType) {
-        return TEXT_HTML_TYPE.isCompatible(mediaType);
+    protected boolean isCompatibleMediaType(MediaType mediaType, Annotation[] annotations) {
+        for (Annotation next : annotations) {
+            if (GET.class.equals(next.getClass()) && ! TEXT_HTML_TYPE.isCompatible(mediaType) ) {
+                return false;
+            }
+        }
+        return true;
     }
 
     protected boolean isView(Class<?> type, Annotation[] annotations) {
@@ -149,6 +157,7 @@ public class ViewWriter implements MessageBodyWriter<Object> {
     }
 
     protected boolean isPjaxRequest(MultivaluedMap<String, Object> httpHeaders) {
-        return headers.getHeaderString(PJAX) != null;
+        return headers.getHeaderString(PJAX) != null ||
+               "true".equals(headers.getHeaderString(HTMX));
     }
 }

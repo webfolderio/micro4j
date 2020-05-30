@@ -39,6 +39,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 
+import org.jboss.resteasy.core.ResteasyDeploymentImpl;
 import org.jboss.resteasy.plugins.server.sun.http.SunHttpJaxrsServer;
 import org.jboss.resteasy.spi.ResteasyDeployment;
 import org.junit.AfterClass;
@@ -52,8 +53,8 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
-import io.webfolder.micro4j.mvc.View;
 import io.webfolder.micro4j.mvc.Configuration.Builder;
+import io.webfolder.micro4j.mvc.View;
 import io.webfolder.micro4j.mvc.csrf.CsrfFeature;
 import io.webfolder.micro4j.mvc.csrf.EnableCsrfFilter;
 import io.webfolder.micro4j.mvc.csrf.MustacheCsrfInterceptor;
@@ -85,7 +86,7 @@ public class CsrfTest {
 
     @BeforeClass
     public static void beforeTest() {
-        deployment = new ResteasyDeployment();
+        deployment = new ResteasyDeploymentImpl();
         deployment.setApplication(new TestApplication());
         server = new SunHttpJaxrsServer();
         server.setPort(4040);

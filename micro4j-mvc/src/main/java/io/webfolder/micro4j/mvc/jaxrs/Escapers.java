@@ -28,22 +28,21 @@ class Escapers {
         if (content == null) {
             return null;
         }
+        if (content.isEmpty()) {
+            return "";
+        }
         int len = content.length();
         StringBuilder builder = new StringBuilder(len);
         for (int i = 0; i < len; i++) {
             char ascii = content.charAt(i);
-            if (ascii == 60) {
-                builder.append("&lt;");   // <
-            } else if (ascii == 62) {
-                builder.append("&gt;");   // >
-            } else if (ascii == 38) {
-                builder.append("&amp;");  // &
-            } else if (ascii == 39) {
-                builder.append("&#39;");  // '
-            } else if (ascii == 96) {
-                builder.append("&#x60;"); // `
-            } else {
-                builder.append(ascii);
+            switch (ascii) {
+                case 60: builder.append("&lt;");   break; // <
+                case 62: builder.append("&gt;");   break; // >
+                case 38: builder.append("&amp;");  break; // &
+                case 39: builder.append("&#39;");  break; // '
+                case 96: builder.append("&#x60;"); break; // `
+                case 61: builder.append("&#x3D;"); break; // =
+                default: builder.append(ascii);
             }
         }
         return builder.toString();

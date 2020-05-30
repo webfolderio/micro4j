@@ -38,7 +38,7 @@ public class HelloWorldController {
 
     @GET
     @Path("/")
-    public void inde() {
+    public void index() {
         throw new WebApplicationException(Response.temporaryRedirect(URI.create("/hello")).build());
     }
 

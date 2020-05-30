@@ -20,24 +20,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.webfolder.micro4j.mvc.csrf;
+package io.webfolder.micro4j.sample.htmx;
 
-import java.util.Map;
+import org.jboss.resteasy.plugins.server.sun.http.SunHttpJaxrsServer;
+import org.jboss.resteasy.spi.ResteasyDeployment;
 
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.MultivaluedMap;
+public class HtmxSample {
 
-import org.jboss.resteasy.core.interception.jaxrs.PostMatchContainerRequestContext;
-
-public class RestEasyCsrfFilter extends AbstractCsrfFilter {
-
-    public RestEasyCsrfFilter(Map<String, Boolean> cache) {
-        super(cache);
-    }
-
-    @Override
-    protected MultivaluedMap<String, String> getFormParameters(ContainerRequestContext requestContext) {
-        PostMatchContainerRequestContext ctx = (PostMatchContainerRequestContext) requestContext;
-        return ctx.getHttpRequest().getFormParameters();
+    public static void main(String[] args) {
+        SunHttpJaxrsServer server = new SunHttpJaxrsServer();
+        ResteasyDeployment deployment = server.getDeployment();
+        deployment.setApplication(new HelloWorldApplication());
+        server.setPort(8080);
+        server.setRootResourcePath("/");
+        server.setDeployment(deployment);
+        server.start();
     }
 }

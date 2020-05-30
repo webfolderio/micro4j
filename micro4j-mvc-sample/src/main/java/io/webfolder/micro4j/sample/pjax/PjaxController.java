@@ -22,16 +22,12 @@
  */
 package io.webfolder.micro4j.sample.pjax;
 
-import static java.net.URI.create;
-import static javax.ws.rs.core.Response.Status.MOVED_PERMANENTLY;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.RedirectionException;
 import javax.ws.rs.core.MediaType;
 
 import io.webfolder.micro4j.mvc.View;
@@ -42,8 +38,9 @@ public class PjaxController {
 
     @GET
     @Path("/")
-    public void index() {
-        throw new RedirectionException("index", MOVED_PERMANENTLY, create("/page1"));
+    @View(value = "view/pjax/page-1.html", container = "view/pjax/container.html")
+    public Map<String, Object> index() {
+        return page1();
     }
 
     @GET

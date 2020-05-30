@@ -25,6 +25,7 @@ package com.micro4j.mvc.test;
 import static org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY;
 import static org.slf4j.impl.SimpleLogger.LOG_FILE_KEY;
 
+import org.jboss.resteasy.core.ResteasyDeploymentImpl;
 import org.jboss.resteasy.plugins.providers.DefaultTextPlain;
 import org.jboss.resteasy.plugins.providers.StringTextStar;
 import org.jboss.resteasy.plugins.server.sun.http.SunHttpJaxrsServer;
@@ -48,7 +49,7 @@ public class ResteasyTest extends BaseTest {
 
     @BeforeClass
     public static void before() {
-        deployment = new ResteasyDeployment();
+        deployment = new ResteasyDeploymentImpl();
         deployment.setApplication(new TestApplication(true));
         deployment.setRegisterBuiltin(false);
         deployment.getActualProviderClasses().add(DefaultTextPlain.class);

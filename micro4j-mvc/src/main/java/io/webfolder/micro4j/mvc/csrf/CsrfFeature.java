@@ -22,8 +22,6 @@
  */
 package io.webfolder.micro4j.mvc.csrf;
 
-import static java.util.Collections.emptyMap;
-
 import java.lang.reflect.Method;
 import java.util.Map;
 
@@ -39,7 +37,7 @@ public class CsrfFeature implements DynamicFeature {
 
     private ContainerRequestFilter csrFilter;
 
-    private Map<String, Boolean> cache = emptyMap();
+    private final Map<String, Boolean> cache;
 
     public CsrfFeature(Map<String, Boolean> cache) {
         this.cache = cache;

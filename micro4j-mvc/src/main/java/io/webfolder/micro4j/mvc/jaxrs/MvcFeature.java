@@ -26,14 +26,24 @@ import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
 import javax.ws.rs.ext.MessageBodyWriter;
 
+import org.jboss.resteasy.spi.InjectorFactory;
+import org.jboss.resteasy.spi.PropertyInjector;
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
+
 import io.webfolder.micro4j.mvc.Configuration;
 import io.webfolder.micro4j.mvc.Configuration.Builder;
 import io.webfolder.micro4j.mvc.mustache.MustacheTemplateEngine;
+import io.webfolder.micro4j.mvc.template.DefaultFormatter;
 import io.webfolder.micro4j.mvc.template.TemplateEngine;
+import io.webfolder.micro4j.mvc.template.TemplateIntereceptor;
 
 public class MvcFeature implements Feature {
 
+    private ResteasyProviderFactory providerFactory;
+
     private Configuration configuration;
+
+    private MessageBodyWriter<?> viewWriter;
 
     private TemplateEngine templateEngine;
 
@@ -52,21 +62,44 @@ public class MvcFeature implements Feature {
 
     @Override
     public boolean configure(FeatureContext context) {
-        ResteasyFeature resteasyFeature = new ResteasyFeature(configuration);
-        resteasyFeature.setViewWriter(createViewWriter(templateEngine));
-        resteasyFeature.configure(context);
+        providerFactory = (ResteasyProviderFactory) context.getConfiguration();
+        inject();
+        viewWriter = new ViewWriter(templateEngine);
+        context.register(viewWriter);
         return true;
     }
 
-    public Configuration getConfiguration() {
-        return configuration;
+    protected void inject() {
+        if (configuration.isEsacepHtml()) {
+            providerFactory.setInjectorFactory(
+                        new RestEasyInjectorFactory(configuration.escapeHtmlExcludes()));
+        }
+        for (TemplateIntereceptor interceptor : configuration.getInterceptors()) {
+            inject(interceptor.getClass(), interceptor);
+            interceptor.init();
+        }
+        DefaultFormatter formatter = configuration.getFormatter();
+        if (formatter != null) {
+            inject(formatter.getClass(), formatter);
+        }
+        if (DefaultFormatter.class.isAssignableFrom(formatter.getClass())) {
+            ((DefaultFormatter) formatter).init();
+        }
     }
 
-    public TemplateEngine getTemplateEngine() {
-        return templateEngine;
+    protected void inject(Class<?> klass, Object object) {
+        InjectorFactory injectorFactory = getInjectorFactory();
+        PropertyInjector injector = injectorFactory.createPropertyInjector(klass, providerFactory);
+        injector.inject(object, false);
     }
 
-    protected MessageBodyWriter<?> createViewWriter(TemplateEngine templateEngine) {
-        return new ViewWriter(templateEngine);
+    protected InjectorFactory getInjectorFactory() {
+        InjectorFactory injectorFactory = providerFactory.getInjectorFactory();
+        injectorFactory = providerFactory.getInjectorFactory();
+        return injectorFactory;
+    }
+
+    protected void setViewWriter(MessageBodyWriter<?> viewWriter) {
+        this.viewWriter = viewWriter;
     }
 }
