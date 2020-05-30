@@ -51,4 +51,4 @@ micro4j is regularly built and tested on [circleci](https://circleci.com/gh/webf
 
 License
 -------
-Licensed under the [Apache License](https://github.com/webfolderio/micro4j/blob/master/LICENSE.md).
+Licensed under the [Apache License](https://github.com/webfolderio/micro4j/blob/master/LICENSE).
