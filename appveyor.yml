@@ -2,10 +2,6 @@ version: 1.0.'{build}'
 
 configuration: Release
 
-platform: x64
-
-stack: jdk 11
-
 cache:
   - C:\Users\appveyor\.m2 -> pom.xml
 

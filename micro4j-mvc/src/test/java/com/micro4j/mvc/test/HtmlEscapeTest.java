@@ -118,7 +118,7 @@ public class HtmlEscapeTest {
     public void test() throws Exception {
         Request request = new Request.Builder().url("http://localhost:4040/page?param=<div click='javascript: alert('hello');'>").get().build();
         Response response = client.newCall(request).execute();
-        Assert.assertEquals("&lt;div click=&#39;javascript: alert(&#39;hello&#39;);&#39;&gt;", response.body().string());
+        Assert.assertEquals("&lt;div click&#x3D;&#39;javascript: alert(&#39;hello&#39;);&#39;&gt;", response.body().string());
 
         RequestBody body = new FormEncodingBuilder().add("param", "<p1>").add("param", "<p2>").build();
         request = new Request.Builder().url("http://localhost:4040/form").post(body).build();
