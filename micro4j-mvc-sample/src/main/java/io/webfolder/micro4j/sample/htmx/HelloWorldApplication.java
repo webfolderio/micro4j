@@ -27,14 +27,21 @@ import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
+import io.webfolder.micro4j.mvc.Configuration;
 import io.webfolder.micro4j.mvc.jaxrs.MvcFeature;
+import io.webfolder.micro4j.mvc.mustachejava.MustacheI18nInterceptor;
+import io.webfolder.micro4j.mvc.mustachejava.MustacheTemplateEngine;
 
 public class HelloWorldApplication extends Application {
 
     private final Set<Object> singletons = new HashSet<>();
 
     public HelloWorldApplication() {
-        singletons.add(new MvcFeature());
+        Configuration conf = new Configuration.Builder()
+                                    .interceptors(new MustacheI18nInterceptor("localization.ui"))
+                                .build();
+        singletons.add(new MvcFeature(conf,
+                new MustacheTemplateEngine(conf)));
         singletons.add(new HtmxController());
     }
 

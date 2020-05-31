@@ -41,12 +41,13 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 
+import io.webfolder.micro4j.mvc.mustachejava.MustacheI18nLambda;
 import io.webfolder.micro4j.mvc.template.TemplateIntereceptor;
 import io.webfolder.micro4j.mvc.template.TemplateWrapper;
 
 public class MustacheI18nInterceptor extends TemplateIntereceptor {
 
-    private String baseName;
+    private final String baseName;
 
     @Context
     private HttpHeaders headers;
@@ -54,7 +55,9 @@ public class MustacheI18nInterceptor extends TemplateIntereceptor {
     @Context
     private UriInfo uriInfo;
 
-    private ConcurrentMap<Locale, MustacheI18nLambda> lambdas = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Locale, MustacheI18nLambda> lambdas = new ConcurrentHashMap<>();
+
+    private final Map<String, Locale> locales = new ConcurrentHashMap<>();
 
     public MustacheI18nInterceptor(String baseName) {
         this.baseName = baseName;
@@ -105,7 +108,12 @@ public class MustacheI18nInterceptor extends TemplateIntereceptor {
         if (lang == null || lang.trim().isEmpty()) {
             return null;
         }
-        Locale locale = new Locale(lang);
+        Locale locale = locales.get(lang);
+        if (locale != null) {
+            return locale;
+        }
+        locale = new Locale(lang);
+        locales.put(lang, locale);
         return locale;
     }
 

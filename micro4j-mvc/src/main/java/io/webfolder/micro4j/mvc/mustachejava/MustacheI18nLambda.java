@@ -22,25 +22,37 @@
  */
 package io.webfolder.micro4j.mvc.mustachejava;
 
-import java.io.Reader;
-import java.io.StringReader;
-import java.nio.file.Path;
-import java.util.Set;
+import static io.webfolder.micro4j.mvc.MvcMessages.getString;
+import static org.slf4j.LoggerFactory.getLogger;
 
-import com.github.mustachejava.MustacheResolver;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+import java.util.function.Function;
 
-import io.webfolder.micro4j.mvc.Configuration;
-import io.webfolder.micro4j.mvc.template.LocalLoader;
+import org.slf4j.Logger;
 
-public class MustacheLocalLoader extends LocalLoader implements MustacheResolver {
+public class MustacheI18nLambda implements Function<String, String> {
 
-	public MustacheLocalLoader(Configuration configuration, Set<Path> paths) {
-		super(configuration, paths);
-	}
+    private final ResourceBundle bundle;
 
-	@Override
-	public Reader getReader(String resourceName) {
-        String content = get(resourceName);
-        return new StringReader(content);
-	}
+    private static final Logger LOG = getLogger(MustacheI18nLambda.class);
+
+    public MustacheI18nLambda(ResourceBundle bundle) {
+        this.bundle = bundle;
+    }
+
+    @Override
+    public String apply(String key) {
+        if (key == null) {
+            return "";
+        }
+        String value = null;
+        try {
+            value = bundle.getString(key);
+        } catch(MissingResourceException e) {
+            LOG.error(getString("MustacheI18nLambda.key.not.found"), new Object[] { key });
+            return "";
+        }
+        return value;
+    }
 }

@@ -22,13 +22,10 @@
  */
 package io.webfolder.micro4j.sample.htmx;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
 import io.webfolder.micro4j.mvc.View;
@@ -38,26 +35,26 @@ public class HtmxController {
 
     @GET
     @Path("/")
-    @View("view/htmx/page.html")
+    @View(value = "view/htmx/page-1.html", container = "view/htmx/container.html")
     public Map<String, Object> index() {
-        return Collections.emptyMap();
+        return page1();
     }
 
     @GET
-    @Path("/show")
-    @View("view/htmx/clicked.html")
-    public Map<String, Object> clicked() {
+    @Path("/page1")
+    @View(value = "view/htmx/page-1.html", container = "view/htmx/container.html")
+    public Map<String, Object> page1() {
         Map<String, Object> model = new HashMap<>();
-        model.put("name", "micro4j");
+        model.put("title", "Page 1");
         return model;
     }
 
-    @POST
-    @Path("/clicked")
-    @View("view/htmx/clicked.html")
-    public Map<String, Object> clicked(@FormParam("name") String name) {
+    @GET
+    @Path("/page2")
+    @View(value = "view/htmx/page-2.html", container = "view/htmx/container.html")
+    public Map<String, Object> page2() {
         Map<String, Object> model = new HashMap<>();
-        model.put("name", name != null &&  ! name.trim().isEmpty() ? name : "micro4j");
+        model.put("title", "Page 2");
         return model;
     }
 }

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{title}}</title>
+    	<script src="https://unpkg.com/htmx.org@0.0.4"></script>
+        <style type="text/css">
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: sans-serif;
+                line-height: 1.5em;
+            }
+            #menu {
+                padding: 10px;
+                border-bottom: 1px solid #eee;
+                background-color: #FDFF00;
+            }
+            #container {
+                padding: 10px;
+            }
+            h1 {
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="menu">
+            <a href="#" hx-get="/page1" hx-target="#container">page 1</a>
+            <a href="#" hx-get="/page2" hx-target="#container">page 2</a>
+        </div>
+        <div id="container">
+            {{#body}}{{/body}}
+        </div>
+    </body>
+</html>
