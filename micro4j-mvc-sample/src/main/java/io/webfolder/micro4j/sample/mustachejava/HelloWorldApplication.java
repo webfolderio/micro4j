@@ -1,6 +1,6 @@
 /**
  * The MIT License
- * Copyright © 2016 - 2020 WebFolder OÜ
+ * Copyright © 2016 - 2019 WebFolder OÜ
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,24 +20,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.webfolder.micro4j.mvc.mustache;
+package io.webfolder.micro4j.sample.mustachejava;
 
-import java.io.Writer;
+import java.util.HashSet;
+import java.util.Set;
 
-import com.samskivert.mustache.Template;
+import javax.ws.rs.core.Application;
 
-import io.webfolder.micro4j.mvc.template.TemplateWrapper;
+import io.webfolder.micro4j.mvc.Configuration;
+import io.webfolder.micro4j.mvc.jaxrs.MvcFeature;
+import io.webfolder.micro4j.mvc.mustachejava.MustacheTemplateEngine;
 
-public class MustacheTemplateWrapper implements TemplateWrapper {
+public class HelloWorldApplication extends Application {
 
-    private final Template template;
+    private final Set<Object> singletons = new HashSet<>();
 
-    public MustacheTemplateWrapper(Template template) {
-        this.template = template;
+    public HelloWorldApplication() {
+        Configuration conf = Configuration.defaultConfiguration();
+        singletons.add(new MvcFeature(conf,
+                new MustacheTemplateEngine(conf)));
+        singletons.add(new HelloWorldController());
     }
 
     @Override
-    public void execute(Object context, Object parentContext, Writer writer) {
-        template.execute(context, parentContext, writer);
+    public Set<Object> getSingletons() {
+        return singletons;
     }
 }

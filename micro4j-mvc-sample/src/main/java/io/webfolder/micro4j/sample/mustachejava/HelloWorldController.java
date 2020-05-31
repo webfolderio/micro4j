@@ -1,6 +1,6 @@
 /**
  * The MIT License
- * Copyright © 2016 - 2020 WebFolder OÜ
+ * Copyright © 2016 - 2019 WebFolder OÜ
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,24 +20,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.webfolder.micro4j.mvc.mustache;
+package io.webfolder.micro4j.sample.mustachejava;
 
-import java.io.Writer;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.samskivert.mustache.Template;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 
-import io.webfolder.micro4j.mvc.template.TemplateWrapper;
+import io.webfolder.micro4j.mvc.View;
 
-public class MustacheTemplateWrapper implements TemplateWrapper {
+@Path("/")
+public class HelloWorldController {
 
-    private final Template template;
-
-    public MustacheTemplateWrapper(Template template) {
-        this.template = template;
+    @GET
+    @Path("/")
+    public void index() {
+        throw new WebApplicationException(Response.temporaryRedirect(URI.create("/hello")).build());
     }
 
-    @Override
-    public void execute(Object context, Object parentContext, Writer writer) {
-        template.execute(context, parentContext, writer);
+    @GET
+    @Path("/hello")
+    @View("view/helloworld/page.html")
+    public Map<String, Object> hello() {
+        Map<String, Object> model = new HashMap<>();
+        model.put("message", "hello, world!");
+        return model;
     }
 }

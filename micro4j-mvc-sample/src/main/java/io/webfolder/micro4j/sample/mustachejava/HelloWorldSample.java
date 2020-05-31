@@ -1,6 +1,6 @@
 /**
  * The MIT License
- * Copyright © 2016 - 2020 WebFolder OÜ
+ * Copyright © 2016 - 2019 WebFolder OÜ
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,24 +20,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.webfolder.micro4j.mvc.mustache;
+package io.webfolder.micro4j.sample.mustachejava;
 
-import java.io.Writer;
+import org.jboss.resteasy.core.ResteasyDeploymentImpl;
+import org.jboss.resteasy.plugins.server.sun.http.SunHttpJaxrsServer;
+import org.jboss.resteasy.spi.ResteasyDeployment;
 
-import com.samskivert.mustache.Template;
+public class HelloWorldSample {
 
-import io.webfolder.micro4j.mvc.template.TemplateWrapper;
-
-public class MustacheTemplateWrapper implements TemplateWrapper {
-
-    private final Template template;
-
-    public MustacheTemplateWrapper(Template template) {
-        this.template = template;
-    }
-
-    @Override
-    public void execute(Object context, Object parentContext, Writer writer) {
-        template.execute(context, parentContext, writer);
+    public static void main(String[] args) {
+        ResteasyDeployment deployment = new ResteasyDeploymentImpl();
+        deployment.setApplication(new HelloWorldApplication());
+        SunHttpJaxrsServer server = new SunHttpJaxrsServer();
+        server.setPort(8080);
+        server.setRootResourcePath("/");
+        server.setDeployment(deployment);
+        server.start();
     }
 }
