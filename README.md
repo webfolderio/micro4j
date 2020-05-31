@@ -1,5 +1,5 @@
 micro4j - JAX-RS MVC Framework
-================================
+==============================
 
 micro4j is MVC framework for JAX-RS.
 
@@ -11,7 +11,7 @@ Features
 --------
  * Built-in integration with [PJAX](https://github.com/defunkt/jquery-pjax).
  * [CsrfFeature](https://github.com/webfolderio/micro4j/blob/master/micro4j-mvc/src/main/java/io/webfolder/micro4j/mvc/csrf/CsrfFeature.java) help prevent Cross-Site Request Forgery (CSRF) attacks.
- * Supports mustache template engine with [jmustache](https://github.com/samskivert/jmustache).
+ * Supports mustache template engine with [jmustache](https://github.com/samskivert/jmustache) and  [mustache.java](https://github.com/spullara/mustache.java).
  * Lightweight architecture, micro4j does not require external dependency except [RestEasy Framework](https://github.com/resteasy/resteasy).
  * Built-in support to prevent SQL injection attacks.
 
@@ -47,7 +47,7 @@ Building micro4j
 
 How it is tested
 ----------------
-micro4j is regularly built and tested on [circleci](https://circleci.com/gh/webfolderio/micro4j).
+micro4j is regularly built and tested on [appveyor](https://ci.appveyor.com/project/WebFolder/micro4j).
 
 License
 -------
