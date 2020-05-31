@@ -41,7 +41,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 
-import io.webfolder.micro4j.mvc.mustachejava.MustacheI18nLambda;
 import io.webfolder.micro4j.mvc.template.TemplateIntereceptor;
 import io.webfolder.micro4j.mvc.template.TemplateWrapper;
 
