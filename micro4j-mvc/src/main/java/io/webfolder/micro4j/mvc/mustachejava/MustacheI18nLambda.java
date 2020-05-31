@@ -25,6 +25,8 @@ package io.webfolder.micro4j.mvc.mustachejava;
 import static io.webfolder.micro4j.mvc.MvcMessages.getString;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.function.Function;
@@ -33,12 +35,23 @@ import org.slf4j.Logger;
 
 public class MustacheI18nLambda implements Function<String, String> {
 
-    private final ResourceBundle bundle;
+    private final Map<String, String> templates = new HashMap<>();
+
+    private ResourceBundle bundle;
+
+    private final boolean enableCache;
 
     private static final Logger LOG = getLogger(MustacheI18nLambda.class);
 
-    public MustacheI18nLambda(ResourceBundle bundle) {
-        this.bundle = bundle;
+    public MustacheI18nLambda(ResourceBundle bundle, boolean enableCache) {
+        this.enableCache = enableCache;
+        if (enableCache) {
+            for (String key : bundle.keySet()) {
+                String value = bundle.getString(key);
+                templates.put(key, value);
+            }
+        } else 
+            this.bundle = bundle;
     }
 
     @Override
@@ -47,12 +60,18 @@ public class MustacheI18nLambda implements Function<String, String> {
             return "";
         }
         String value = null;
-        try {
-            value = bundle.getString(key);
-        } catch(MissingResourceException e) {
-            LOG.error(getString("MustacheI18nLambda.key.not.found"), new Object[] { key });
-            return "";
+        if (enableCache) {
+            value = templates.get(key);
+        } else {
+            try {
+                value = bundle.getString(key);
+            } catch (MissingResourceException e) {
+            }
         }
-        return value;
+        if (value != null) {
+            return value;
+        }
+        LOG.error(getString("MustacheI18nLambda.key.not.found"), new Object[] { key });
+        return key;
     }
 }

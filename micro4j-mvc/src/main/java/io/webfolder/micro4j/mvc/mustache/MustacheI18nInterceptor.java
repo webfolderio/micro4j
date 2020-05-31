@@ -64,19 +64,16 @@ public class MustacheI18nInterceptor extends TemplateIntereceptor {
 
     @Override
     public TemplateWrapper beforeExecute(String name, TemplateWrapper templateWrapper, Object context, Map<String, Object> parentContext) {
-        Locale locale = getPreferedLocale();
-        if (locale == null) {
-            locale = getRequestLocale();
-        }
-        if (locale == null) {
-            locale = configuration.getLocale();
-        }
-        ResourceBundle bundle = getResourceBundle(locale);
+        Locale requestLocale = getRequestLocale();
+        final Locale locale = requestLocale != null ? requestLocale : configuration.getLocale();
         MustacheI18nLambda lambda = null;
         if (configuration.isEnableTemplateCaching()) {
-            lambda = lambdas.computeIfAbsent(locale, (l) -> new MustacheI18nLambda(bundle));
+            lambda = lambdas.computeIfAbsent(locale, (l) ->
+                            new MustacheI18nLambda(getResourceBundle(locale),
+                                    configuration.isEnableTemplateCaching()));
         } else {
-            lambda = new MustacheI18nLambda(bundle);
+            ResourceBundle bundle = getResourceBundle(locale);
+            lambda = new MustacheI18nLambda(bundle, configuration.isEnableTemplateCaching());
         }
         parentContext.put("i18n", lambda);
         return templateWrapper;
@@ -88,8 +85,11 @@ public class MustacheI18nInterceptor extends TemplateIntereceptor {
     }
 
     protected Locale getRequestLocale() {
-        List<Locale> languages = getHttpHeaders().getAcceptableLanguages();
         String acceptLanguage = getHttpHeaders().getHeaderString(ACCEPT_LANGUAGE);
+        if (acceptLanguage == null) {
+            return null;
+        }
+        List<Locale> languages = getHttpHeaders().getAcceptableLanguages();
         List<LanguageRange> ranges = emptyList();
         if (acceptLanguage != null && !acceptLanguage.trim().isEmpty()) {
             ranges = parse(acceptLanguage);

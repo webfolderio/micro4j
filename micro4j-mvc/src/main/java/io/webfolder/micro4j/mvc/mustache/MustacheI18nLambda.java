@@ -22,51 +22,60 @@
  */
 package io.webfolder.micro4j.mvc.mustache;
 
-import static com.samskivert.mustache.Mustache.compiler;
 import static io.webfolder.micro4j.mvc.MvcMessages.getString;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 
-import com.samskivert.mustache.Mustache.Compiler;
 import com.samskivert.mustache.Mustache.Lambda;
-import com.samskivert.mustache.Template;
 import com.samskivert.mustache.Template.Fragment;
 
 public class MustacheI18nLambda implements Lambda {
 
-    private final Map<String, Template> templates = new ConcurrentHashMap<>();
+    private final Map<String, String> templates = new HashMap<>();
+
+    private ResourceBundle bundle;
+
+    private final boolean enableCache;
 
     private static final Logger LOG = getLogger(MustacheI18nLambda.class);
 
-    public MustacheI18nLambda(ResourceBundle bundle) {
-        Compiler compiler = compiler().escapeHTML(false);
-        for (String key : bundle.keySet()) {
-            String value = bundle.getString(key);
-            Template template = compiler.compile(value);
-            templates.put(key, template);
+    public MustacheI18nLambda(ResourceBundle bundle, boolean enableCache) {
+        this.enableCache = enableCache;
+        if (enableCache) {
+            for (String key : bundle.keySet()) {
+                String value = bundle.getString(key);
+                templates.put(key, value);
+            }
+        } else {
+            this.bundle = bundle;
         }
     }
 
     @Override
     public void execute(Fragment frag, Writer out) throws IOException {
-        String key = frag.execute().trim();
-        Template template = templates.get(key);
-        if (template == null) {
-            LOG.error(getString("MustacheI18nLambda.key.not.found"), new Object[] { key });
-            out.write(key);            
+        String key = frag.execute();
+        String value = null;
+        if (enableCache) {
+            value = templates.get(key);
         } else {
-            Object parentContext = frag.context(1);
-            StringWriter writer = new StringWriter();
-            template.execute(frag.context(), parentContext, writer);
-            out.write(writer.toString());
+            try {
+                value = bundle.getString(key);
+            } catch (MissingResourceException e) {
+            }
         }
+        if (value != null) {
+            out.write(value);
+            return;
+        }
+        LOG.error(getString("MustacheI18nLambda.key.not.found"), new Object[] { key });
+        out.write(key);
     }
 }
