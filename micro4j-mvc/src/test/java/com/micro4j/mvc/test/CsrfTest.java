@@ -88,6 +88,7 @@ public class CsrfTest {
     public static void beforeTest() {
         deployment = new ResteasyDeploymentImpl();
         deployment.setApplication(new TestApplication());
+        deployment.setRegisterBuiltin(false);
         server = new SunHttpJaxrsServer();
         server.setPort(4040);
         server.setRootResourcePath("/");

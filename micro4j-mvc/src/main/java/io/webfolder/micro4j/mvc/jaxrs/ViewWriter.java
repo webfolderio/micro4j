@@ -67,9 +67,11 @@ public class ViewWriter implements MessageBodyWriter<Object> {
     }
 
     protected boolean isCompatibleMediaType(MediaType mediaType, Annotation[] annotations) {
-        for (Annotation next : annotations) {
-            if (GET.class.equals(next.getClass()) && ! TEXT_HTML_TYPE.isCompatible(mediaType) ) {
-                return false;
+        if (annotations != null) {
+            for (Annotation next : annotations) {
+                if (GET.class.equals(next.getClass()) && ! TEXT_HTML_TYPE.isCompatible(mediaType) ) {
+                    return false;
+                }
             }
         }
         return true;

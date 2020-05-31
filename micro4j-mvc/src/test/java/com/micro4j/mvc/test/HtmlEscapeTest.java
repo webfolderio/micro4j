@@ -35,9 +35,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Application;
 
-import org.jboss.resteasy.core.ResteasyDeploymentImpl;
 import org.jboss.resteasy.plugins.server.sun.http.SunHttpJaxrsServer;
-import org.jboss.resteasy.spi.ResteasyDeployment;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -65,20 +63,16 @@ public class HtmlEscapeTest {
         }
     }
 
-    private static ResteasyDeployment deployment;
-
     private static SunHttpJaxrsServer server;
 
     private static OkHttpClient client;
 
     @BeforeClass
     public static void beforeTest() {
-        deployment = new ResteasyDeploymentImpl();
-        deployment.setApplication(new TestApplication());
         server = new SunHttpJaxrsServer();
+        server.getDeployment().setApplication(new TestApplication());
         server.setPort(4040);
         server.setRootResourcePath("/");
-        server.setDeployment(deployment);
         server.start();
 
         client = new OkHttpClient();
@@ -90,9 +84,6 @@ public class HtmlEscapeTest {
     
     @AfterClass
     public static void afterTest() {
-        if (deployment != null) {
-            deployment.stop();
-        }
         if (server != null) {
             server.stop();
         }
