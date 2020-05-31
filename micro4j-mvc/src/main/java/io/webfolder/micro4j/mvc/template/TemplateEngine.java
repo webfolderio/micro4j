@@ -34,4 +34,6 @@ public interface TemplateEngine {
     Configuration getConfiguration();
 
     ContentLoader getContentLoader();
+
+    Object createFunction(String content);
 }

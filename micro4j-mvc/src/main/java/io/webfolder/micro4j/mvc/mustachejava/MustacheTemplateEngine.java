@@ -35,4 +35,9 @@ public class MustacheTemplateEngine extends AbstractTemplateEngine {
         MustacheFactory compiler = new DefaultMustacheFactory((MustacheResolver) contentLoader);
         return compiler;
     }
+
+    @Override
+    public Object createFunction(String content) {
+        return new MustacheContentLamabda(content);
+    }
 }

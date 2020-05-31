@@ -20,15 +20,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.webfolder.micro4j.mvc.mustache;
+package io.webfolder.micro4j.mvc.mustachejava;
 
-import java.io.IOException;
-import java.io.Writer;
+import java.util.function.Function;
 
-import com.samskivert.mustache.Mustache.Lambda;
-import com.samskivert.mustache.Template.Fragment;
-
-public class MustacheContentLamabda implements Lambda {
+public class MustacheContentLamabda implements Function<String, String> {
 
     private final String content;
 
@@ -37,8 +33,7 @@ public class MustacheContentLamabda implements Lambda {
     }
 
     @Override
-    public void execute(Fragment frag, Writer out) throws IOException {
-        frag.execute(out);
-        out.write(content);
+    public String apply(String t) {
+        return content;
     }
 }

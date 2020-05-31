@@ -62,4 +62,9 @@ public class MustacheTemplateEngine extends AbstractTemplateEngine {
                 .escapeHTML(configuration.isEsacepHtml())
                 .withFormatter((Formatter) configuration.getFormatter());
     }
+
+    @Override
+    public Object createFunction(String content) {
+        return new MustacheContentLamabda(content);
+    }
 }
