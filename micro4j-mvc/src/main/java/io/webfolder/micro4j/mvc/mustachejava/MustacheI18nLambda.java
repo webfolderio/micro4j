@@ -50,8 +50,9 @@ public class MustacheI18nLambda implements Function<String, String> {
                 String value = bundle.getString(key);
                 templates.put(key, value);
             }
-        } else 
+        } else {
             this.bundle = bundle;
+        }
     }
 
     @Override

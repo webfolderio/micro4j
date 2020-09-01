@@ -62,6 +62,9 @@ public class MustacheI18nLambda implements Lambda {
     @Override
     public void execute(Fragment frag, Writer out) throws IOException {
         String key = frag.execute();
+        if (key == null) {
+            out.write("");
+        }
         String value = null;
         if (enableCache) {
             value = templates.get(key);

@@ -33,7 +33,6 @@ public class HtmxSample {
         deployment.setApplication(new HelloWorldApplication());
         server.setPort(8080);
         server.setRootResourcePath("/");
-        server.setDeployment(deployment);
         server.start();
     }
 }

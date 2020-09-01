@@ -34,7 +34,6 @@ public class HelloWorldSample {
         SunHttpJaxrsServer server = new SunHttpJaxrsServer();
         server.setPort(8080);
         server.setRootResourcePath("/");
-        server.setDeployment(deployment);
         server.start();
     }
 }
