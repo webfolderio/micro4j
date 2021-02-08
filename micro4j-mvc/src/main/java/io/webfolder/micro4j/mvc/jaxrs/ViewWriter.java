@@ -49,16 +49,19 @@ import io.webfolder.micro4j.mvc.template.TemplateEngine;
 public class ViewWriter implements MessageBodyWriter<Object> {
 
     @Context
-    private HttpHeaders headers;
+    private HttpHeaders requestHttpHeaders;
 
     private final TemplateEngine engine;
 
-    private static final String PJAX = "X-PJAX";
+	private final ViewInterceptor viewInterceptor;
+
+	private static final String PJAX = "X-PJAX";
 
     private static final String HTMX = "X-HX-Request";
 
     public ViewWriter(TemplateEngine engine) {
         this.engine = engine;
+		this.viewInterceptor = engine.getConfiguration().getViewInterceptor();
     }
 
     @Override
@@ -127,27 +130,42 @@ public class ViewWriter implements MessageBodyWriter<Object> {
         writeTo(name, container, context, httpHeaders, entityStream);
     }
 
-    protected void writeTo(String name, String container, Object context, MultivaluedMap<String, Object> httpHeaders,
+    protected void writeTo(String name, String container, Object context, MultivaluedMap<String, Object> responseHttpHeaders,
             OutputStream entityStream) throws IOException {
         String containerName = container;
         String defaultContainer = engine.getConfiguration().getContainer();
         if (container == null || container.isEmpty() && ! defaultContainer.isEmpty()) {
             containerName = engine.getConfiguration().getContainer();
         }
-        setHeader(name, context, httpHeaders);
+        setHeader(name, context, responseHttpHeaders);
         Map<String, Object> parentContext = new LinkedHashMap<>();
-        boolean isPjax = isPjaxRequest(httpHeaders);
+        boolean isPjax = isPjaxRequest(responseHttpHeaders);
         if (isPjax || containerName.trim().isEmpty()) {
-            try (OutputStreamWriter writer = new OutputStreamWriter(entityStream, engine.getConfiguration().getCharset())) {
-                engine.execute(name, context, parentContext, writer);
+            try (StringWriter stringWriter = new StringWriter();
+            		OutputStreamWriter containerWriter = new OutputStreamWriter(entityStream, engine.getConfiguration().getCharset())) {
+            	if ( viewInterceptor != null ) {
+                	String content = stringWriter.toString();
+                	String modifiedContent = viewInterceptor.intercept(name, isPjax, requestHttpHeaders, responseHttpHeaders, content);
+                	containerWriter.write(modifiedContent);
+            	} else {
+            		engine.execute(name, context, parentContext, containerWriter);
+            	}
             }
         } else {
             StringWriter pageWriter = new StringWriter();
             engine.execute(name, context, parentContext, pageWriter);
             Object contentFunction = engine.createFunction(pageWriter.toString());
-            try (OutputStreamWriter containerWriter = new OutputStreamWriter(entityStream, engine.getConfiguration().getCharset())) {
+            try (StringWriter stringWriter = new StringWriter();
+            		OutputStreamWriter containerWriter = new OutputStreamWriter(entityStream, engine.getConfiguration().getCharset())) {
                 parentContext.put(engine.getConfiguration().getBodyName(), contentFunction);
-                engine.execute(containerName, context, parentContext, containerWriter);
+                if ( viewInterceptor != null ) {
+                	engine.execute(containerName, context, parentContext, stringWriter);
+                	String content = stringWriter.toString();
+                	String modifiedContent = viewInterceptor.intercept(name, isPjax, requestHttpHeaders, responseHttpHeaders, content);
+                	containerWriter.write(modifiedContent);
+                } else {
+                	engine.execute(containerName, context, parentContext, stringWriter);
+                }
             }
         }
     }
@@ -159,7 +177,7 @@ public class ViewWriter implements MessageBodyWriter<Object> {
     }
 
     protected boolean isPjaxRequest(MultivaluedMap<String, Object> httpHeaders) {
-        return headers.getHeaderString(PJAX) != null ||
-               "true".equals(headers.getHeaderString(HTMX));
+        return requestHttpHeaders.getHeaderString(PJAX) != null ||
+               "true".equals(requestHttpHeaders.getHeaderString(HTMX));
     }
 }

@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import io.webfolder.micro4j.mvc.jaxrs.ViewInterceptor;
 import io.webfolder.micro4j.mvc.mustache.MustacheFormatter;
 import io.webfolder.micro4j.mvc.template.DefaultFormatter;
 import io.webfolder.micro4j.mvc.template.TemplateIntereceptor;
@@ -70,6 +71,8 @@ public class Configuration {
 
     private Set<String> escapeHtmlExcludes = emptySet();
 
+	private ViewInterceptor viewInterceptor;
+
     public static class Builder {
 
         private String container = "";
@@ -99,6 +102,8 @@ public class Configuration {
         private DefaultFormatter formatter = new MustacheFormatter();
 
         private boolean escapeHtml;
+
+        private ViewInterceptor viewInterceptor;
 
         public Builder prefix(String prefix) {
             this.prefix = prefix;
@@ -201,6 +206,11 @@ public class Configuration {
             return this;
         }
 
+        public Builder viewInterceptor(ViewInterceptor viewInterceptor) {
+        	this.viewInterceptor = viewInterceptor;
+        	return this;
+        }
+
         public Configuration build() {
             Configuration configuration = new Configuration();
             configuration.bodyName = bodyName;
@@ -216,6 +226,7 @@ public class Configuration {
             configuration.delims = delims;
             configuration.esacepHtml = escapeHtml;
             configuration.escapeHtmlExcludes = escapeHtmlExcludes;
+            configuration.viewInterceptor = viewInterceptor;
             for (TemplateIntereceptor interceptor : interceptors) {
                 interceptor.setConfiguration(configuration);
             }
@@ -287,12 +298,18 @@ public class Configuration {
         return esacepHtml;
     }
 
-    @Override
-    public String toString() {
-        return "Configuration [fileTypeExtensions=" + fileTypeExtensions + ", interceptors=" + interceptors
-                + ", bodyName=" + bodyName + ", classLoader=" + classLoader + ", charset=" + charset + ", formatter="
-                + formatter + ", prefix=" + prefix + ", container=" + container + ", enableTemplateCaching="
-                + enableTemplateCaching + ", nullValue=" + nullValue + ", locale=" + locale + ", delims=" + delims
-                + ", esacepHtml=" + esacepHtml + "]";
-    }
+
+	public ViewInterceptor getViewInterceptor() {
+		return viewInterceptor;
+	}
+
+	@Override
+	public String toString() {
+		return "Configuration [fileTypeExtensions=" + fileTypeExtensions + ", interceptors=" + interceptors
+				+ ", bodyName=" + bodyName + ", classLoader=" + classLoader + ", charset=" + charset + ", formatter="
+				+ formatter + ", prefix=" + prefix + ", container=" + container + ", enableTemplateCaching="
+				+ enableTemplateCaching + ", nullValue=" + nullValue + ", locale=" + locale + ", delims=" + delims
+				+ ", esacepHtml=" + esacepHtml + ", escapeHtmlExcludes=" + escapeHtmlExcludes + ", viewInterceptor="
+				+ viewInterceptor + "]";
+	}
 }
