@@ -24,12 +24,14 @@ package io.webfolder.micro4j.mvc.jaxrs;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriInfo;
 
 public interface ViewInterceptor {
 
-	String intercept(String name,
-					 boolean pjax,
-					 HttpHeaders requestHttpHeaders,
+	String intercept(UriInfo                        uriInfo,
+					 String                         viewName,
+					 boolean                        pjax,
+					 HttpHeaders                    requestHttpHeaders,
 					 MultivaluedMap<String, Object> responseHttpHeaders,
-					 String content);
+					 String                         content);
 }

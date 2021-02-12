@@ -37,7 +37,7 @@ Add the following to your POM's `<dependencies>` tag:
 <dependency>
     <groupId>io.webfolder</groupId>
     <artifactId>micro4j-mvc</artifactId>
-    <version>1.8.2</version>
+    <version>1.8.3</version>
 </dependency>
 ```
  

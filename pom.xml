@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.webfolder</groupId>
     <artifactId>micro4j</artifactId>
-    <version>1.8.2</version>
+    <version>1.8.3</version>
     <packaging>pom</packaging>
     <name>micro4j</name>
     <inceptionYear>2016 - 2020</inceptionYear>

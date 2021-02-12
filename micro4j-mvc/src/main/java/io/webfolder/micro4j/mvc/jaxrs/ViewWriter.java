@@ -40,6 +40,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.MessageBodyWriter;
 
 import io.webfolder.micro4j.mvc.View;
@@ -50,6 +51,9 @@ public class ViewWriter implements MessageBodyWriter<Object> {
 
     @Context
     private HttpHeaders requestHttpHeaders;
+
+    @Context
+    private UriInfo uriInfo;
 
     private final TemplateEngine engine;
 
@@ -145,7 +149,9 @@ public class ViewWriter implements MessageBodyWriter<Object> {
             		OutputStreamWriter containerWriter = new OutputStreamWriter(entityStream, engine.getConfiguration().getCharset())) {
             	if ( viewInterceptor != null ) {
                 	String content = stringWriter.toString();
-                	String modifiedContent = viewInterceptor.intercept(name, isPjax, requestHttpHeaders, responseHttpHeaders, content);
+                	String modifiedContent = viewInterceptor.intercept(uriInfo, name,
+                													   isPjax, requestHttpHeaders,
+                													   responseHttpHeaders, content);
                 	containerWriter.write(modifiedContent);
             	} else {
             		engine.execute(name, context, parentContext, containerWriter);
@@ -161,7 +167,9 @@ public class ViewWriter implements MessageBodyWriter<Object> {
                 if ( viewInterceptor != null ) {
                 	engine.execute(containerName, context, parentContext, stringWriter);
                 	String content = stringWriter.toString();
-                	String modifiedContent = viewInterceptor.intercept(name, isPjax, requestHttpHeaders, responseHttpHeaders, content);
+                	String modifiedContent = viewInterceptor.intercept(uriInfo, name,
+                													   isPjax, requestHttpHeaders,
+                													   responseHttpHeaders, content);
                 	containerWriter.write(modifiedContent);
                 } else {
                 	engine.execute(containerName, context, parentContext, stringWriter);
